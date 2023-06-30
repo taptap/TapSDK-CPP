@@ -3,7 +3,7 @@ add_library(sdk STATIC
         tapsdk.h
         )
 
-target_link_libraries(sdk PUBLIC base nlohmann_json httplib)
+target_link_libraries(sdk PUBLIC net)
 
 if (APPLE)
     include(ios.cmake)

@@ -3,10 +3,11 @@
 //
 
 #include "tapsdk.h"
+#include "net/network.h"
 
 namespace tapsdk {
 
-int TDSUser::GetUserId() {
+int TDSUser::GetUserId() const {
     return user_id;
 }
 

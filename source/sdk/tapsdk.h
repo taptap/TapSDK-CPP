@@ -8,7 +8,7 @@ namespace tapsdk {
 
 class TDSUser {
 public:
-    int GetUserId();
+    int GetUserId() const;
     const char* GetUserName();
 
 private:
