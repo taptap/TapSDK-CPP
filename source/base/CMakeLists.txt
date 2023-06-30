@@ -10,3 +10,7 @@ add_library(base STATIC
         logging.cpp)
 
 target_link_libraries(base PUBLIC fmt)
+
+if (ANDROID)
+    target_link_libraries(base PUBLIC log)
+endif ()
