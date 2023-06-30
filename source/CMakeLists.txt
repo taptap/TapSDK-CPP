@@ -10,6 +10,6 @@ include_directories(.)
 
 add_subdirectory(base)
 add_subdirectory(externals)
-add_subdirectory(core)
+add_subdirectory(sdk)
 add_subdirectory(tests)
 add_subdirectory(bindings)

@@ -20,4 +20,4 @@
 // 生成 cpp 接口中的类型
 %shared_ptr(tapsdk::TDSUser);
 %feature("director") LoginCallback;
-%include "include/tapsdk.h"
+%include "sdk/tapsdk.h"

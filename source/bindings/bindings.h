@@ -4,6 +4,6 @@
 
 #pragma once
 
-#include "include/tapsdk.h"
+#include "sdk/tapsdk.h"
 
 namespace tapsdk {}
