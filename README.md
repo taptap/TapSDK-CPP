@@ -5,6 +5,8 @@ brew install swig
 任何平台直接打开根目录即可
 ## Android Studio
 打开 android 目录
+## Build for android
+run scripts/build-android.sh
 ## Build for ios
 brew install binutils
 export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
