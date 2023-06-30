@@ -1,1 +1,4 @@
--DCMAKE_TOOLCHAIN_FILE="$NDK_ROOT/build/cmake/android.toolchain.cmake"
+cd ../android
+./gradlew app:clean
+./gradlew sdk:assembleRelease
+./gradlew app:assembleRelease

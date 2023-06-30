@@ -1,23 +1,19 @@
 package com.taptap.tapsdk;
 
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-//import com.taptap.tapsdk.bindings.java.TapSDK;
-import com.taptap.tapsdk.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
+import com.google.android.material.snackbar.Snackbar;
+import com.taptap.tapsdk.demo.databinding.ActivityMainBinding;
+import com.taptap.tapsdk.demo.R;
 
 public class MainActivity extends AppCompatActivity {
 

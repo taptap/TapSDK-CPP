@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.taptap.tapsdk.databinding.FragmentSecondBinding;
+import com.taptap.tapsdk.demo.databinding.FragmentSecondBinding;
+import com.taptap.tapsdk.demo.R;
+
 
 public class SecondFragment extends Fragment {
 

@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.taptap.tapsdk'
+    namespace 'com.taptap.tapsdk.demo'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.taptap.tapsdk"
+        applicationId "com.taptap.tapsdk.demo"
         minSdk 24
         targetSdk 33
         versionCode 1
