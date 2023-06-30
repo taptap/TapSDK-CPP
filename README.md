@@ -1,4 +1,6 @@
 # Build
+## 依赖
+brew install swig
 ## Clion
 任何平台直接打开根目录即可
 ## Android Studio
@@ -6,9 +8,9 @@
 ## Build for ios
 brew install binutils
 export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
-run script/build-ios.sh
+run scripts/build-ios.sh
 ## XCode
-run script/gen-xcode.sh 
+run scripts/gen-xcode.sh 
 open ios/build/tapsdk.xcodeproj
 ## VS Studio
 使用 CMake UI 生成 .sln 工程
