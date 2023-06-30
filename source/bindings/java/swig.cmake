@@ -46,6 +46,5 @@ function(add_swig_jni_library TgtName)
     ${TgtName}
     POST_BUILD COMMAND
       ${CMAKE_COMMAND} -DJAVA_SRC_DIR=${OutDirAbs} -DJAVA_LST=${CMAKE_CURRENT_BINARY_DIR}/swig_gen_java.lst -P ${CMAKE_CURRENT_SOURCE_DIR}/gather_swig_java.cmake
-    BYPRODUCTS ${SWIG_JNI_LIB_GEN_JAVA_FILES_LIST}
   )
 endfunction()

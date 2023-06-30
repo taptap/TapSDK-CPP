@@ -2,11 +2,7 @@
 # ======================================
 find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
+include(swig.cmake)
 
-set(CMAKE_SWIG_FLAGS "")
-
-include_directories($ENV{JAVA_HOME}/include)
-
-set_source_files_properties(example.i PROPERTIES CPLUSPLUS ON)
-set_source_files_properties(example.i PROPERTIES SWIG_FLAGS "-includeall")
-swig_add_library(example csharp example.i example.cxx)
+add_swig_csharp_library(bindings-csharp GEN_CSHARP_FILES_LIST ${CMAKE_CURRENT_BINARY_DIR}/swig_gen_csharp.lst SOURCES ${SWIG_DEFINES})
+target_link_libraries(bindings-csharp PUBLIC android bindings-impl)
