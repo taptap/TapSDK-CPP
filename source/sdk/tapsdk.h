@@ -16,9 +16,11 @@ private:
     std::string user_name;
 };
 
+using TDSUserHandle = std::shared_ptr<TDSUser>;
+
 class LoginCallback {
 public:
-    virtual void OnSuccess(const std::shared_ptr<TDSUser>& user) = 0;
+    virtual void OnSuccess(const TDSUserHandle& user) = 0;
     virtual void OnFailed(int err_code, const char* msg) = 0;
 };
 

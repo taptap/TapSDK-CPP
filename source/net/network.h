@@ -4,4 +4,8 @@
 
 #pragma once
 
-namespace taspsdk::net {}
+namespace tapsdk::net {
+
+void Test();
+
+}
