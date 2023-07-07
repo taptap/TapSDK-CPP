@@ -3,7 +3,7 @@
 %{
 /* Put headers and other declarations here */
 #include "bindings/bindings.h"
-#include "platform/platform.h"
+#include "sdk/platform.h"
 using namespace tapsdk::platform;
 %}
 
@@ -20,4 +20,4 @@ using namespace tapsdk::platform;
 #endif
 // 生成 cpp 接口中的类型
 %feature("director") Window;
-%include "platform/platform.h"
+%include "sdk/platform.h"

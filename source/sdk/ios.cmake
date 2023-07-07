@@ -27,5 +27,5 @@ set_target_properties(sdk PROPERTIES
         MACOSX_FRAMEWORK_IDENTIFIER com.taptap.tapsdk
         VERSION 1.0.0
         SOVERSION 1.0.0
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/tapsdk.h"
+        PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
         )
