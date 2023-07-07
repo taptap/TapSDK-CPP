@@ -7,7 +7,14 @@ add_library(base STATIC
         scoped_generic.h
         expected.h
         logging.h
-        logging.cpp)
+        logging.cpp
+        timer.cpp
+        timer.h
+        thread.cpp
+        thread.h
+        spin_lock.h
+        spin_lock.cpp
+)
 
 target_link_libraries(base PUBLIC fmt)
 

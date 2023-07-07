@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <vector>
-#include <cstddef>
 #include "common_funcs.h"
 
 namespace tapsdk {

@@ -17,13 +17,11 @@ using s64 = int64_t;
 
 class WebPath : public std::string {
 public:
-    WebPath(const std::string &str) : std::string{str} {}
+    WebPath(const std::string& str) : std::string{str} {}
 
-    WebPath(const char *str) : std::string{str} {}
+    WebPath(const char* str) : std::string{str} {}
 
-    WebPath operator/(const WebPath& r) const {
-        return *this + "/" + r;
-    }
+    WebPath operator/(const WebPath& r) const { return *this + "/" + r; }
 };
 
 }  // namespace tapsdk

@@ -3,4 +3,4 @@ add_library(duration STATIC
         duration.h
         )
 
-target_link_libraries(duration PUBLIC net)
+target_link_libraries(duration PUBLIC net core)

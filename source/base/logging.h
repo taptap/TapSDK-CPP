@@ -35,8 +35,8 @@ template <typename... Args> void LogMessage(Level log_level,
 
 void AssertFailed(const std::string& message);
 
-}
-}  // namespace base::log
+}  // namespace log
+}  // namespace base
 
 #ifdef STRIP_LOG
 #define LOG(level, ...) (void(0))
