@@ -21,7 +21,7 @@ jobs:
         cache: gradle
 
     - name: install swig
-      run: apt-get install swig
+      run: sudo apt-get install swig
       
     - name: move to workspace
       run: cd scripts
