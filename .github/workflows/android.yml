@@ -24,6 +24,7 @@ jobs:
       run: sudo apt-get install swig
       
     - name: Build
-      run: cd scripts
-      run: chmod +x build-android.sh
-      run: ./build-android.sh
+      run: 
+        cd scripts
+        chmod +x build-android.sh
+        ./build-android.sh
