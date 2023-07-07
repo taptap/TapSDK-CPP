@@ -23,9 +23,7 @@ jobs:
     - name: install swig
       run: sudo apt-get install swig
       
-    - name: move to workspace
-      run: cd scripts
-    - name: Grant execute permission for build.sh
-      run: chmod +x build-android.sh
     - name: Build
+      run: cd scripts
+      run: chmod +x build-android.sh
       run: ./build-android.sh
