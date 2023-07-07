@@ -12,3 +12,10 @@ if (OPENSSL_FOUND)
 else()
     add_subdirectory(openssl)
 endif()
+
+# ranges
+if (ANDROID)
+    add_library(compat INTERFACE)
+    target_include_directories(compat INTERFACE compat/ranges)
+    target_include_directories(compat INTERFACE compat)
+endif ()

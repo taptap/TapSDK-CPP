@@ -1,4 +1,4 @@
-add_library(sdk STATIC
+add_library(sdk SHARED
         tapsdk.cpp
         tapsdk.h
         )

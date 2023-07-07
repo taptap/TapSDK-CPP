@@ -4,6 +4,11 @@
 
 #pragma once
 
+#include "base/types.h"
+#include <string>
+#include <functional>
+#include "httpclient.h"
+
 namespace tapsdk::net {
 
 void Test();

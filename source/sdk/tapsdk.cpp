@@ -20,7 +20,6 @@ bool Init() {
 }
 
 void Login(const char* account, const char* passwd, LoginCallback *cb) {
-    net::Test();
     cb->OnFailed(-1, "Unimplemented");
 }
 
