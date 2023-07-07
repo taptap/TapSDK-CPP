@@ -40,13 +40,6 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-
-        try {
-            TapSDKLoader.load();
-        } catch (Throwable e) {
-            throw new RuntimeException(e);
-        }
-//        TapSDK.Init();
     }
 
     @Override

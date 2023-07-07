@@ -10,6 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.TapSDK"
+        android:name="com.taptap.tapsdk.App"
         tools:targetApi="31">
         <activity
             android:name="com.taptap.tapsdk.MainActivity"
