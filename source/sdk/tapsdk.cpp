@@ -5,12 +5,21 @@
 #include <unistd.h>
 #include "base/logging.h"
 #include "core/runtime.h"
-#include "net/network.h"
+#include "duration/duration.h"
 #include "tapsdk.h"
 
 namespace tapsdk {
 
 std::shared_ptr<TDSUser> current_user;
+
+std::unique_ptr<duration::DurationStatistics> duration_statistics;
+
+bool Init() {
+    Runtime::Get().Init();
+    duration_statistics = std::make_unique<duration::DurationStatistics>();
+    duration_statistics->Init();
+    return true;
+}
 
 void TDSUser::SetCurrent(TDSUserHandle user) {
     LOG_ERROR("UserName {}", user->GetUserName());
@@ -27,11 +36,6 @@ std::string TDSUser::GetUserId() const {
 
 std::string TDSUser::GetUserName() const {
     return user_name;
-}
-
-bool Init() {
-    Runtime::Get().Init();
-    return true;
 }
 
 void Login(const char* account, const char* passwd, LoginCallback *cb) {

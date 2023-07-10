@@ -44,12 +44,7 @@ void LogMessage(base::log::Level level, const std::string& message) {
 }
 
 void AssertFailed(const std::string& message) {
-#if __ANDROID__
-    __android_log_write(ANDROID_LOG_FATAL, "TapSDK", message.c_str());
-#else
-    std::cerr << message << std::endl;
-#endif
-    abort();
+    throw std::logic_error(message);
 }
 
 }  // namespace base::log

@@ -18,6 +18,7 @@ public:
 class Device {
 public:
     static void SetCurrent(const std::shared_ptr<Device> &device);
+    static std::shared_ptr<Device> GetCurrent();
 
     virtual std::string GetDeviceID() = 0;
     virtual std::string GetCacheDir() = 0;

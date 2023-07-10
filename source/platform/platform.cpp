@@ -22,4 +22,8 @@ void Device::SetCurrent(const std::shared_ptr<Device> &device) {
     current_device = device;
 }
 
+std::shared_ptr<Device> Device::GetCurrent() {
+    return current_device;
+}
+
 }
