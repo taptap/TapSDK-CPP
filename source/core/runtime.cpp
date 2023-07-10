@@ -13,6 +13,7 @@ Runtime& Runtime::Get() {
 
 void Runtime::Init() {
     timer.Start();
+    event_bus = std::make_shared<dexode::EventBus>();
 }
 
 }  // namespace tapsdk

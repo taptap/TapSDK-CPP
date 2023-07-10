@@ -20,6 +20,7 @@ private:
     std::shared_ptr<Event> tick_event;
     Duration tick_interval{default_tick_interval};
     std::unique_ptr<DurPersistence> persistence{};
+    dexode::EventBus::Listener event_listener{Runtime::Get().GetEventBus()};
 };
 
 }  // namespace tapsdk::duration

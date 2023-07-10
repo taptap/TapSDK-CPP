@@ -10,6 +10,7 @@ namespace tapsdk::duration {
 class DurPersistence;
 
 struct DurEvent {
+    u32 id;
     std::string session;
     u64 timestamp;
 };

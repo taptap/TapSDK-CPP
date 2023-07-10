@@ -12,4 +12,7 @@ DurPersistence::DurPersistence(const std::filesystem::path& cache_dir)
     storage.sync_schema();
 }
 
+void DurPersistence::AddOrMergeEvent(DurEvent& event) {
+}
+
 }  // namespace tapsdk::duration

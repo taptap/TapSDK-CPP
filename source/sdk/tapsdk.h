@@ -14,8 +14,8 @@ public:
     static void SetCurrent(TDSUserHandle user);
     static TDSUserHandle GetCurrent();
 
-    virtual std::string GetUserId() const;
-    virtual std::string GetUserName() const;
+    virtual std::string GetUserId();
+    virtual std::string GetUserName();
 private:
     std::string user_id;
     std::string user_name;

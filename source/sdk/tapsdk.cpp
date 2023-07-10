@@ -4,14 +4,18 @@
 
 #include <unistd.h>
 #include "base/logging.h"
+#include "core/events.h"
 #include "core/runtime.h"
 #include "duration/duration.h"
 #include "tapsdk.h"
 
 namespace tapsdk {
 
+// users
+std::mutex user_lock;
 std::shared_ptr<TDSUser> current_user;
 
+// modules
 std::unique_ptr<duration::DurationStatistics> duration_statistics;
 
 bool Init() {
@@ -23,18 +27,20 @@ bool Init() {
 
 void TDSUser::SetCurrent(TDSUserHandle user) {
     LOG_ERROR("UserName {}", user->GetUserName());
+    std::scoped_lock guard(user_lock);
     current_user = user;
+    Runtime::Get().GetEventBus()->notifyNow(UserEvent{user});
 }
 
 TDSUserHandle TDSUser::GetCurrent() {
     return current_user;
 }
 
-std::string TDSUser::GetUserId() const {
+std::string TDSUser::GetUserId() {
     return user_id;
 }
 
-std::string TDSUser::GetUserName() const {
+std::string TDSUser::GetUserName() {
     return user_name;
 }
 

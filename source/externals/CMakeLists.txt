@@ -5,6 +5,7 @@ add_subdirectory(catch)
 add_subdirectory(cinatra)
 add_subdirectory(sqlite3)
 add_subdirectory(sqlite_orm)
+add_subdirectory(event_bus)
 #add_subdirectory(marl)
 
 # openssl

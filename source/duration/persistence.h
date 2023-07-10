@@ -14,6 +14,7 @@ using namespace sqlite_orm;
 
 inline auto InitDB(const std::filesystem::path& path) {
     auto event_table = make_table<DurEvent>("dur_event",
+                                            make_column("id", &DurEvent::id, primary_key().autoincrement()),
                                             make_column("session", &DurEvent::session),
                                             make_column("timestamp", &DurEvent::timestamp));
     return make_storage(path.string(), event_table);
@@ -25,6 +26,8 @@ class DurPersistence {
 public:
     explicit DurPersistence(const std::filesystem::path& cache_dir);
 
+    void AddOrMergeEvent(DurEvent &event);
+    
 private:
     Storage storage;
 };

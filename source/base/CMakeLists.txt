@@ -17,7 +17,7 @@ add_library(base STATIC
         expected.h
 )
 
-target_link_libraries(base PUBLIC fmt)
+target_link_libraries(base PUBLIC fmt EventBus)
 
 if (ANDROID)
     target_link_libraries(base PUBLIC log)
