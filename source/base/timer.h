@@ -121,7 +121,7 @@ public:
 
     Handle PostEvent(const std::shared_ptr<Event>& event,
                      Duration duration,
-                     std::uintptr_t user_data);
+                     std::uintptr_t user_data = {});
 
     void RemoveMessage(Handle event);
 

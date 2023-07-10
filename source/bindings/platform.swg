@@ -20,4 +20,7 @@ using namespace tapsdk::platform;
 #endif
 // 生成 cpp 接口中的类型
 %feature("director") Window;
+%feature("director") Device;
+%shared_ptr(tapsdk::platform::Window);
+%shared_ptr(tapsdk::platform::Device);
 %include "sdk/platform.h"

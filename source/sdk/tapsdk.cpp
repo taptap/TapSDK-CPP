@@ -3,11 +3,23 @@
 //
 
 #include <unistd.h>
+#include "base/logging.h"
 #include "core/runtime.h"
 #include "net/network.h"
 #include "tapsdk.h"
 
 namespace tapsdk {
+
+std::shared_ptr<TDSUser> current_user;
+
+void TDSUser::SetCurrent(TDSUserHandle user) {
+    LOG_ERROR("UserName {}", user->GetUserName());
+    current_user = user;
+}
+
+TDSUserHandle TDSUser::GetCurrent() {
+    return current_user;
+}
 
 int TDSUser::GetUserId() const {
     return user_id;
@@ -18,7 +30,8 @@ const char *TDSUser::GetUserName() {
 }
 
 bool Init() {
-    return false;
+    Runtime::Get().Init();
+    return true;
 }
 
 void Login(const char* account, const char* passwd, LoginCallback *cb) {

@@ -6,21 +6,24 @@
 
 namespace tapsdk {
 
+class TDSUser;
+using TDSUserHandle = const std::shared_ptr<TDSUser>&;
+
 class TDSUser {
 public:
-    int GetUserId() const;
-    const char* GetUserName();
+    static void SetCurrent(TDSUserHandle user);
+    static TDSUserHandle GetCurrent();
 
+    virtual int GetUserId() const;
+    virtual const char* GetUserName();
 private:
     int user_id;
     std::string user_name;
 };
 
-using TDSUserHandle = std::shared_ptr<TDSUser>;
-
 class LoginCallback {
 public:
-    virtual void OnSuccess(const TDSUserHandle& user) = 0;
+    virtual void OnSuccess(TDSUserHandle user) = 0;
     virtual void OnFailed(int err_code, const char* msg) = 0;
 };
 
