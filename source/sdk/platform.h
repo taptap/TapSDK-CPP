@@ -20,6 +20,7 @@ public:
     static void SetCurrent(const std::shared_ptr<Device> &device);
 
     virtual std::string GetDeviceID() = 0;
+    virtual std::string GetCacheDir() = 0;
 };
 
 }

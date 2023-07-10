@@ -14,6 +14,7 @@ add_library(base STATIC
         thread.h
         spin_lock.h
         spin_lock.cpp
+        expected.h
 )
 
 target_link_libraries(base PUBLIC fmt)

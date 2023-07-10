@@ -58,7 +58,7 @@ void CoroHttpClient::RequestAsync(HttpType type,
                 if (result.available()) {
                     auto& value = result.value();
                     if (value.status == 200) {
-                        TapResult tap_res{value.resp_body.data()};
+                        ResultWrap tap_res{value.resp_body.data()};
                         if (tap_res.GetCode() == 0) {
                             success(tap_res.GetContent());
                         } else {
@@ -78,4 +78,25 @@ void CoroHttpClient::RequestAsync(HttpType type,
                 }
             });
 }
+
+ResultAsync<std::string> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
+                                                      const tapsdk::WebPath& path,
+                                                      tapsdk::net::Headers headers,
+                                                      tapsdk::net::Params params) {
+    WebPath parent{https ? "https://" + host : "http://" + host};
+    auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
+    cinatra::req_context<> ctx{cinatra::req_content_type::string, ToParam(params), ""};
+    auto value = co_await co_client.async_request(parent / path, co_type, std::move(ctx), ToHeader(headers));
+    if (value.status == 200) {
+        ResultWrap tap_res{value.resp_body.data()};
+        if (tap_res.GetCode() == 0) {
+            co_return tap_res.GetContent();
+        } else {
+            co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
+        }
+    } else {
+        co_return MakeError(value.status, value.net_err.value(), value.resp_body.data());
+    }
+}
+
 }  // namespace tapsdk::net

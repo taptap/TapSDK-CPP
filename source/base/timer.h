@@ -10,6 +10,7 @@
 #include <optional>
 #include <utility>
 #include <vector>
+#include <chrono>
 #include "types.h"
 
 namespace tapsdk {

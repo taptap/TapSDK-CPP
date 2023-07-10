@@ -16,7 +16,7 @@ endif()
 
 add_compile_definitions(CINATRA_ENABLE_SSL)
 target_compile_definitions(net PRIVATE ASYNC_SIMPLE_HAS_NOT_AIO)
-target_include_directories(net PRIVATE
+target_include_directories(net PUBLIC
         ${cinatra_SOURCE_DIR}/thirdparty/asio
         ${cinatra_SOURCE_DIR}/thirdparty/async_simple
         ${cinatra_SOURCE_DIR}/include

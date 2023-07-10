@@ -24,6 +24,11 @@ public:
                       OnReturn success,
                       OnFailed failed) override;
 
+    ResultAsync<std::string> RequestAsync(HttpType type,
+                      const WebPath& path,
+                      Headers headers,
+                      Params params) override;
+
 private:
     cinatra::coro_http_client co_client{};
 };

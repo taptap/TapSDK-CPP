@@ -9,7 +9,7 @@ using namespace nlohmann;
 
 namespace tapsdk::net {
 
-TapResult::TapResult(const char* response) {
+ResultWrap::ResultWrap(const char* response) {
     if (!response) {
         code = -1;
         msg = "No response!";
@@ -26,8 +26,8 @@ TapResult::TapResult(const char* response) {
     }
 }
 
-int TapResult::GetCode() const { return code; }
-const std::string& TapResult::GetMsg() const { return msg; }
-const std::string& TapResult::GetContent() const { return content; }
+int ResultWrap::GetCode() const { return code; }
+const std::string& ResultWrap::GetMsg() const { return msg; }
+const std::string& ResultWrap::GetContent() const { return content; }
 
 }  // namespace tapsdk::net
