@@ -21,12 +21,12 @@ TDSUserHandle TDSUser::GetCurrent() {
     return current_user;
 }
 
-int TDSUser::GetUserId() const {
+std::string TDSUser::GetUserId() const {
     return user_id;
 }
 
-const char *TDSUser::GetUserName() {
-    return user_name.c_str();
+std::string TDSUser::GetUserName() const {
+    return user_name;
 }
 
 bool Init() {
