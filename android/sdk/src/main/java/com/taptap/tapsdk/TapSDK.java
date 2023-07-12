@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 
 import com.taptap.tapsdk.bindings.java.Config;
+import com.taptap.tapsdk.bindings.java.Game;
 import com.taptap.tapsdk.bindings.java.Window;
 import com.taptap.tapsdk.bindings.java.Device;
 

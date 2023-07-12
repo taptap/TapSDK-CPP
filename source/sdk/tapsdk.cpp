@@ -16,10 +16,12 @@ static Config sdk_config;
 static std::mutex user_lock;
 static std::shared_ptr<TDSUser> current_user;
 
+static std::shared_ptr<Game> current_game;
+
 // modules
 static std::unique_ptr<duration::DurationStatistics> duration_statistics;
 
-bool Init(const Config &config) {
+bool Init(const Config& config) {
     sdk_config = config;
     Runtime::Get().Init();
     if (sdk_config.enable_duration_statistics) {
@@ -29,21 +31,34 @@ bool Init(const Config &config) {
     return true;
 }
 
-void TDSUser::SetCurrent(TDSUserHandle user) {
+void TDSUser::SetCurrent(const std::shared_ptr<TDSUser>& user) {
     std::scoped_lock guard(user_lock);
     current_user = user;
     Runtime::Get().GetEventBus()->notifyNow(events::User{user});
 }
 
-TDSUserHandle TDSUser::GetCurrent() {
-    return current_user;
+std::shared_ptr<TDSUser> TDSUser::GetCurrent() { return current_user; }
+
+std::string TDSUser::GetUserId() { return user_id; }
+
+std::string TDSUser::GetUserName() { return user_name; }
+
+void Game::SetCurrent(const std::shared_ptr<Game>& game) { current_game = game; }
+
+std::shared_ptr<Game> Game::GetCurrent() { return current_game; }
+
+Game::Game(const std::string& uuid) : uuid{uuid} {}
+
+std::string Game::GetUUID() { return uuid; }
+
+std::uint64_t Game::GetGameID() {
+    ASSERT_MSG(false, "UnSupport!");
+    return 0;
 }
 
-std::string TDSUser::GetUserId() {
-    return user_id;
+std::string Game::GetPackageName() {
+    ASSERT_MSG(false, "UnSupport!");
+    return "";
 }
 
-std::string TDSUser::GetUserName() {
-    return user_name;
-}
-}
+}  // namespace tapsdk

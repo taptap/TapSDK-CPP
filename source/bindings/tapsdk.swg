@@ -19,5 +19,7 @@
 #endif
 // 生成 cpp 接口中的类型
 %shared_ptr(tapsdk::TDSUser);
+%shared_ptr(tapsdk::Game);
 %feature("director") TDSUser;
+%feature("director") Game;
 %include "sdk/tapsdk.h"

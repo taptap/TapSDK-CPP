@@ -33,6 +33,8 @@ open ios/build/tapsdk.xcodeproj
 当 App 进入前台时调用
 ### Window
 实现平台 Window 并 调用 Window.SetCurrent
+### Game
+实现平台 Game 并 调用 Game.SetCurrent
 ## /source/sdk/tapsdk.h
 当用户登陆 / 登出时调用 TDSUser.SetCurrent
 
