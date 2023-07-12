@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <shared_mutex>
 #include "duration/model.h"
 #include "sqlite_orm/sqlite_orm.h"
 
@@ -29,6 +30,7 @@ public:
     void AddOrMergeEvent(DurEvent &event);
     
 private:
+    std::shared_mutex lock;
     Storage storage;
 };
 

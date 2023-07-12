@@ -79,6 +79,8 @@ namespace tapsdk::net {
     public:
         TapHttpClient(const char *host, bool https) : host{host}, https{https} {};
 
+        virtual ~TapHttpClient() = default;
+
         virtual void CommonHeader(const char *key, const char *value) = 0;
 
         virtual void CommonParam(const char *key, const char *value) = 0;

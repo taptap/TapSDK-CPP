@@ -23,3 +23,16 @@ open ios/build/tapsdk.xcodeproj
 -DJAVA_BINDING=${生成 Java 的目标路径}
 ## C#
 -DCSHARP_BINDING=${生成 C# 的目标路径}
+# 平台适配
+## /source/sdk/platform.h
+### Device
+实现平台 Device 并 调用 Device.SetCurrent
+- Device.OnBackground
+当 App 进入后台时调用
+- Device.OnForeground
+当 App 进入前台时调用
+### Window
+实现平台 Window 并 调用 Window.SetCurrent
+## /source/sdk/tapsdk.h
+当用户登陆 / 登出时调用 TDSUser.SetCurrent
+

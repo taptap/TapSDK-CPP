@@ -3,6 +3,8 @@
 //
 
 #include "base/logging.h"
+#include "core/events.h"
+#include "core/runtime.h"
 #include "sdk/platform.h"
 
 namespace tapsdk::platform {
@@ -10,15 +12,14 @@ namespace tapsdk::platform {
 static std::shared_ptr<Device> current_device;
 
 void Window::OnForeground() {
-    LOG_ERROR("OnForeground");
+    Runtime::Get().GetEventBus()->notifyNow(events::Foreground{});
 }
 
 void Window::OnBackground() {
-    LOG_ERROR("OnBackground");
+    Runtime::Get().GetEventBus()->notifyNow(events::Background{});
 }
 
 void Device::SetCurrent(const std::shared_ptr<Device> &device) {
-    LOG_ERROR("DeviceID {}", device->GetDeviceID());
     current_device = device;
 }
 

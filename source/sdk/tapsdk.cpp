@@ -2,7 +2,6 @@
 // Created by 甘尧 on 2023/6/29.
 //
 
-#include <unistd.h>
 #include "base/logging.h"
 #include "core/events.h"
 #include "core/runtime.h"
@@ -11,25 +10,29 @@
 
 namespace tapsdk {
 
+static Config sdk_config;
+
 // users
-std::mutex user_lock;
-std::shared_ptr<TDSUser> current_user;
+static std::mutex user_lock;
+static std::shared_ptr<TDSUser> current_user;
 
 // modules
-std::unique_ptr<duration::DurationStatistics> duration_statistics;
+static std::unique_ptr<duration::DurationStatistics> duration_statistics;
 
-bool Init() {
+bool Init(const Config &config) {
+    sdk_config = config;
     Runtime::Get().Init();
-    duration_statistics = std::make_unique<duration::DurationStatistics>();
-    duration_statistics->Init();
+    if (sdk_config.enable_duration_statistics) {
+        duration_statistics = std::make_unique<duration::DurationStatistics>();
+        duration_statistics->Init();
+    }
     return true;
 }
 
 void TDSUser::SetCurrent(TDSUserHandle user) {
-    LOG_ERROR("UserName {}", user->GetUserName());
     std::scoped_lock guard(user_lock);
     current_user = user;
-    Runtime::Get().GetEventBus()->notifyNow(UserEvent{user});
+    Runtime::Get().GetEventBus()->notifyNow(events::User{user});
 }
 
 TDSUserHandle TDSUser::GetCurrent() {
@@ -43,9 +46,4 @@ std::string TDSUser::GetUserId() {
 std::string TDSUser::GetUserName() {
     return user_name;
 }
-
-void Login(const char* account, const char* passwd, LoginCallback *cb) {
-    cb->OnFailed(-1, "Unimplemented");
-}
-
 }

@@ -13,6 +13,15 @@ DurPersistence::DurPersistence(const std::filesystem::path& cache_dir)
 }
 
 void DurPersistence::AddOrMergeEvent(DurEvent& event) {
+    std::unique_lock guard(lock);
+    auto latest = storage.get_all<DurEvent>(order_by(&DurEvent::id).desc(), limit(1));
+    if (!latest.empty()) {
+        auto &old = latest.back();
+        // Merge
+    } else {
+        // Append
+        storage.insert(event);
+    }
 }
 
 }  // namespace tapsdk::duration

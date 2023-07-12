@@ -30,6 +30,9 @@ public:
                       Params params) override;
 
 private:
+
+    void InitCaCert();
+
     cinatra::coro_http_client co_client{};
 };
 

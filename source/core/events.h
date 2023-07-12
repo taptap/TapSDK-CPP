@@ -6,10 +6,14 @@
 
 #include "sdk/tapsdk.h"
 
-namespace tapsdk {
+namespace tapsdk::events {
 
-struct UserEvent {
+struct User {
     std::shared_ptr<TDSUser> user;
 };
+
+struct Foreground {};
+
+struct Background {};
 
 }

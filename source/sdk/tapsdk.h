@@ -21,14 +21,10 @@ private:
     std::string user_name;
 };
 
-class LoginCallback {
-public:
-    virtual void OnSuccess(TDSUserHandle user) = 0;
-    virtual void OnFailed(int err_code, const char* msg) = 0;
+struct Config {
+    bool enable_duration_statistics;
 };
 
-bool Init();
-
-void Login(const char* account, const char* passwd, LoginCallback *cb);
+bool Init(const Config &config);
 
 }  // namespace tapsdk

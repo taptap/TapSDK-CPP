@@ -5,6 +5,7 @@
 #include "base/logging.h"
 #include "coro_httpclient.h"
 #include "fmt/format.h"
+#include "sdk/platform.h"
 
 namespace tapsdk::net {
 
@@ -32,6 +33,18 @@ static std::string ToParam(Params& params) {
 CoroHttpClient::CoroHttpClient(const char* host, bool https) : TapHttpClient(host, https) {
     co_client.set_req_timeout(std::chrono::milliseconds(http_timeout_ms));
     co_client.set_conn_timeout(std::chrono::milliseconds(http_timeout_ms));
+    if (https) {
+        InitCaCert();
+    }
+}
+
+void CoroHttpClient::InitCaCert() {
+    auto cur_device = platform::Device::GetCurrent();
+    ASSERT_MSG(cur_device, "Please set current device first!");
+    auto ca_cert_path = cur_device->GetCaCertDir();
+    if (!ca_cert_path.empty()) {
+        co_client.init_ssl(ca_cert_path);
+    }
 }
 
 void CoroHttpClient::CommonHeader(const char* key, const char* value) {

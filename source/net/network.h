@@ -11,6 +11,6 @@
 
 namespace tapsdk::net {
 
-void Test();
+std::unique_ptr<TapHttpClient> CreateHttpClient(const char *host, bool https);
 
 }

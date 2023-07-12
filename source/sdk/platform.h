@@ -11,7 +11,9 @@ namespace tapsdk::platform {
 
 class Window {
 public:
+    // 当 App 进入前台
     static void OnForeground();
+    // 当 App 进入后台
     static void OnBackground();
 };
 
@@ -20,8 +22,12 @@ public:
     static void SetCurrent(const std::shared_ptr<Device> &device);
     static std::shared_ptr<Device> GetCurrent();
 
+    // 当前 Device ID
     virtual std::string GetDeviceID() = 0;
+    // 缓存目录
     virtual std::string GetCacheDir() = 0;
+    // CA 证书目录 (可选)
+    virtual std::string GetCaCertDir() = 0;
 };
 
 }

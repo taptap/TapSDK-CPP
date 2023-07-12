@@ -7,6 +7,7 @@ class TestDevice : public tapsdk::platform::Device {
 public:
     std::string GetDeviceID() override { return "test_device_id"; }
     std::string GetCacheDir() override { return std::filesystem::current_path(); }
+    std::string GetCaCertDir() override { return ""; }
 };
 
 class TestUser : public tapsdk::TDSUser {
@@ -21,19 +22,13 @@ static void SetupEnv() {
 
 TEST_CASE("Test sdk-init") {
     SetupEnv();
-    tapsdk::Init();
+    tapsdk::Config config {
+            .enable_duration_statistics = true,
+    };
+    tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
 }
 
 TEST_CASE("Test sdk-login") {
     SetupEnv();
-    class : public tapsdk::LoginCallback {
-        void OnSuccess(const std::shared_ptr<tapsdk::TDSUser>& user) override {
-
-        }
-        void OnFailed(int err_code, const char* msg) override {
-
-        }
-    } callback{};
-    tapsdk::Login("xxx", "xxxx", &callback);
 }
