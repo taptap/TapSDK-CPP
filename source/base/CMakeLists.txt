@@ -8,6 +8,7 @@ add_library(base STATIC
         expected.h
         logging.h
         logging.cpp
+        event.h
         timer.cpp
         timer.h
         thread.cpp
@@ -15,6 +16,8 @@ add_library(base STATIC
         spin_lock.h
         spin_lock.cpp
         expected.h
+        uuid.cpp
+        uuid.h
 )
 
 target_link_libraries(base PUBLIC fmt EventBus)

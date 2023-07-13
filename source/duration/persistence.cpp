@@ -12,8 +12,9 @@ DurPersistence::DurPersistence(const std::filesystem::path& cache_dir)
     storage.sync_schema();
 }
 
-void DurPersistence::AddOrMergeEvent(DurEvent& event) {
+void DurPersistence::AddOrMergeEvent(DurEvent event) {
     std::unique_lock guard(lock);
+    event.id = 0;
     auto latest = storage.get_all<DurEvent>(order_by(&DurEvent::id).desc(), limit(1));
     if (!latest.empty()) {
         auto &old = latest.back();
@@ -21,6 +22,17 @@ void DurPersistence::AddOrMergeEvent(DurEvent& event) {
     } else {
         // Append
         storage.insert(event);
+    }
+}
+
+std::optional<DurEvent> DurPersistence::GetLatestEvent() {
+    std::shared_lock guard(lock);
+    auto latest = storage.get_all<DurEvent>(order_by(&DurEvent::id).desc(), limit(1));
+    if (!latest.empty()) {
+        auto& old = latest.back();
+        return old;
+    } else {
+        return std::nullopt;
     }
 }
 

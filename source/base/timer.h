@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 #include <chrono>
+#include "event.h"
 #include "types.h"
 
 namespace tapsdk {
@@ -37,48 +38,6 @@ private:
     std::string name_;
     EventCall callback_;
     bool active_{true};
-};
-
-class HostEvent {
-public:
-    void Set() {
-        std::lock_guard lk{mutex};
-        if (!is_set) {
-            is_set = true;
-            condvar.notify_one();
-        }
-    }
-
-    void Wait() {
-        std::unique_lock lk{mutex};
-        condvar.wait(lk, [&] { return is_set.load(); });
-        is_set = false;
-    }
-
-    bool WaitFor(const std::chrono::nanoseconds& time) {
-        std::unique_lock lk{mutex};
-        if (!condvar.wait_for(lk, time, [this] { return is_set.load(); })) return false;
-        is_set = false;
-        return true;
-    }
-
-    template <class Clock, class Duration>
-    bool WaitUntil(const std::chrono::time_point<Clock, Duration>& time) {
-        std::unique_lock lk{mutex};
-        if (!condvar.wait_until(lk, time, [this] { return is_set.load(); })) return false;
-        is_set = false;
-        return true;
-    }
-
-    void Reset() {
-        std::unique_lock lk{mutex};
-        is_set = false;
-    }
-
-private:
-    std::condition_variable condvar;
-    std::mutex mutex;
-    std::atomic_bool is_set{false};
 };
 
 class CoreTimer {
@@ -128,14 +87,16 @@ public:
 
     void RemoveEvent(const std::shared_ptr<Event>& event);
 
+    u64 TimeNs();
+
+    std::chrono::nanoseconds TimeEpoch();
+
 private:
     static void TimerThreadEntry(void* timer);
 
     void Looper();
 
     std::optional<s64> Advance();
-
-    static u64 TimeNs();
 
     std::unique_ptr<std::thread> timer_thread;
     std::vector<Message> msg_queue;

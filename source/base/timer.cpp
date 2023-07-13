@@ -127,8 +127,12 @@ std::optional<s64> CoreTimer::Advance() {
     }
 }
 
+std::chrono::nanoseconds CoreTimer::TimeEpoch() {
+    return std::chrono::high_resolution_clock::now().time_since_epoch();
+}
+
 u64 CoreTimer::TimeNs() {
-    return std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    return TimeEpoch().count();
 }
 
 CoreTimer::~CoreTimer() {

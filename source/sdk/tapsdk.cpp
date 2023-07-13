@@ -43,9 +43,14 @@ std::string TDSUser::GetUserId() { return user_id; }
 
 std::string TDSUser::GetUserName() { return user_name; }
 
-void Game::SetCurrent(const std::shared_ptr<Game>& game) { current_game = game; }
+void Game::SetCurrent(const std::shared_ptr<Game>& game) {
+    current_game = game;
+    Runtime::Get().GetEventBus()->notifyNow(events::GameStart{game});
+}
 
-std::shared_ptr<Game> Game::GetCurrent() { return current_game; }
+std::shared_ptr<Game> Game::GetCurrent() {
+    return current_game;
+}
 
 Game::Game(const std::string& uuid) : uuid{uuid} {}
 

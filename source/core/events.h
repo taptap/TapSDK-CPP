@@ -16,4 +16,8 @@ struct Foreground {};
 
 struct Background {};
 
+struct GameStart {
+    std::shared_ptr<Game> game;
+};
+
 }
