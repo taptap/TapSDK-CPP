@@ -28,3 +28,19 @@ jobs:
         cd scripts
         chmod +x build-android.sh
         ./build-android.sh
+        
+    - name: Upload sdk
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        # Artifact name
+        name: android-sdk.aar
+        # A file, directory or wildcard pattern that describes what to upload
+        path: android/sdk/build/outputs/aar/sdk-release.aar
+        
+    - name: Upload demo
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        # Artifact name
+        name: android-demo.apk
+        # A file, directory or wildcard pattern that describes what to upload
+        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
