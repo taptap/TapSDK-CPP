@@ -3,9 +3,6 @@
 //
 
 #include "httpclient.h"
-#include "nlohmann/json.hpp"
-
-using namespace nlohmann;
 
 namespace tapsdk::net {
 
@@ -28,6 +25,6 @@ ResultWrap::ResultWrap(const char* response) {
 
 int ResultWrap::GetCode() const { return code; }
 const std::string& ResultWrap::GetMsg() const { return msg; }
-const std::string& ResultWrap::GetContent() const { return content; }
+const Json& ResultWrap::GetContent() const { return content; }
 
 }  // namespace tapsdk::net

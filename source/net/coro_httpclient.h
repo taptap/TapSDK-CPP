@@ -4,14 +4,13 @@
 
 #pragma once
 
-#include "httpclient.h"
 #include "cinatra.hpp"
+#include "httpclient.h"
 
 namespace tapsdk::net {
 
 class CoroHttpClient : public TapHttpClient {
 public:
-
     CoroHttpClient(const char* host, bool https);
 
     void CommonHeader(const char* key, const char* value) override;
@@ -24,16 +23,16 @@ public:
                       OnReturn success,
                       OnFailed failed) override;
 
-    ResultAsync<std::string> RequestAsync(HttpType type,
-                      const WebPath& path,
-                      Headers headers,
-                      Params params) override;
+    ResultAsync<Json> RequestAsync(HttpType type,
+                                   const WebPath& path,
+                                   Headers headers,
+                                   Params params,
+                                   const Json& content = {}) override;
 
 private:
-
     void InitCaCert();
 
     cinatra::coro_http_client co_client{};
 };
 
-}
+}  // namespace tapsdk::net

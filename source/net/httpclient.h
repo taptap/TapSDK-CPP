@@ -19,20 +19,22 @@
 #include "async_simple/coro/SyncAwait.h"
 #include "base/expected.h"
 #include "base/types.h"
+#include "nlohmann/json.hpp"
 
 namespace tapsdk::net {
 
+using namespace nlohmann;
 constexpr auto http_timeout_ms = 10 * 1000;  // ms
 
 enum HttpType { GET, POST };
 
+using Json = nlohmann::json;
 using Pair = std::pair<std::string, std::string>;
-using OnReturn = const std::function<void(const std::string& content)>&;
+using OnReturn = const std::function<void(const Json& content)>&;
 template <class T> using OnSuccess = const std::function<void(const std::shared_ptr<T>& content)>&;
 using OnFailed = const std::function<void(int status, int code, const std::string& msg)>&;
 using Params = std::initializer_list<Pair>;
 using Headers = std::initializer_list<Pair>;
-using JsonStr = std::string_view;
 
 class ResultWrap {
 public:
@@ -42,12 +44,12 @@ public:
 
     [[nodiscard]] const std::string& GetMsg() const;
 
-    [[nodiscard]] const std::string& GetContent() const;
+    [[nodiscard]] const Json& GetContent() const;
 
 private:
     int code;
     std::string msg;
-    std::string content;
+    Json content;
 };
 
 struct Error {
@@ -64,17 +66,16 @@ template <class T> using Result = expected<T, Error>;
 template <class T> using ResultAsync = async_simple::coro::Lazy<Result<T>>;
 
 template <typename T>
-concept JsonResult = requires(JsonStr str) {
+concept JsonResult = requires(const Json& str) {
     { T(str) };
 };
 
 template <typename T>
 concept JsonParam = requires(T t) {
-    { t.ToJson() } -> std::convertible_to<JsonStr>;
+    { t.ToJson() } -> std::convertible_to<Json>;
 };
 
-template <typename LazyType>
-inline auto SyncAwait(LazyType &&lazy) {
+template <typename LazyType> inline auto SyncAwait(LazyType&& lazy) {
     return async_simple::coro::syncAwait(lazy);
 }
 
@@ -95,44 +96,55 @@ public:
                               OnReturn success,
                               OnFailed failed) = 0;
 
-    virtual ResultAsync<std::string> RequestAsync(HttpType type,
-                                                  const WebPath& path,
-                                                  Headers headers,
-                                                  Params params) = 0;
-
-    template <JsonResult T> void PostAsync(const WebPath& path,
+    virtual ResultAsync<Json> RequestAsync(HttpType type,
+                                           const WebPath& path,
                                            Headers headers,
                                            Params params,
-                                           OnSuccess<T> success,
+                                           const Json& content = {}) = 0;
+
+    template <JsonResult R> void PostAsync(const WebPath& path,
+                                           Headers headers,
+                                           Params params,
+                                           OnSuccess<R> success,
                                            OnFailed failed) {
         RequestAsync(
                 POST,
                 path,
                 headers,
                 params,
-                [success](const std::string& content) { success(std::make_shared<T>(content)); },
+                [success](const Json& content) { success(std::make_shared<R>(content)); },
                 failed);
     }
 
-    template <JsonResult T> void GetAsync(const WebPath& path,
+    template <JsonResult R> void GetAsync(const WebPath& path,
                                           Headers headers,
                                           Params params,
-                                          OnSuccess<T> success,
+                                          OnSuccess<R> success,
                                           OnFailed failed) {
         RequestAsync(
                 GET,
                 path,
                 headers,
                 params,
-                [success](const std::string& content) { success(std::make_shared<T>(content)); },
+                [success](const Json& content) { success(std::make_shared<R>(content)); },
                 failed);
     }
 
-    template <JsonResult T>
-    ResultAsync<std::shared_ptr<T>> PostAsync(const WebPath& path, Headers headers, Params params) {
+    template <JsonResult R>
+    ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params) {
         auto res = co_await RequestAsync(POST, path, headers, params);
         if (res) {
-            co_return std::make_shared<T>(*res);
+            co_return std::make_shared<R>(*res);
+        } else {
+            co_return unexpected(res.error());
+        }
+    }
+
+    template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
+            const WebPath& path, Headers headers, Params params, P& content) {
+        auto res = co_await RequestAsync(POST, path, headers, params, content.ToJson());
+        if (res) {
+            co_return std::make_shared<R>(*res);
         } else {
             co_return unexpected(res.error());
         }

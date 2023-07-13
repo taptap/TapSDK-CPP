@@ -92,14 +92,16 @@ void CoroHttpClient::RequestAsync(HttpType type,
             });
 }
 
-ResultAsync<std::string> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
-                                                      const tapsdk::WebPath& path,
-                                                      tapsdk::net::Headers headers,
-                                                      tapsdk::net::Params params) {
+ResultAsync<Json> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
+                                               const tapsdk::WebPath& path,
+                                               tapsdk::net::Headers headers,
+                                               tapsdk::net::Params params,
+                                               const Json& content) {
     WebPath parent{https ? "https://" + host : "http://" + host};
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
-    cinatra::req_context<> ctx{cinatra::req_content_type::string, ToParam(params), ""};
-    auto value = co_await co_client.async_request(parent / path, co_type, std::move(ctx), ToHeader(headers));
+    cinatra::req_context<> ctx{cinatra::req_content_type::json, ToParam(params), content.dump()};
+    auto value = co_await co_client.async_request(
+            parent / path, co_type, std::move(ctx), ToHeader(headers));
     if (value.status == 200) {
         ResultWrap tap_res{value.resp_body.data()};
         if (tap_res.GetCode() == 0) {
