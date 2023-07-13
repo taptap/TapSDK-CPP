@@ -139,7 +139,6 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
     }
 }
 
-static_assert(sizeof(std::time_t) == sizeof(u64));
 u64 DurationStatistics::Timestamp() {
     std::time_t time_stamp = std::time(nullptr);
     return time_stamp;
