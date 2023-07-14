@@ -31,7 +31,7 @@ public:
     virtual std::string GetUUID();
 
     // 游戏 Game ID (可不实现)
-    virtual std::uint64_t GetGameID();
+    virtual std::string GetGameID();
 
     // 游戏包名/Bundle ID (可不实现)
     virtual std::string GetPackageName();

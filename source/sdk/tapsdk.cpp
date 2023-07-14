@@ -56,9 +56,9 @@ Game::Game(const std::string& uuid) : uuid{uuid} {}
 
 std::string Game::GetUUID() { return uuid; }
 
-std::uint64_t Game::GetGameID() {
+std::string Game::GetGameID() {
     ASSERT_MSG(false, "UnSupport!");
-    return 0;
+    return "";
 }
 
 std::string Game::GetPackageName() {
