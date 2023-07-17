@@ -131,14 +131,11 @@ void DurationStatistics::InitRequest() {
 void DurationStatistics::NewGameSession() {
     // pre game session
     auto latest_event = persistence->GetLatestEvent();
-    if (latest_event) {
-        user_id = latest_event->user_id;
-        if (latest_event->action != GAME_END) {
-            // new game end event
-            auto new_event = *latest_event;
-            new_event.action = GAME_END;
-            persistence->AddOrMergeEvent(new_event);
-        }
+    if (latest_event && latest_event->action != GAME_END) {
+        // new game end event
+        auto new_event = *latest_event;
+        new_event.action = GAME_END;
+        persistence->AddOrMergeEvent(new_event);
     }
 
     // new game

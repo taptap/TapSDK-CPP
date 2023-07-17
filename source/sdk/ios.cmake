@@ -12,7 +12,7 @@ endforeach ()
 # CMake 直接打包 dylib 需要手动合并依赖的 targets
 add_custom_target(
         sdk_combine
-        COMMAND libtool -static -o
+        COMMAND libtool -static -o $<TARGET_FILE:sdk>
         $<TARGET_FILE:sdk>
         $<TARGET_FILE:base>
         $<TARGET_FILE:fmt>
@@ -21,7 +21,9 @@ add_custom_target(
         $<TARGET_FILE:platform>
         $<TARGET_FILE:duration>
         $<TARGET_FILE:EventBus>
-        DEPENDS sdk net base core platform duration fmt httplib nlohmann_json EventBus
+        $<TARGET_FILE:ssl>
+        $<TARGET_FILE:crypto>
+        DEPENDS sdk net base core platform duration
         COMMENT "Combining libs..."
 )
 

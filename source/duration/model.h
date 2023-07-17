@@ -31,6 +31,16 @@ struct DurEvent {
     u64 timestamp;
 };
 
+struct GameSession {
+    u32 id = 0;
+    std::string session;
+    std::string user_id;
+    std::string game_id;
+    std::string game_pkg;
+    u64 game_start;
+    u64 last_beats;
+};
+
 class ReportResult {
 public:
     explicit ReportResult(const net::Json& json){};

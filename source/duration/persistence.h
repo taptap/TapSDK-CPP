@@ -22,7 +22,15 @@ inline auto InitDB(const std::filesystem::path& path) {
                                             make_column("user_id", &DurEvent::user_id),
                                             make_column("game_id", &DurEvent::game_id),
                                             make_column("game_pkg", &DurEvent::game_pkg));
-    return make_storage(path.string(), event_table);
+    auto game_session_table = make_table<GameSession>("game_session",
+                                            make_column("id", &GameSession::id, primary_key().autoincrement()),
+                                            make_column("session", &GameSession::session),
+                                            make_column("game_start", &GameSession::game_start),
+                                            make_column("last_beats", &GameSession::last_beats),
+                                            make_column("user_id", &GameSession::user_id),
+                                            make_column("game_id", &GameSession::game_id),
+                                            make_column("game_pkg", &GameSession::game_pkg));
+    return make_storage(path.string(), event_table, game_session_table);
 }
 
 using Storage = decltype(InitDB(""));

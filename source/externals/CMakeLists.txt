@@ -10,10 +10,10 @@ add_subdirectory(event_bus)
 
 # openssl
 find_package(OpenSSL 1.1)
-if (OPENSSL_FOUND)
-    set(OPENSSL_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)
-else()
+if (NOT OPENSSL_FOUND OR IOS)
     add_subdirectory(openssl)
+else()
+    set(OPENSSL_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)
 endif()
 
 # ranges

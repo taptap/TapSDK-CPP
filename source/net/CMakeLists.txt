@@ -10,7 +10,7 @@ add_library(net STATIC
 target_link_libraries(net PUBLIC base nlohmann_json httplib)
 
 find_package(OpenSSL 1.1)
-if (NOT OPENSSL_FOUND)
+if (NOT OPENSSL_FOUND OR IOS)
     target_link_libraries(net PUBLIC ssl crypto)
 endif()
 
