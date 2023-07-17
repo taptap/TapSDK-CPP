@@ -10,8 +10,7 @@ brew install swig
 ## Build for android
 run scripts/build-android.sh
 ## Build for ios
-brew install binutils
-export PATH="/opt/homebrew/opt/binutils/bin:$PATH"
+brew uninstall binutils // 默认会使用 mac 的 binutils，此时出来的 .o 格式不对
 run scripts/build-ios.sh
 ## XCode
 run scripts/gen-xcode.sh 

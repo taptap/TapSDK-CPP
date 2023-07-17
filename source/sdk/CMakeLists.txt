@@ -1,6 +1,6 @@
 #export module
 
-add_library(sdk SHARED
+add_library(sdk STATIC
         tapsdk.cpp
         tapsdk.h
         platform.h
@@ -14,6 +14,6 @@ set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/platform.h
 )
 
-if (APPLE)
+if (IOS)
     include(ios.cmake)
 endif()

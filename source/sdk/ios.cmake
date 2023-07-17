@@ -17,7 +17,9 @@ add_custom_target(
         $<TARGET_FILE:base>
         $<TARGET_FILE:fmt>
         $<TARGET_FILE:net>
-        DEPENDS sdk net base fmt httplib nlohmann_json
+        $<TARGET_FILE:core>
+        $<TARGET_FILE:platform>
+        DEPENDS sdk net base core platform fmt httplib nlohmann_json
         COMMENT "Combining libs..."
 )
 
