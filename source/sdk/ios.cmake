@@ -12,7 +12,7 @@ endforeach ()
 # CMake 直接打包 dylib 需要手动合并依赖的 targets
 add_custom_target(
         sdk_combine
-        COMMAND libtool -static -o $<TARGET_FILE:sdk>
+        COMMAND libtool -static -o
         $<TARGET_FILE:sdk>
         $<TARGET_FILE:base>
         $<TARGET_FILE:fmt>
