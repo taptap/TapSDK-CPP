@@ -55,37 +55,28 @@ public class Game : global::System.IDisposable {
     return ret;
   }
 
-  public Game(string uuid) : this(TapSDKPINVOKE.new_Game(uuid), true) {
-    if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
-    SwigDirectorConnect();
-  }
-
-  public virtual string GetUUID() {
-    string ret = (SwigDerivedClassHasMethod("GetUUID", swigMethodTypes0) ? TapSDKPINVOKE.Game_GetUUIDSwigExplicitGame(swigCPtr) : TapSDKPINVOKE.Game_GetUUID(swigCPtr));
-    if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
-  public virtual ulong GetGameID() {
-    ulong ret = (SwigDerivedClassHasMethod("GetGameID", swigMethodTypes1) ? TapSDKPINVOKE.Game_GetGameIDSwigExplicitGame(swigCPtr) : TapSDKPINVOKE.Game_GetGameID(swigCPtr));
+  public virtual string GetGameID() {
+    string ret = TapSDKPINVOKE.Game_GetGameID(swigCPtr);
     if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
   public virtual string GetPackageName() {
-    string ret = (SwigDerivedClassHasMethod("GetPackageName", swigMethodTypes2) ? TapSDKPINVOKE.Game_GetPackageNameSwigExplicitGame(swigCPtr) : TapSDKPINVOKE.Game_GetPackageName(swigCPtr));
+    string ret = TapSDKPINVOKE.Game_GetPackageName(swigCPtr);
     if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
+  public Game() : this(TapSDKPINVOKE.new_Game(), true) {
+    SwigDirectorConnect();
+  }
+
   private void SwigDirectorConnect() {
-    if (SwigDerivedClassHasMethod("GetUUID", swigMethodTypes0))
-      swigDelegate0 = new SwigDelegateGame_0(SwigDirectorMethodGetUUID);
-    if (SwigDerivedClassHasMethod("GetGameID", swigMethodTypes1))
-      swigDelegate1 = new SwigDelegateGame_1(SwigDirectorMethodGetGameID);
-    if (SwigDerivedClassHasMethod("GetPackageName", swigMethodTypes2))
-      swigDelegate2 = new SwigDelegateGame_2(SwigDirectorMethodGetPackageName);
-    TapSDKPINVOKE.Game_director_connect(swigCPtr, swigDelegate0, swigDelegate1, swigDelegate2);
+    if (SwigDerivedClassHasMethod("GetGameID", swigMethodTypes0))
+      swigDelegate0 = new SwigDelegateGame_0(SwigDirectorMethodGetGameID);
+    if (SwigDerivedClassHasMethod("GetPackageName", swigMethodTypes1))
+      swigDelegate1 = new SwigDelegateGame_1(SwigDirectorMethodGetPackageName);
+    TapSDKPINVOKE.Game_director_connect(swigCPtr, swigDelegate0, swigDelegate1);
   }
 
   private bool SwigDerivedClassHasMethod(string methodName, global::System.Type[] methodTypes) {
@@ -122,11 +113,7 @@ public class Game : global::System.IDisposable {
     return false;
   }
 
-  private string SwigDirectorMethodGetUUID() {
-    return GetUUID();
-  }
-
-  private ulong SwigDirectorMethodGetGameID() {
+  private string SwigDirectorMethodGetGameID() {
     return GetGameID();
   }
 
@@ -135,16 +122,13 @@ public class Game : global::System.IDisposable {
   }
 
   public delegate string SwigDelegateGame_0();
-  public delegate ulong SwigDelegateGame_1();
-  public delegate string SwigDelegateGame_2();
+  public delegate string SwigDelegateGame_1();
 
   private SwigDelegateGame_0 swigDelegate0;
   private SwigDelegateGame_1 swigDelegate1;
-  private SwigDelegateGame_2 swigDelegate2;
 
   private static global::System.Type[] swigMethodTypes0 = new global::System.Type[] {  };
   private static global::System.Type[] swigMethodTypes1 = new global::System.Type[] {  };
-  private static global::System.Type[] swigMethodTypes2 = new global::System.Type[] {  };
 }
 
 }

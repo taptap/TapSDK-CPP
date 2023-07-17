@@ -64,21 +64,17 @@ public class Game {
     return (cPtr == 0) ? null : new Game(cPtr, true);
   }
 
-  public Game(String uuid) {
-    this(TapSDKJNI.new_Game(uuid), true);
-    TapSDKJNI.Game_director_connect(this, swigCPtr, true, true);
-  }
-
-  public String GetUUID() {
-    return (getClass() == Game.class) ? TapSDKJNI.Game_GetUUID(swigCPtr, this) : TapSDKJNI.Game_GetUUIDSwigExplicitGame(swigCPtr, this);
-  }
-
-  public java.math.BigInteger GetGameID() {
-    return (getClass() == Game.class) ? TapSDKJNI.Game_GetGameID(swigCPtr, this) : TapSDKJNI.Game_GetGameIDSwigExplicitGame(swigCPtr, this);
+  public String GetGameID() {
+    return TapSDKJNI.Game_GetGameID(swigCPtr, this);
   }
 
   public String GetPackageName() {
-    return (getClass() == Game.class) ? TapSDKJNI.Game_GetPackageName(swigCPtr, this) : TapSDKJNI.Game_GetPackageNameSwigExplicitGame(swigCPtr, this);
+    return TapSDKJNI.Game_GetPackageName(swigCPtr, this);
+  }
+
+  public Game() {
+    this(TapSDKJNI.new_Game(), true);
+    TapSDKJNI.Game_director_connect(this, swigCPtr, true, true);
   }
 
 }

@@ -64,17 +64,26 @@ public class TDSUser {
     return (cPtr == 0) ? null : new TDSUser(cPtr, true);
   }
 
+  public TDSUser(String user_id) {
+    this(TapSDKJNI.new_TDSUser__SWIG_0(user_id), true);
+    TapSDKJNI.TDSUser_director_connect(this, swigCPtr, true, true);
+  }
+
+  public TDSUser() {
+    this(TapSDKJNI.new_TDSUser__SWIG_1(), true);
+    TapSDKJNI.TDSUser_director_connect(this, swigCPtr, true, true);
+  }
+
   public String GetUserId() {
     return (getClass() == TDSUser.class) ? TapSDKJNI.TDSUser_GetUserId(swigCPtr, this) : TapSDKJNI.TDSUser_GetUserIdSwigExplicitTDSUser(swigCPtr, this);
   }
 
   public String GetUserName() {
-    return (getClass() == TDSUser.class) ? TapSDKJNI.TDSUser_GetUserName(swigCPtr, this) : TapSDKJNI.TDSUser_GetUserNameSwigExplicitTDSUser(swigCPtr, this);
+    return TapSDKJNI.TDSUser_GetUserName(swigCPtr, this);
   }
 
-  public TDSUser() {
-    this(TapSDKJNI.new_TDSUser(), true);
-    TapSDKJNI.TDSUser_director_connect(this, swigCPtr, true, true);
+  public boolean ContainTapInfo() {
+    return TapSDKJNI.TDSUser_ContainTapInfo(swigCPtr, this);
   }
 
 }

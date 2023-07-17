@@ -13,11 +13,13 @@ public:
     static void SetCurrent(const std::shared_ptr<TDSUser>& user);
     static std::shared_ptr<TDSUser> GetCurrent();
 
+    TDSUser(const std::string& user_id = {});
+
     virtual std::string GetUserId();
-    virtual std::string GetUserName();
+    virtual std::string GetUserName() = 0;
+    virtual bool ContainTapInfo() = 0;
 private:
     std::string user_id;
-    std::string user_name;
 };
 
 class Game {
@@ -25,18 +27,11 @@ public:
     static void SetCurrent(const std::shared_ptr<Game> &game);
     static std::shared_ptr<Game> GetCurrent();
 
-    Game(const std::string &uuid);
+    // 游戏 Game ID
+    virtual std::string GetGameID() = 0;
 
-    // 游戏唯一标志
-    virtual std::string GetUUID();
-
-    // 游戏 Game ID (可不实现)
-    virtual std::string GetGameID();
-
-    // 游戏包名/Bundle ID (可不实现)
-    virtual std::string GetPackageName();
-private:
-    std::string uuid;
+    // 游戏包名/Bundle ID
+    virtual std::string GetPackageName() = 0;
 };
 
 struct Config {

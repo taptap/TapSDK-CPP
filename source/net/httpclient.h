@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <list>
 
 #ifdef ANDROID
 
@@ -143,6 +144,21 @@ public:
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, P& content) {
         auto res = co_await RequestAsync(POST, path, headers, params, content.ToJson());
+        if (res) {
+            co_return std::make_shared<R>(*res);
+        } else {
+            co_return unexpected(res.error());
+        }
+    }
+
+    template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
+            const WebPath& path, Headers headers, Params params, std::list<P>& content) {
+        std::list<net::Json> json_array{};
+        for (P &p : content) {
+            json_array.push_back(p.ToJson());
+        }
+        net::Json json_content{json_array};
+        auto res = co_await RequestAsync(POST, path, headers, params, json_content);
         if (res) {
             co_return std::make_shared<R>(*res);
         } else {

@@ -11,23 +11,20 @@ package com.taptap.tapsdk.bindings.java;
 public class TapSDKJNI {
   public final static native void TDSUser_SetCurrent(long jarg1, TDSUser jarg1_);
   public final static native long TDSUser_GetCurrent();
+  public final static native long new_TDSUser__SWIG_0(String jarg1);
+  public final static native long new_TDSUser__SWIG_1();
   public final static native String TDSUser_GetUserId(long jarg1, TDSUser jarg1_);
   public final static native String TDSUser_GetUserIdSwigExplicitTDSUser(long jarg1, TDSUser jarg1_);
   public final static native String TDSUser_GetUserName(long jarg1, TDSUser jarg1_);
-  public final static native String TDSUser_GetUserNameSwigExplicitTDSUser(long jarg1, TDSUser jarg1_);
-  public final static native long new_TDSUser();
+  public final static native boolean TDSUser_ContainTapInfo(long jarg1, TDSUser jarg1_);
   public final static native void delete_TDSUser(long jarg1);
   public final static native void TDSUser_director_connect(TDSUser obj, long cptr, boolean mem_own, boolean weak_global);
   public final static native void TDSUser_change_ownership(TDSUser obj, long cptr, boolean take_or_release);
   public final static native void Game_SetCurrent(long jarg1, Game jarg1_);
   public final static native long Game_GetCurrent();
-  public final static native long new_Game(String jarg1);
-  public final static native String Game_GetUUID(long jarg1, Game jarg1_);
-  public final static native String Game_GetUUIDSwigExplicitGame(long jarg1, Game jarg1_);
-  public final static native java.math.BigInteger Game_GetGameID(long jarg1, Game jarg1_);
-  public final static native java.math.BigInteger Game_GetGameIDSwigExplicitGame(long jarg1, Game jarg1_);
+  public final static native String Game_GetGameID(long jarg1, Game jarg1_);
   public final static native String Game_GetPackageName(long jarg1, Game jarg1_);
-  public final static native String Game_GetPackageNameSwigExplicitGame(long jarg1, Game jarg1_);
+  public final static native long new_Game();
   public final static native void delete_Game(long jarg1);
   public final static native void Game_director_connect(Game obj, long cptr, boolean mem_own, boolean weak_global);
   public final static native void Game_change_ownership(Game obj, long cptr, boolean take_or_release);
@@ -43,10 +40,10 @@ public class TapSDKJNI {
   public static String SwigDirector_TDSUser_GetUserName(TDSUser jself) {
     return jself.GetUserName();
   }
-  public static String SwigDirector_Game_GetUUID(Game jself) {
-    return jself.GetUUID();
+  public static boolean SwigDirector_TDSUser_ContainTapInfo(TDSUser jself) {
+    return jself.ContainTapInfo();
   }
-  public static java.math.BigInteger SwigDirector_Game_GetGameID(Game jself) {
+  public static String SwigDirector_Game_GetGameID(Game jself) {
     return jself.GetGameID();
   }
   public static String SwigDirector_Game_GetPackageName(Game jself) {

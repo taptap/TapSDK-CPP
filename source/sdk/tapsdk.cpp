@@ -41,7 +41,8 @@ std::shared_ptr<TDSUser> TDSUser::GetCurrent() { return current_user; }
 
 std::string TDSUser::GetUserId() { return user_id; }
 
-std::string TDSUser::GetUserName() { return user_name; }
+TDSUser::TDSUser(const std::string& id)
+        : user_id{id} {}
 
 void Game::SetCurrent(const std::shared_ptr<Game>& game) {
     current_game = game;
@@ -50,20 +51,6 @@ void Game::SetCurrent(const std::shared_ptr<Game>& game) {
 
 std::shared_ptr<Game> Game::GetCurrent() {
     return current_game;
-}
-
-Game::Game(const std::string& uuid) : uuid{uuid} {}
-
-std::string Game::GetUUID() { return uuid; }
-
-std::string Game::GetGameID() {
-    ASSERT_MSG(false, "UnSupport!");
-    return "";
-}
-
-std::string Game::GetPackageName() {
-    ASSERT_MSG(false, "UnSupport!");
-    return "";
 }
 
 }  // namespace tapsdk

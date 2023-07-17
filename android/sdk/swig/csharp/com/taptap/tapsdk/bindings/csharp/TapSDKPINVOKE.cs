@@ -199,6 +199,12 @@ class TapSDKPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_GetCurrent___")]
   public static extern global::System.IntPtr TDSUser_GetCurrent();
 
+  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_new_TDSUser__SWIG_0___")]
+  public static extern global::System.IntPtr new_TDSUser__SWIG_0(string jarg1);
+
+  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_new_TDSUser__SWIG_1___")]
+  public static extern global::System.IntPtr new_TDSUser__SWIG_1();
+
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_GetUserId___")]
   public static extern string TDSUser_GetUserId(global::System.Runtime.InteropServices.HandleRef jarg1);
 
@@ -208,17 +214,14 @@ class TapSDKPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_GetUserName___")]
   public static extern string TDSUser_GetUserName(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_GetUserNameSwigExplicitTDSUser___")]
-  public static extern string TDSUser_GetUserNameSwigExplicitTDSUser(global::System.Runtime.InteropServices.HandleRef jarg1);
-
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_new_TDSUser___")]
-  public static extern global::System.IntPtr new_TDSUser();
+  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_ContainTapInfo___")]
+  public static extern bool TDSUser_ContainTapInfo(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_delete_TDSUser___")]
   public static extern void delete_TDSUser(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_TDSUser_director_connect___")]
-  public static extern void TDSUser_director_connect(global::System.Runtime.InteropServices.HandleRef jarg1, TDSUser.SwigDelegateTDSUser_0 delegate0, TDSUser.SwigDelegateTDSUser_1 delegate1);
+  public static extern void TDSUser_director_connect(global::System.Runtime.InteropServices.HandleRef jarg1, TDSUser.SwigDelegateTDSUser_0 delegate0, TDSUser.SwigDelegateTDSUser_1 delegate1, TDSUser.SwigDelegateTDSUser_2 delegate2);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_SetCurrent___")]
   public static extern void Game_SetCurrent(global::System.Runtime.InteropServices.HandleRef jarg1);
@@ -226,32 +229,20 @@ class TapSDKPINVOKE {
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetCurrent___")]
   public static extern global::System.IntPtr Game_GetCurrent();
 
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_new_Game___")]
-  public static extern global::System.IntPtr new_Game(string jarg1);
-
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetUUID___")]
-  public static extern string Game_GetUUID(global::System.Runtime.InteropServices.HandleRef jarg1);
-
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetUUIDSwigExplicitGame___")]
-  public static extern string Game_GetUUIDSwigExplicitGame(global::System.Runtime.InteropServices.HandleRef jarg1);
-
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetGameID___")]
-  public static extern ulong Game_GetGameID(global::System.Runtime.InteropServices.HandleRef jarg1);
-
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetGameIDSwigExplicitGame___")]
-  public static extern ulong Game_GetGameIDSwigExplicitGame(global::System.Runtime.InteropServices.HandleRef jarg1);
+  public static extern string Game_GetGameID(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetPackageName___")]
   public static extern string Game_GetPackageName(global::System.Runtime.InteropServices.HandleRef jarg1);
 
-  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_GetPackageNameSwigExplicitGame___")]
-  public static extern string Game_GetPackageNameSwigExplicitGame(global::System.Runtime.InteropServices.HandleRef jarg1);
+  [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_new_Game___")]
+  public static extern global::System.IntPtr new_Game();
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_delete_Game___")]
   public static extern void delete_Game(global::System.Runtime.InteropServices.HandleRef jarg1);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Game_director_connect___")]
-  public static extern void Game_director_connect(global::System.Runtime.InteropServices.HandleRef jarg1, Game.SwigDelegateGame_0 delegate0, Game.SwigDelegateGame_1 delegate1, Game.SwigDelegateGame_2 delegate2);
+  public static extern void Game_director_connect(global::System.Runtime.InteropServices.HandleRef jarg1, Game.SwigDelegateGame_0 delegate0, Game.SwigDelegateGame_1 delegate1);
 
   [global::System.Runtime.InteropServices.DllImport("libbindings-csharp", EntryPoint="CSharp_comftaptapftapsdkfbindingsfcsharp_Config_enable_duration_statistics_set___")]
   public static extern void Config_enable_duration_statistics_set(global::System.Runtime.InteropServices.HandleRef jarg1, bool jarg2);

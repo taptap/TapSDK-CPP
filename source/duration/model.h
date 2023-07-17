@@ -5,6 +5,7 @@
 #pragma once
 
 #include "base/types.h"
+#include "net/httpclient.h"
 
 namespace tapsdk::duration {
 class DurPersistence;
@@ -17,7 +18,7 @@ enum EventAction {
     GAME_END,
     HEAT_BEAT,
     USER_LOGIN,
-    USER_LOGOUT
+    USER_LOGOUT,
 };
 
 struct DurEvent {
@@ -25,8 +26,37 @@ struct DurEvent {
     u32 action;
     std::string user_id;
     std::string game_id;
+    std::string game_pkg;
     std::string session;
     u64 timestamp;
+};
+
+class ReportResult {
+public:
+    explicit ReportResult(const net::Json& json){};
+};
+
+class ReportConfig {
+public:
+    explicit ReportConfig(const net::Json& json);
+
+private:
+    bool enable;
+    bool no_tap_enable;
+    u32 tap_frequency;
+    u32 no_tap_frequency;
+    u64 available_start_ts;
+    u64 server_ts;
+};
+
+class ReportContent {
+public:
+    explicit ReportContent(DurEvent& event) : event{event} {}
+
+    net::Json ToJson();
+
+private:
+    DurEvent& event;
 };
 
 }  // namespace tapsdk::duration

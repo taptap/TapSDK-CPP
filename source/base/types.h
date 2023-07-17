@@ -22,6 +22,8 @@ public:
     WebPath(const char* str) : std::string{str} {}
 
     WebPath operator/(const WebPath& r) const { return *this + "/" + r; }
+
+    WebPath operator/(const std::string & r) const { return *this + "/" + r; }
 };
 
 }  // namespace tapsdk

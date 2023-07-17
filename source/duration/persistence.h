@@ -19,7 +19,9 @@ inline auto InitDB(const std::filesystem::path& path) {
                                             make_column("action", &DurEvent::action),
                                             make_column("session", &DurEvent::session),
                                             make_column("timestamp", &DurEvent::timestamp),
-                                            make_column("user_id", &DurEvent::user_id));
+                                            make_column("user_id", &DurEvent::user_id),
+                                            make_column("game_id", &DurEvent::game_id),
+                                            make_column("game_pkg", &DurEvent::game_pkg));
     return make_storage(path.string(), event_table);
 }
 
@@ -29,9 +31,17 @@ class DurPersistence {
 public:
     explicit DurPersistence(const std::filesystem::path& cache_dir);
 
-    void AddOrMergeEvent(DurEvent event);
+    void AddOrMergeEvent(DurEvent &event);
+
+    void Update(DurEvent &event);
+
+    void Delete(DurEvent &event);
+
+    void Delete(std::vector<DurEvent> &events);
 
     std::optional<DurEvent> GetLatestEvent();
+
+    std::vector<DurEvent> GetEvents();
     
 private:
     std::shared_mutex lock;

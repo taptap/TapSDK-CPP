@@ -81,7 +81,7 @@ void CoroHttpClient::RequestAsync(HttpType type,
                         }
                     } else {
                         if (failed) {
-                            failed(value.status, value.net_err.value(), value.resp_body.data());
+                            failed(value.status, value.net_err.value(), !value.resp_body.empty() ? value.resp_body.data() : "");
                         }
                     }
                 } else {
@@ -110,7 +110,7 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
             co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
         }
     } else {
-        co_return MakeError(value.status, value.net_err.value(), value.resp_body.data());
+        co_return MakeError(value.status, value.net_err.value(), !value.resp_body.empty() ? value.resp_body.data() : "");
     }
 }
 

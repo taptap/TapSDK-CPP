@@ -55,6 +55,15 @@ public class TDSUser : global::System.IDisposable {
     return ret;
   }
 
+  public TDSUser(string user_id) : this(TapSDKPINVOKE.new_TDSUser__SWIG_0(user_id), true) {
+    if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
+    SwigDirectorConnect();
+  }
+
+  public TDSUser() : this(TapSDKPINVOKE.new_TDSUser__SWIG_1(), true) {
+    SwigDirectorConnect();
+  }
+
   public virtual string GetUserId() {
     string ret = (SwigDerivedClassHasMethod("GetUserId", swigMethodTypes0) ? TapSDKPINVOKE.TDSUser_GetUserIdSwigExplicitTDSUser(swigCPtr) : TapSDKPINVOKE.TDSUser_GetUserId(swigCPtr));
     if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
@@ -62,13 +71,15 @@ public class TDSUser : global::System.IDisposable {
   }
 
   public virtual string GetUserName() {
-    string ret = (SwigDerivedClassHasMethod("GetUserName", swigMethodTypes1) ? TapSDKPINVOKE.TDSUser_GetUserNameSwigExplicitTDSUser(swigCPtr) : TapSDKPINVOKE.TDSUser_GetUserName(swigCPtr));
+    string ret = TapSDKPINVOKE.TDSUser_GetUserName(swigCPtr);
     if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public TDSUser() : this(TapSDKPINVOKE.new_TDSUser(), true) {
-    SwigDirectorConnect();
+  public virtual bool ContainTapInfo() {
+    bool ret = TapSDKPINVOKE.TDSUser_ContainTapInfo(swigCPtr);
+    if (TapSDKPINVOKE.SWIGPendingException.Pending) throw TapSDKPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
   }
 
   private void SwigDirectorConnect() {
@@ -76,7 +87,9 @@ public class TDSUser : global::System.IDisposable {
       swigDelegate0 = new SwigDelegateTDSUser_0(SwigDirectorMethodGetUserId);
     if (SwigDerivedClassHasMethod("GetUserName", swigMethodTypes1))
       swigDelegate1 = new SwigDelegateTDSUser_1(SwigDirectorMethodGetUserName);
-    TapSDKPINVOKE.TDSUser_director_connect(swigCPtr, swigDelegate0, swigDelegate1);
+    if (SwigDerivedClassHasMethod("ContainTapInfo", swigMethodTypes2))
+      swigDelegate2 = new SwigDelegateTDSUser_2(SwigDirectorMethodContainTapInfo);
+    TapSDKPINVOKE.TDSUser_director_connect(swigCPtr, swigDelegate0, swigDelegate1, swigDelegate2);
   }
 
   private bool SwigDerivedClassHasMethod(string methodName, global::System.Type[] methodTypes) {
@@ -121,14 +134,21 @@ public class TDSUser : global::System.IDisposable {
     return GetUserName();
   }
 
+  private bool SwigDirectorMethodContainTapInfo() {
+    return ContainTapInfo();
+  }
+
   public delegate string SwigDelegateTDSUser_0();
   public delegate string SwigDelegateTDSUser_1();
+  public delegate bool SwigDelegateTDSUser_2();
 
   private SwigDelegateTDSUser_0 swigDelegate0;
   private SwigDelegateTDSUser_1 swigDelegate1;
+  private SwigDelegateTDSUser_2 swigDelegate2;
 
   private static global::System.Type[] swigMethodTypes0 = new global::System.Type[] {  };
   private static global::System.Type[] swigMethodTypes1 = new global::System.Type[] {  };
+  private static global::System.Type[] swigMethodTypes2 = new global::System.Type[] {  };
 }
 
 }

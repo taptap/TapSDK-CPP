@@ -80,7 +80,7 @@ public:
     void Pause();
 
     Handle PostEvent(const std::shared_ptr<Event>& event,
-                     Duration duration,
+                     Duration duration = {},
                      std::uintptr_t user_data = {});
 
     void RemoveMessage(Handle event);

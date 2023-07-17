@@ -3,7 +3,9 @@
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
+#include <vector>
 #include <queue>
+#include <cmath>
 
 namespace tapsdk {
 
@@ -24,6 +26,25 @@ public:
         empty_.notify_all();
     }
 
+    void Put(const std::vector<T>& tasks) {
+        std::unique_lock<std::mutex> lock(mtx);
+        if (queue_.size() + tasks.size() <= capacity_ && !stopped) {
+            for (auto &task : tasks) {
+                queue_.push(task);
+            }
+            empty_.notify_all();
+        } else {
+            for (auto& task : tasks) {
+                while (queue_.size() == capacity_ && !stopped) {
+                    full_.wait(lock);
+                }
+                assert(queue_.size() < capacity_);
+                queue_.push(task);
+                empty_.notify_all();
+            }
+        }
+    }
+
     T Take() {
         std::unique_lock<std::mutex> lock(mtx);
         while (queue_.empty() && !stopped) {
@@ -35,6 +56,23 @@ public:
         queue_.pop();
         full_.notify_all();
         return std::move(front);
+    }
+
+    std::vector<T> Take(size_t limit) {
+        std::unique_lock<std::mutex> lock(mtx);
+        while (queue_.empty() && !stopped) {
+            empty_.wait(lock);
+        }
+        if (stopped) return {};
+        assert(!queue_.empty());
+        size_t size = std::min(limit, queue_.size());
+        std::vector<T> result{size};
+        for (size_t i = 0; i < size; i++) {
+            result[i] = queue_.front();
+            queue_.pop();
+        }
+        full_.notify_all();
+        return std::move(result);
     }
 
     T Front() {
