@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <atomic>
 #include "base/event.h"
 #include "base/timer.h"
 #include "core/runtime.h"

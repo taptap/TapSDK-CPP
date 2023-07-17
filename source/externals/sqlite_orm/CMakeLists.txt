@@ -44,7 +44,7 @@ set(SqliteOrm_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 add_library(sqlite_orm INTERFACE)
 add_library(sqlite_orm::sqlite_orm ALIAS sqlite_orm)
 
-if (ANDROID)
+if (ANDROID OR WIN32)
 target_link_libraries(sqlite_orm INTERFACE sqlite3)
 else()
 find_package(SQLite3 REQUIRED)

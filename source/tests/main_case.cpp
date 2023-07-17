@@ -6,7 +6,7 @@
 class TestDevice : public tapsdk::platform::Device {
 public:
     std::string GetDeviceID() override { return "test_device_id"; }
-    std::string GetCacheDir() override { return std::filesystem::current_path(); }
+    std::string GetCacheDir() override { return std::filesystem::current_path().string(); }
     std::string GetCaCertDir() override { return ""; }
 };
 
