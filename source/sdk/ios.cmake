@@ -19,7 +19,9 @@ add_custom_target(
         $<TARGET_FILE:net>
         $<TARGET_FILE:core>
         $<TARGET_FILE:platform>
-        DEPENDS sdk net base core platform fmt httplib nlohmann_json
+        $<TARGET_FILE:duration>
+        $<TARGET_FILE:EventBus>
+        DEPENDS sdk net base core platform duration fmt httplib nlohmann_json EventBus
         COMMENT "Combining libs..."
 )
 
