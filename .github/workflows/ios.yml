@@ -16,13 +16,19 @@ jobs:
         uses: actions/checkout@v3
       - name: Set Default Scheme
         run: |
-          brew install cmake
           brew install ninja
-          brew install swig
-          brew uninstall binutils
       - name: Build
-        if: always()
         run: |
           cd scripts
           chmod +x build-ios.sh
           ./build-ios.sh
+          cd ../ios/build/source/sdk
+          zip -r sdk.framework.zip sdk.framework
+
+      - name: Upload sdk
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          # Artifact name
+          name: sdk.framework.zip
+          # A file, directory or wildcard pattern that describes what to upload
+          path: ios/build/source/sdk/sdk.framework.zip
