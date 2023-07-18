@@ -88,9 +88,13 @@ public:
 
     void RemoveEvent(const std::shared_ptr<Event>& event);
 
+    void SetOnlineTime(Ms ms);
+
     u64 TimeNs();
 
     std::chrono::nanoseconds TimeEpoch();
+
+    Ms OnlineTimestamp();
 
 private:
     static void TimerThreadEntry(void* timer);
@@ -109,6 +113,10 @@ private:
     std::mutex advance_lock{};
 
     u64 global_timer = 0;
+
+    std::atomic_bool online_time_set;
+    Ms online_time;
+    Ms time_ep_since_online;
 
     std::atomic_bool paused{};
     std::atomic_bool paused_set{};

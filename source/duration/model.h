@@ -50,6 +50,8 @@ class ReportConfig {
 public:
     explicit ReportConfig(const net::Json& json);
 
+    [[nodiscard]] u64 ServerTimestamp() const;
+
 private:
     bool enable;
     bool no_tap_enable;

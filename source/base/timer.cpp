@@ -135,6 +135,22 @@ u64 CoreTimer::TimeNs() {
     return TimeEpoch().count();
 }
 
+void CoreTimer::SetOnlineTime(Ms ms) {
+    auto local_now = std::chrono::system_clock::now().time_since_epoch();
+    online_time = ms;
+    time_ep_since_online = std::chrono::duration_cast<Ms>(local_now);
+    online_time_set = true;
+}
+
+Ms CoreTimer::OnlineTimestamp() {
+    auto local_now_ms = std::chrono::duration_cast<Ms>(std::chrono::system_clock::now().time_since_epoch());
+    if (online_time_set) {
+        return local_now_ms - time_ep_since_online + online_time;
+    } else {
+        return local_now_ms;
+    }
+}
+
 CoreTimer::~CoreTimer() {
     shutting_down = true;
     paused = true;

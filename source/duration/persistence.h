@@ -47,6 +47,10 @@ public:
 
     void Delete(std::vector<DurEvent> &events);
 
+    void UpdateSession(GameSession &session);
+
+    std::optional<GameSession> GetLatestSession();
+
     std::optional<DurEvent> GetLatestEvent();
 
     std::vector<DurEvent> GetEvents();

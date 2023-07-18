@@ -14,6 +14,7 @@ ReportConfig::ReportConfig(const net::Json &json) {
     available_start_ts = json["available_start_ts"];
     server_ts = json["server_ts"];
 }
+u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 
 net::Json ReportContent::ToJson() {
     net::Json json{};

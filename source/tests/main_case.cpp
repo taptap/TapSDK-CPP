@@ -17,6 +17,12 @@ public:
     std::string GetUserName() override { return "test_device_name"; }
 };
 
+class TestGame : public tapsdk::Game {
+public:
+    std::string GetGameID() override { return "test_game_id"; }
+    std::string GetPackageName() override { return "test_game_pkg"; }
+};
+
 static void SetupEnv() {
     tapsdk::platform::Device::SetCurrent(std::make_shared<TestDevice>());
 }
@@ -28,6 +34,7 @@ TEST_CASE("Test sdk-init") {
     };
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
+    tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
 }
 
 TEST_CASE("Test sdk-login") {

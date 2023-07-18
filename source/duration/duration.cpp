@@ -38,13 +38,8 @@ void DurationStatistics::InitHeatBeats() {
     auto& timer = Runtime::Get().Timer();
     local_heat_beat = Event::Create([&timer, this](Duration later, std::uintptr_t user_data) {
         if (foreground && !game_id.empty()) {
-            DurEvent event{.action = HEAT_BEAT,
-                           .user_id = user_id,
-                           .game_id = game_id,
-                           .game_pkg = game_pkg,
-                           .session = game_session,
-                           .timestamp = Timestamp()};
-            persistence->AddOrMergeEvent(event);
+            local_session.last_beats = Timestamp();
+            persistence->UpdateSession(local_session);
         }
         timer.PostEvent(local_heat_beat, local_heat_beat_interval);
     });
@@ -78,10 +73,6 @@ void DurationStatistics::InitReportThread() {
                 std::list<ReportContent> reports{};
                 bool has_heat_beats{false};
                 for (auto& event : events) {
-                    if (event.action == HEAT_BEAT && event.id != 0) {
-                        // local heart beat
-                        continue;
-                    }
                     if (event.action != HEAT_BEAT) {
                         reports.emplace_back(event);
                         continue;
@@ -120,6 +111,7 @@ void DurationStatistics::InitRequest() {
                 http_client->GetAsync<ReportConfig>(function / game_id, {}, {}));
         if (result) {
             online_config = *result;
+            Runtime::Get().Timer().SetOnlineTime(Ms(online_config->ServerTimestamp()));
         } else {
             if (config_retry_times-- > 0) {
                 Runtime::Get().Timer().PostEvent(request_config, config_retry);
@@ -130,16 +122,26 @@ void DurationStatistics::InitRequest() {
 
 void DurationStatistics::NewGameSession() {
     // pre game session
-    auto latest_event = persistence->GetLatestEvent();
-    if (latest_event && latest_event->action != GAME_END) {
+    auto latest_session = persistence->GetLatestSession();
+    if (latest_session) {
         // new game end event
-        auto new_event = *latest_event;
-        new_event.action = GAME_END;
+        auto session = *latest_session;
+        DurEvent new_event{
+                .action = GAME_END,
+                .user_id = session.user_id,
+                .game_id = session.game_id,
+                .game_pkg = session.game_pkg,
+                .session = session.session,
+                .timestamp = session.last_beats
+        };
         persistence->AddOrMergeEvent(new_event);
+        user_id = latest_session->user_id;
     }
 
     // new game
     game_session = CreateUUID();
+    local_session.session = game_session;
+    persistence->UpdateSession(local_session);
 }
 
 void DurationStatistics::GameStart(Game& game) {
@@ -153,6 +155,11 @@ void DurationStatistics::GameStart(Game& game) {
                    .timestamp = Timestamp()};
     persistence->AddOrMergeEvent(event);
     report_queue.Put(event);
+    local_session.game_id = game_id;
+    local_session.game_pkg = game_pkg;
+    local_session.game_start = event.timestamp;
+    local_session.last_beats = event.timestamp;
+    persistence->UpdateSession(local_session);
 }
 
 void DurationStatistics::OnBackground() {
@@ -182,17 +189,22 @@ void DurationStatistics::OnForeground() {
 void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
     if (user) {
         // login
-        user_id = user->GetUserId();
-        online_tick_interval = user->ContainTapInfo() ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
-        DurEvent event{.action = USER_LOGIN,
-                       .user_id = user_id,
-                       .game_id = game_id,
-                       .game_pkg = game_pkg,
-                       .session = game_session,
-                       .timestamp = Timestamp()};
-        persistence->AddOrMergeEvent(event);
-        report_queue.Put(event);
-        Runtime::Get().Timer().PostEvent(request_config);
+        online_tick_interval = user->ContainTapInfo() ? online_heat_beat_interval
+                                                      : online_heat_beat_interval_no_tap;
+        if (user_id != user->GetUserId()) {
+            user_id = user->GetUserId();
+            DurEvent event{.action = USER_LOGIN,
+                           .user_id = user_id,
+                           .game_id = game_id,
+                           .game_pkg = game_pkg,
+                           .session = game_session,
+                           .timestamp = Timestamp()};
+            persistence->AddOrMergeEvent(event);
+            report_queue.Put(event);
+            Runtime::Get().Timer().PostEvent(request_config);
+        }
+        local_session.user_id = user_id;
+        persistence->UpdateSession(local_session);
     } else {
         // logout
         user_id = "";
@@ -209,8 +221,7 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
 }
 
 u64 DurationStatistics::Timestamp() {
-    std::time_t time_stamp = std::time(nullptr);
-    return time_stamp;
+    return Runtime::Get().Timer().OnlineTimestamp().count();
 }
 
 DurationStatistics::~DurationStatistics() {

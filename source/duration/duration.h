@@ -49,6 +49,7 @@ private:
 
     std::atomic_bool running{true};
     std::atomic_bool foreground{true};
+    GameSession local_session{};
     std::shared_mutex event_lock;
     std::shared_ptr<Event> request_config;
     std::shared_ptr<Event> local_heat_beat;

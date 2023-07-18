@@ -65,4 +65,24 @@ std::vector<DurEvent> DurPersistence::GetEvents() {
     return storage.get_all<DurEvent>(order_by(&DurEvent::id).desc());
 }
 
+void DurPersistence::UpdateSession(GameSession &session) {
+    std::unique_lock guard(lock);
+    if (session.id == 0) {
+        session.id = storage.insert(session);
+    } else {
+        storage.update(session);
+    }
+}
+
+std::optional<GameSession> DurPersistence::GetLatestSession() {
+    std::shared_lock guard(lock);
+    auto latest = storage.get_all<GameSession>(order_by(&GameSession::id).desc(), limit(1));
+    if (!latest.empty()) {
+        auto& old = latest.back();
+        return old;
+    } else {
+        return std::nullopt;
+    }
+}
+
 }  // namespace tapsdk::duration
