@@ -17,6 +17,7 @@ jobs:
       - name: Set Default Scheme
         run: |
           brew install cmake
+          brew install ninja
           brew install swig
           brew uninstall binutils
       - name: Build
