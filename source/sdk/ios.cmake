@@ -23,7 +23,8 @@ add_custom_target(
         $<TARGET_FILE:EventBus>
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
-        DEPENDS sdk net base core platform duration
+        $<TARGET_FILE:bindings-csharp>
+        DEPENDS sdk net base core platform bindings-csharp
         COMMENT "Combining libs..."
 )
 

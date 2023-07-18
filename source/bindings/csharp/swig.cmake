@@ -26,17 +26,28 @@ function(add_swig_csharp_library TgtName)
   string(REPLACE "." "/" OutDir ${CSharpPackageName})
   string(CONCAT OutDirAbs ${CSHARP_BINDING}/${OutDir})
 
-  swig_add_library(${TgtName}
-    TYPE SHARED
-    LANGUAGE csharp
-    OUTPUT_DIR ${OutDirAbs}
-    OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
-    SOURCES 
-      ${SWIG_CSHARP_LIB_SOURCES}
-  )
+  if (ANDROID)
+    swig_add_library(${TgtName}
+            TYPE SHARED
+            LANGUAGE csharp
+            OUTPUT_DIR ${OutDirAbs}
+            OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
+            SOURCES
+            ${SWIG_CSHARP_LIB_SOURCES}
+    )
+  else ()
+    swig_add_library(${TgtName}
+            TYPE STATIC
+            LANGUAGE csharp
+            OUTPUT_DIR ${OutDirAbs}
+            OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
+            SOURCES
+            ${SWIG_CSHARP_LIB_SOURCES}
+    )
+  endif()
 
   if(APPLE)
-    set_target_properties(${TgtName} PROPERTIES SUFFIX ".dylib")
+    set_target_properties(${TgtName} PROPERTIES SUFFIX ".a")
   endif()
 
   set_property(TARGET ${TgtName} PROPERTY SWIG_COMPILE_OPTIONS -namespace ${CSharpPackageName})
