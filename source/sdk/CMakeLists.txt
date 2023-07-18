@@ -1,6 +1,13 @@
 #export module
 
-add_library(sdk STATIC
+if (ANDROID)
+    set(SDK_BUILD_TYPE SHARED)
+else ()
+    set(SDK_BUILD_TYPE STATIC)
+endif()
+
+add_library(sdk
+        ${SDK_BUILD_TYPE}
         tapsdk.cpp
         tapsdk.h
         platform.h
