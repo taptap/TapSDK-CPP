@@ -28,6 +28,8 @@ jobs:
         cd scripts
         chmod +x build-android.sh
         ./build-android.sh
+        cd ../android/sdk
+        zip -r csharp-binding.zip swig/csharp
         
     - name: Upload sdk
       uses: actions/upload-artifact@v3.1.2
@@ -44,3 +46,11 @@ jobs:
         name: android-demo.apk
         # A file, directory or wildcard pattern that describes what to upload
         path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+        
+    - name: Upload csharp-binding
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        # Artifact name
+        name: csharp-binding.zip
+        # A file, directory or wildcard pattern that describes what to upload
+        path: android/sdk/csharp-binding.zip
