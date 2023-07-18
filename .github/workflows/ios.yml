@@ -20,6 +20,7 @@ jobs:
           brew install swig
           brew uninstall binutils
       - name: Build
+        if: always()
         run: |
           cd scripts
           chmod +x build-ios.sh
