@@ -6,6 +6,27 @@
 
 namespace tapsdk::duration {
 
+const char *ActionString(EventAction action) {
+    switch (action) {
+        case GAME_START:
+            return "start";
+        case GAME_END:
+            return "end";
+        case HEAT_BEAT:
+            return "heartbeat";
+        case USER_LOGIN:
+            return "login";
+        case USER_LOGOUT:
+            return "logout";
+        case GAME_FOREGROUND:
+            return "foreground";
+        case GAME_BACKGROUND:
+            return "background";
+        default:
+            return "";
+    }
+}
+
 ReportConfig::ReportConfig(const net::Json &json) {
     enable = json["enable"];
     no_tap_enable = json["notap_enable"];
@@ -18,10 +39,19 @@ u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 
 net::Json ReportContent::ToJson() {
     net::Json json{};
-    json["action"] = event.action;
-    json["timestamp"] = event.timestamp;
-    json["game_id"] = event.game_id;
-    json["user_id"] = event.user_id;
+    json["type"] = 1;
+    json["action"] = ActionString(static_cast<EventAction>(event.action));
+    json["ts"] = event.timestamp;
+    json["client_id"] = event.game_id;
+    json["identifier"] = event.game_pkg;
+    net::Json user{};
+    if (event.tap_user) {
+        user["tds_id"] = event.user_id;
+    } else {
+        user["open_id"] = event.user_id;
+    }
+    json["user"] = user;
+    json["device_id"] = event.device_id;
     return std::move(json);
 }
 

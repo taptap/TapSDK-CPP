@@ -18,7 +18,7 @@ void DurPersistence::AddOrMergeEvent(DurEvent& event) {
     if (!latest.empty()) {
         auto& old = latest.back();
         // Merge
-        if (event.action == HEAT_BEAT && old.action == HEAT_BEAT && old.session == event.session) {
+        if (event.action == old.action && old.session == event.session) {
             event.id = old.id;
             storage.update(event);
         } else {
@@ -62,7 +62,7 @@ std::optional<DurEvent> DurPersistence::GetLatestEvent() {
 
 std::vector<DurEvent> DurPersistence::GetEvents() {
     std::shared_lock guard(lock);
-    return storage.get_all<DurEvent>(order_by(&DurEvent::id).desc());
+    return storage.get_all<DurEvent>(order_by(&DurEvent::id).asc());
 }
 
 void DurPersistence::UpdateSession(GameSession &session) {

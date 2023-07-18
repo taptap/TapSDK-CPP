@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include "fmt/format.h"
 
 namespace tapsdk {
 
@@ -24,6 +25,8 @@ public:
     WebPath operator/(const WebPath& r) const { return *this + "/" + r; }
 
     WebPath operator/(const std::string & r) const { return *this + "/" + r; }
+
+    WebPath operator/(int r) const { return *this + "/" + fmt::format("{}", r); }
 };
 
 }  // namespace tapsdk

@@ -24,15 +24,18 @@ enum EventAction {
 struct DurEvent {
     u32 id = 0;
     u32 action;
+    bool tap_user;
     std::string user_id;
     std::string game_id;
     std::string game_pkg;
+    std::string device_id;
     std::string session;
     u64 timestamp;
 };
 
 struct GameSession {
     u32 id = 0;
+    bool tap_user;
     std::string session;
     std::string user_id;
     std::string game_id;

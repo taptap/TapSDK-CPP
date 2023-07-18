@@ -54,13 +54,15 @@ private:
     std::shared_ptr<Event> request_config;
     std::shared_ptr<Event> local_heat_beat;
     std::shared_ptr<Event> online_heat_beat;
-    std::shared_ptr<ReportConfig> online_config;
+    std::shared_ptr<ReportConfig> report_config;
     Duration online_tick_interval{online_heat_beat_interval};
     std::unique_ptr<DurPersistence> persistence{};
     dexode::EventBus::Listener event_listener{Runtime::Get().GetEventBus()};
     std::unique_ptr<net::TapHttpClient> http_client{};
     std::unique_ptr<std::thread> report_thread{};
     BlockingQueue<DurEvent> report_queue{UINT32_MAX};
+    bool tap_user;
+    std::string device_id;
     std::string user_id;
     std::string game_id;
     std::string game_pkg;
