@@ -87,4 +87,6 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "^(Linux|kFreeBSD|GNU|SunOS)$")
 endif()
 
 add_subdirectory(source)
-#add_subdirectory(ios)
+if (IOS)
+    add_subdirectory(ios)
+endif()
