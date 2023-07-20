@@ -12,6 +12,7 @@
 #include <vector>
 #include <chrono>
 #include <condition_variable>
+#include <functional>
 #include "event.h"
 #include "types.h"
 

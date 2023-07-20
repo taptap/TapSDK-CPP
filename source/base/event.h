@@ -6,6 +6,7 @@
 
 #include <mutex>
 #include <chrono>
+#include <atomic>
 #include "types.h"
 
 namespace tapsdk {
@@ -49,7 +50,7 @@ public:
 private:
     std::condition_variable cond_var;
     std::mutex mutex;
-    std::atomic_bool is_set{false};
+    std::atomic<bool> is_set{false};
 };
 
 }  // namespace tapsdk

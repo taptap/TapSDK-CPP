@@ -92,7 +92,7 @@ void SetCurrentThreadName(const char* name) {
 
     info.dwType = 0x1000;
     info.szName = name;
-    info.dwThreadID = std::numeric_limits<DWORD>::max();
+    info.dwThreadID = DWORD(-1);
     info.dwFlags = 0;
 
     __try {
