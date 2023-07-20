@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include <list>
 #include <memory>
 #include <string>
-#include <list>
 
 #ifdef ANDROID
 
@@ -154,7 +154,7 @@ public:
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, std::list<P>& content) {
         std::list<net::Json> json_array{};
-        for (P &p : content) {
+        for (P& p : content) {
             json_array.push_back(p.ToJson());
         }
         net::Json json_content{json_array};
@@ -174,6 +174,28 @@ public:
         } else {
             co_return unexpected(res.error());
         }
+    }
+
+    template <JsonResult T>
+    Result<std::shared_ptr<T>> GetSync(const WebPath& path, Headers headers, Params params) {
+        return SyncAwait(GetAsync<T>(path, headers, params));
+    }
+
+    template <JsonResult T>
+    Result<std::shared_ptr<T>> PostSync(const WebPath& path, Headers headers, Params params) {
+        return SyncAwait(PostAsync<T>(path, headers, params));
+    }
+
+    template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(const WebPath& path,
+                                                                             Headers headers,
+                                                                             Params params,
+                                                                             P& content) {
+        return SyncAwait(PostAsync<R>(path, headers, params, content));
+    }
+
+    template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(
+            const WebPath& path, Headers headers, Params params, std::list<P>& content) {
+        return SyncAwait(PostAsync<R>(path, headers, params, content));
     }
 
 protected:
