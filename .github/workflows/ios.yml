@@ -25,6 +25,14 @@ jobs:
           cd ../ios/build/source/sdk
           zip -r sdk.framework.zip sdk.framework
 
+      - name: Build sim
+        run: |
+          cd scripts
+          chmod +x build-ios-sim.sh
+          ./build-ios-sim.sh
+          cd ../ios/build-sim/source/sdk
+          zip -r sdk.framework.zip sdk.framework
+
       - name: Upload sdk
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -32,3 +40,11 @@ jobs:
           name: sdk.framework.zip
           # A file, directory or wildcard pattern that describes what to upload
           path: ios/build/source/sdk/sdk.framework.zip
+
+      - name: Upload sdk sim
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          # Artifact name
+          name: sdk.framework.sim.zip
+          # A file, directory or wildcard pattern that describes what to upload
+          path: ios/build-sim/source/sdk/sdk.framework.zip
