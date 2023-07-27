@@ -32,7 +32,6 @@ public:
                                    const Json& content = {}) override;
 
 private:
-    void InitCaCert();
 
     std::shared_ptr<cinatra::coro_http_client> AcquireClient();
     void RecycleClient(const std::shared_ptr<cinatra::coro_http_client> &client);
