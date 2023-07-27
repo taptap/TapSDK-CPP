@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <catch2/catch_test_macros.hpp>
+#include <unistd.h>
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
 
@@ -35,6 +36,9 @@ TEST_CASE("Test sdk-init") {
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
     tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
+    while (1) {
+        sleep(1);
+    }
 }
 
 TEST_CASE("Test sdk-login") {

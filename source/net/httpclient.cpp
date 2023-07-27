@@ -14,12 +14,11 @@ ResultWrap::ResultWrap(const char* response) {
     }
     try {
         json resp = json::parse(response);
-        content = resp["content"];
-        if (resp["success"].get<bool>()) {
-            code = 0;
+        code = resp["code"];
+        if (code == 0) {
+            content = resp["data"];
         } else {
-            code = content["code"];
-            msg = content["msg"];
+            msg = resp["msg"];
         }
     } catch (...) {
         code = -1;

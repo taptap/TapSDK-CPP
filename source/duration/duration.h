@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <condition_variable>
 #include <atomic>
+#include <condition_variable>
+#include "base/blocking_queue.h"
 #include "base/event.h"
 #include "base/timer.h"
 #include "core/runtime.h"
 #include "duration/persistence.h"
 #include "net/network.h"
-#include "base/blocking_queue.h"
 
 namespace tapsdk::duration {
 
@@ -26,7 +26,6 @@ public:
     virtual ~DurationStatistics();
 
 private:
-
     void InitRequest();
 
     void InitEvents();
@@ -37,13 +36,13 @@ private:
 
     void NewGameSession();
 
-    void GameStart(Game &game);
+    void GameStart(Game& game);
 
     void OnForeground();
 
     void OnBackground();
 
-    void OnNewUser(const std::shared_ptr<TDSUser> &user);
+    void OnNewUser(const std::shared_ptr<TDSUser>& user);
 
     u64 Timestamp();
 

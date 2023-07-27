@@ -16,7 +16,7 @@ void DurationStatistics::Init() {
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
-    http_client = net::CreateHttpClient("www.baidu.com", true);
+    http_client = net::CreateHttpClient("tds-activity-collector.xdrnd.cn/report/v1", true);
     NewGameSession();
     InitEvents();
     InitHeatBeats();
@@ -90,7 +90,7 @@ void DurationStatistics::InitReportThread() {
                     has_heat_beats = true;
                 }
                 report_success =
-                        http_client->PostSync<ReportResult>("data", {}, {}, reports).has_value();
+                        http_client->PostSync<ReportResult>("statistics", {}, {}, reports).has_value();
                 if (report_success) {
                     persistence->Delete(events);
                 }
@@ -109,8 +109,8 @@ void DurationStatistics::InitRequest() {
             [this](Duration later, std::uintptr_t user_data) {
                 constexpr auto config_retry = Ms(3 * 1000);
                 auto config_retry_times = 3;
-                WebPath function{"reporting-config"};
-                auto result = http_client->GetSync<ReportConfig>(function / game_id / 1, {}, {});
+                WebPath function{"config"};
+                auto result = http_client->GetSync<ReportConfig>(function / game_id, {}, {});
                 if (result) {
                     report_config = *result;
                     Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp()));

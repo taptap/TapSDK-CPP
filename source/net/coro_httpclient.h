@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unordered_map>
+#include <queue>
 #include "cinatra.hpp"
 #include "httpclient.h"
 
@@ -32,7 +34,13 @@ public:
 private:
     void InitCaCert();
 
-    cinatra::coro_http_client co_client{};
+    std::shared_ptr<cinatra::coro_http_client> AcquireClient();
+    void RecycleClient(const std::shared_ptr<cinatra::coro_http_client> &client);
+
+    std::unordered_map<std::string, std::string> headers;
+    std::unordered_map<std::string, std::string> params;
+    std::mutex client_lock;
+    std::queue<std::shared_ptr<cinatra::coro_http_client>> client_pool;
 };
 
 }  // namespace tapsdk::net

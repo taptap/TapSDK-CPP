@@ -300,6 +300,34 @@ class coro_http_client {
     return ssl_init_ret_;
   }
 
+  [[nodiscard]] bool init_ssl_content(const std::string &ca_content,
+                              int verify_mode = asio::ssl::verify_none,
+                              const std::string &domain = "localhost") {
+    try {
+      ssl_init_ret_ = false;
+      ssl_ctx_.add_certificate_authority({ca_content.data(), ca_content.size()});
+
+      ssl_ctx_.set_verify_mode(verify_mode);
+
+      if (!domain.empty())
+        ssl_ctx_.set_verify_callback(asio::ssl::host_name_verification(domain));
+
+      ssl_stream_ =
+          std::make_unique<asio::ssl::stream<asio::ip::tcp::socket &>>(
+              socket_->impl_, ssl_ctx_);
+      // Set SNI Hostname (many hosts need this to handshake successfully)
+      if (!sni_hostname_.empty()) {
+        SSL_set_tlsext_host_name(ssl_stream_->native_handle(),
+                                 sni_hostname_.c_str());
+      }
+      use_ssl_ = true;
+      ssl_init_ret_ = true;
+    } catch (std::exception &e) {
+      std::cout << "init ssl failed: " << e.what() << "\n";
+    }
+    return ssl_init_ret_;
+  }
+
   [[nodiscard]] bool init_ssl(std::string full_path = "",
                               int verify_mode = asio::ssl::verify_none,
                               const std::string &domain = "localhost") {
@@ -778,6 +806,16 @@ class coro_http_client {
     socket_->impl_ = asio::ip::tcp::socket{executor_wrapper_.context()};
     if (!socket_->impl_.is_open()) {
       socket_->impl_.open(asio::ip::tcp::v4());
+    }
+    if (ssl_stream_) {
+        ssl_stream_ =
+              std::make_unique<asio::ssl::stream<asio::ip::tcp::socket &>>(
+                  socket_->impl_, ssl_ctx_);
+          // Set SNI Hostname (many hosts need this to handshake successfully)
+          if (!sni_hostname_.empty()) {
+            SSL_set_tlsext_host_name(ssl_stream_->native_handle(),
+                                     sni_hostname_.c_str());
+          }
     }
 #ifdef BENCHMARK_TEST
     req_str_.clear();

@@ -59,10 +59,6 @@ struct Error {
     std::string msg;
 };
 
-inline unexpected<Error> MakeError(int status, int code, const std::string& msg) {
-    return unexpected(Error{status, code, msg});
-}
-
 template <class T> using Result = expected<T, Error>;
 template <class T> using ResultAsync = async_simple::coro::Lazy<Result<T>>;
 
@@ -78,6 +74,23 @@ concept JsonParam = requires(T t) {
 
 template <typename LazyType> inline auto SyncAwait(LazyType&& lazy) {
     return async_simple::coro::syncAwait(lazy);
+}
+
+inline unexpected<Error> MakeError(int status, int code, const std::string& msg) {
+    return unexpected(Error{status, code, msg});
+}
+
+template <JsonResult T>
+inline Result<std::shared_ptr<T>> MakeResult(Result<Json> &res) {
+    if (res) {
+        try {
+            return std::make_shared<T>(*res);
+        } catch (...) {
+            return MakeError(200, -1, "Invalid json!");
+        }
+    } else {
+        return unexpected(res.error());
+    }
 }
 
 class TapHttpClient {
@@ -134,21 +147,13 @@ public:
     template <JsonResult R>
     ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params) {
         auto res = co_await RequestAsync(POST, path, headers, params);
-        if (res) {
-            co_return std::make_shared<R>(*res);
-        } else {
-            co_return unexpected(res.error());
-        }
+        co_return MakeResult<R>(res);
     }
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, P& content) {
         auto res = co_await RequestAsync(POST, path, headers, params, content.ToJson());
-        if (res) {
-            co_return std::make_shared<R>(*res);
-        } else {
-            co_return unexpected(res.error());
-        }
+        co_return MakeResult<R>(res);
     }
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
@@ -159,21 +164,13 @@ public:
         }
         net::Json json_content{json_array};
         auto res = co_await RequestAsync(POST, path, headers, params, json_content);
-        if (res) {
-            co_return std::make_shared<R>(*res);
-        } else {
-            co_return unexpected(res.error());
-        }
+        co_return MakeResult<R>(res);
     }
 
     template <JsonResult T>
     ResultAsync<std::shared_ptr<T>> GetAsync(const WebPath& path, Headers headers, Params params) {
         auto res = co_await RequestAsync(GET, path, headers, params);
-        if (res) {
-            co_return std::make_shared<T>(*res);
-        } else {
-            co_return unexpected(res.error());
-        }
+        co_return MakeResult<T>(res);
     }
 
     template <JsonResult T>

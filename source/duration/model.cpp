@@ -19,9 +19,9 @@ const char *ActionString(EventAction action) {
         case USER_LOGOUT:
             return "logout";
         case GAME_FOREGROUND:
-            return "foreground";
+            return "resume";
         case GAME_BACKGROUND:
-            return "background";
+            return "pause";
         default:
             return "";
     }
@@ -35,12 +35,12 @@ ReportConfig::ReportConfig(const net::Json &json) {
     available_start_ts = json["available_start_ts"];
     server_ts = json["server_ts"];
 }
+
 u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 
 net::Json ReportContent::ToJson() {
     net::Json json{};
-    json["type"] = 1;
-    json["action"] = ActionString(static_cast<EventAction>(event.action));
+    json["event"] = ActionString(static_cast<EventAction>(event.action));
     json["ts"] = event.timestamp;
     json["client_id"] = event.game_id;
     json["identifier"] = event.game_pkg;
@@ -52,6 +52,9 @@ net::Json ReportContent::ToJson() {
     }
     json["user"] = user;
     json["device_id"] = event.device_id;
+    net::Json extra{};
+    extra["session_id"] = event.session;
+    json["extra"] = extra;
     return std::move(json);
 }
 
