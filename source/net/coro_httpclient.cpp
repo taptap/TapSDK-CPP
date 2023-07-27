@@ -7,7 +7,8 @@
 #include "fmt/format.h"
 #include "sdk/platform.h"
 
-static constexpr char* DEFAULT_CA_PEM = "-----BEGIN CERTIFICATE-----\n"
+static constexpr char* DEFAULT_CA_PEM =
+        "-----BEGIN CERTIFICATE-----\n"
         "MIIDKDCCAhACCQDHu0UVVUEr4DANBgkqhkiG9w0BAQsFADBWMQswCQYDVQQGEwJD\n"
         "TjEVMBMGA1UEBwwMRGVmYXVsdCBDaXR5MRwwGgYDVQQKDBNEZWZhdWx0IENvbXBh\n"
         "bnkgTHRkMRIwEAYDVQQDDAlsb2NhbGhvc3QwHhcNMjIxMDI1MDM1NzMwWhcNMzIx\n"
@@ -55,10 +56,10 @@ CoroHttpClient::CoroHttpClient(const char* host, bool https) : TapHttpClient(hos
 std::shared_ptr<cinatra::coro_http_client> CoroHttpClient::AcquireClient() {
     auto create_client = [&] {
         auto client = std::make_shared<cinatra::coro_http_client>();
-        for (auto &[key, value] : headers) {
+        for (auto& [key, value] : headers) {
             client->add_header(key, value);
         }
-        for (auto &[key, value] : params) {
+        for (auto& [key, value] : params) {
             client->add_str_part(key, value);
         }
         client->set_req_timeout(std::chrono::milliseconds(http_timeout_ms));
@@ -116,11 +117,12 @@ void CoroHttpClient::RequestAsync(HttpType type,
     cinatra::req_context<> ctx{cinatra::req_content_type::string, ToParam(params), ""};
     auto co_client = AcquireClient();
     co_client->async_request(parent / path, co_type, std::move(ctx), ToHeader(headers))
-            .start([co_client, this, success, failed](async_simple::Try<cinatra::resp_data> result) {
+            .start([co_client, this, success, failed](
+                           async_simple::Try<cinatra::resp_data> result) {
                 if (result.available()) {
                     auto& value = result.value();
                     if (value.status == 200) {
-                        ResultWrap tap_res{value.resp_body.data()};
+                        ResultWrap tap_res{value.resp_body};
                         if (tap_res.GetCode() == 0) {
                             success(tap_res.GetContent());
                         } else {
@@ -130,7 +132,9 @@ void CoroHttpClient::RequestAsync(HttpType type,
                         }
                     } else {
                         if (failed) {
-                            failed(value.status, value.net_err.value(), !value.resp_body.empty() ? value.resp_body.data() : "");
+                            failed(value.status,
+                                   value.net_err.value(),
+                                   !value.resp_body.empty() ? value.resp_body.data() : "");
                         }
                     }
                 } else {
@@ -149,20 +153,25 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
                                                const Json& content) {
     WebPath parent{https ? "https://" + host : "http://" + host};
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
-    cinatra::req_context<> ctx{type == POST ? cinatra::req_content_type::json : cinatra::req_content_type::none, ToParam(params), content.dump()};
+    cinatra::req_context<> ctx{
+            content.empty() ? cinatra::req_content_type::none : cinatra::req_content_type::json,
+            ToParam(params),
+            content.empty() ? "" : content.dump()};
     auto co_client = AcquireClient();
     auto value = co_await co_client->async_request(
             parent / path, co_type, std::move(ctx), ToHeader(headers));
     RecycleClient(co_client);
     if (value.status == 200) {
-        ResultWrap tap_res{value.resp_body.data()};
+        ResultWrap tap_res{value.resp_body};
         if (tap_res.GetCode() == 0) {
             co_return tap_res.GetContent();
         } else {
             co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
         }
     } else {
-        co_return MakeError(value.status, value.net_err.value(), !value.resp_body.empty() ? value.resp_body.data() : "");
+        co_return MakeError(value.status,
+                            value.net_err.value(),
+                            !value.resp_body.empty() ? value.resp_body.data() : "");
     }
 }
 

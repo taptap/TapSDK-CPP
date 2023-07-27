@@ -41,7 +41,7 @@ u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 net::Json ReportContent::ToJson() {
     net::Json json{};
     json["event"] = ActionString(static_cast<EventAction>(event.action));
-    json["ts"] = event.timestamp;
+    json["ts"] = event.timestamp / 1000;
     json["client_id"] = event.game_id;
     json["identifier"] = event.game_pkg;
     net::Json user{};
@@ -54,6 +54,9 @@ net::Json ReportContent::ToJson() {
     json["device_id"] = event.device_id;
     net::Json extra{};
     extra["session_id"] = event.session;
+    if (event.last_timestamp) {
+        extra["last_ts"] = event.last_timestamp / 1000;
+    }
     json["extra"] = extra;
     return std::move(json);
 }

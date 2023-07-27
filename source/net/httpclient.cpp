@@ -6,8 +6,8 @@
 
 namespace tapsdk::net {
 
-ResultWrap::ResultWrap(const char* response) {
-    if (!response) {
+ResultWrap::ResultWrap(std::string_view response) {
+    if (response.empty()) {
         code = -1;
         msg = "No response!";
         return;

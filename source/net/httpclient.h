@@ -39,7 +39,7 @@ using Headers = std::initializer_list<Pair>;
 
 class ResultWrap {
 public:
-    explicit ResultWrap(const char* response);
+    explicit ResultWrap(std::string_view response);
 
     [[nodiscard]] int GetCode() const;
 

@@ -66,9 +66,11 @@ void DurationStatistics::InitReportThread() {
     constexpr auto max_report_events = 32;
     report_thread = std::make_unique<std::thread>([this]() {
         SetCurrentThreadName("EventReporter");
+        u64 latest_online_report{};
+        u64 latest_online_heat_beats{};
         while (running) {
             auto events = report_queue.Take(max_report_events);
-            auto now = Runtime::Get().Timer().TimeEpoch();
+            auto now = Timestamp();
 
             // Do report
             bool report_success;
@@ -83,16 +85,21 @@ void DurationStatistics::InitReportThread() {
                     if (has_heat_beats || !foreground) {
                         continue;
                     }
-                    if (now - latest_online_report < online_tick_interval) {
+                    if (now - latest_online_report < online_tick_interval.count()) {
                         continue;
                     }
-                    event.timestamp = Timestamp();
+                    event.last_timestamp = latest_online_heat_beats;
+                    latest_online_report = now;
+                    event.timestamp = now;
                     has_heat_beats = true;
                 }
                 report_success =
                         http_client->PostSync<ReportResult>("statistics", {}, {}, reports).has_value();
                 if (report_success) {
+                    latest_online_heat_beats = now;
                     persistence->Delete(events);
+                } else {
+                    report_retry_event.WaitFor(retry_ms);
                 }
             } while (!report_success && running);
         }
@@ -113,7 +120,7 @@ void DurationStatistics::InitRequest() {
                 auto result = http_client->GetSync<ReportConfig>(function / game_id, {}, {});
                 if (result) {
                     report_config = *result;
-                    Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp()));
+                    Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp() * 1000));
                 } else {
                     if (config_retry_times-- > 0) {
                         Runtime::Get().Timer().PostEvent(request_config, config_retry);
@@ -245,6 +252,7 @@ DurationStatistics::~DurationStatistics() {
     if (report_thread) {
         running = false;
         report_queue.Stop();
+        report_retry_event.Set();
         report_thread->join();
     }
 }

@@ -31,6 +31,7 @@ struct DurEvent {
     std::string device_id;
     std::string session;
     u64 timestamp;
+    u64 last_timestamp{};
 };
 
 struct GameSession {

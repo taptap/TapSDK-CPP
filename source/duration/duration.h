@@ -15,6 +15,7 @@
 
 namespace tapsdk::duration {
 
+constexpr auto retry_ms = Ms(5 * 1000);
 constexpr auto local_heat_beat_interval = Ms(5 * 1000);
 constexpr auto online_heat_beat_interval = Ms(2 * 60 * 1000);
 constexpr auto online_heat_beat_interval_no_tap = Ms(5 * 60 * 1000);
@@ -60,13 +61,13 @@ private:
     std::unique_ptr<net::TapHttpClient> http_client{};
     std::unique_ptr<std::thread> report_thread{};
     BlockingQueue<DurEvent> report_queue{UINT32_MAX};
+    HostEvent report_retry_event{};
     bool tap_user;
     std::string device_id;
     std::string user_id;
     std::string game_id;
     std::string game_pkg;
     std::string game_session;
-    std::chrono::nanoseconds latest_online_report{};
 };
 
 }  // namespace tapsdk::duration
