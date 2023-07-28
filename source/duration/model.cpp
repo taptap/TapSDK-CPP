@@ -42,8 +42,8 @@ net::Json ReportContent::ToJson() {
     net::Json json{};
     json["event"] = ActionString(static_cast<EventAction>(event.action));
     json["ts"] = event.timestamp / 1000;
-    json["client_id"] = event.game_id;
-    json["identifier"] = event.game_pkg;
+    json["client_id"] = "test_game_id";
+    json["identifier"] = "test_game_pkg";
     net::Json user{};
     if (event.tap_user) {
         user["tds_id"] = event.user_id;

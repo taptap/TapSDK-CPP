@@ -158,11 +158,10 @@ public:
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, std::list<P>& content) {
-        std::list<net::Json> json_array{};
+        net::Json json_content{};
         for (P& p : content) {
-            json_array.push_back(p.ToJson());
+            json_content.push_back(p.ToJson());
         }
-        net::Json json_content{json_array};
         auto res = co_await RequestAsync(POST, path, headers, params, json_content);
         co_return MakeResult<R>(res);
     }

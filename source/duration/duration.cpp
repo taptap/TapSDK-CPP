@@ -92,6 +92,7 @@ void DurationStatistics::InitReportThread() {
                     latest_online_report = now;
                     event.timestamp = now;
                     has_heat_beats = true;
+                    reports.emplace_back(event);
                 }
                 report_success =
                         http_client->PostSync<ReportResult>("statistics", {}, {}, reports).has_value();
