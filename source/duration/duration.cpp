@@ -97,12 +97,15 @@ void DurationStatistics::InitReportThread() {
                 if (reports.empty()) {
                     continue;
                 }
-                report_success =
-                        http_client->PostSync<ReportResult>("statistics", {}, {}, reports).has_value();
+                auto report_result =
+                        http_client->PostSync<ReportResult>("statistics", {}, {}, reports);
+                report_success = report_result.has_value();
                 if (report_success) {
+                    LOG_DEBUG("ReportSuccess: {}", reports.size());
                     latest_online_heat_beats = now;
                     persistence->Delete(events);
                 } else {
+                    LOG_ERROR("ReportFailed: code: {}, msg: {}", report_result.error().code, report_result.error().msg);
                     report_retry_event.WaitFor(retry_ms);
                 }
             } while (!report_success && running);
@@ -125,6 +128,9 @@ void DurationStatistics::InitRequest() {
                 if (result) {
                     report_config = *result;
                     Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp() * 1000));
+                    if (!report_config->Enabled()) {
+                        Stop();
+                    }
                     online_heat_beat_interval = Ms(report_config->TapFrequency() * 1000);
                     online_heat_beat_interval_no_tap = Ms(report_config->NoTapFrequency() * 1000);
                     online_tick_interval =
@@ -258,11 +264,15 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
 
 u64 DurationStatistics::Timestamp() { return Runtime::Get().Timer().OnlineTimestamp().count(); }
 
+void DurationStatistics::Stop() {
+    running = false;
+    report_queue.Stop();
+    report_retry_event.Set();
+}
+
 DurationStatistics::~DurationStatistics() {
     if (report_thread) {
-        running = false;
-        report_queue.Stop();
-        report_retry_event.Set();
+        Stop();
         report_thread->join();
     }
 }

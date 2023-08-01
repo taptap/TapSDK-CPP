@@ -45,6 +45,8 @@ private:
 
     u64 Timestamp();
 
+    void Stop();
+
     std::atomic_bool running{true};
     std::atomic_bool foreground{true};
     GameSession local_session{};
