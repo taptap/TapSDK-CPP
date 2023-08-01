@@ -63,7 +63,7 @@ void DurationStatistics::InitHeatBeats() {
 }
 
 void DurationStatistics::InitReportThread() {
-    constexpr auto max_report_events = 32;
+    constexpr auto max_report_events = 20;
     report_thread = std::make_unique<std::thread>([this]() {
         SetCurrentThreadName("EventReporter");
         u64 latest_online_report{};
@@ -94,6 +94,9 @@ void DurationStatistics::InitReportThread() {
                     has_heat_beats = true;
                     reports.emplace_back(event);
                 }
+                if (reports.empty()) {
+                    continue;
+                }
                 report_success =
                         http_client->PostSync<ReportResult>("statistics", {}, {}, reports).has_value();
                 if (report_success) {
@@ -122,6 +125,10 @@ void DurationStatistics::InitRequest() {
                 if (result) {
                     report_config = *result;
                     Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp() * 1000));
+                    online_heat_beat_interval = Ms(report_config->TapFrequency() * 1000);
+                    online_heat_beat_interval_no_tap = Ms(report_config->NoTapFrequency() * 1000);
+                    online_tick_interval =
+                            tap_user ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
                 } else {
                     if (config_retry_times-- > 0) {
                         Runtime::Get().Timer().PostEvent(request_config, config_retry);
@@ -180,6 +187,7 @@ void DurationStatistics::GameStart(Game& game) {
 }
 
 void DurationStatistics::OnBackground() {
+    ASSERT_MSG(!game_id.empty(), "Set current game first!");
     foreground = false;
     DurEvent event{.action = GAME_BACKGROUND,
                    .tap_user = tap_user,
@@ -194,6 +202,7 @@ void DurationStatistics::OnBackground() {
 }
 
 void DurationStatistics::OnForeground() {
+    ASSERT_MSG(!game_id.empty(), "Set current game first!");
     foreground = true;
     DurEvent event{.action = GAME_FOREGROUND,
                    .tap_user = tap_user,

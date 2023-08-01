@@ -85,8 +85,8 @@ inline Result<std::shared_ptr<T>> MakeResult(Result<Json> &res) {
     if (res) {
         try {
             return std::make_shared<T>(*res);
-        } catch (...) {
-            return MakeError(200, -1, "Invalid json!");
+        } catch (std::exception &e) {
+            return MakeError(200, -1, e.what());
         }
     } else {
         return unexpected(res.error());
@@ -152,7 +152,13 @@ public:
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, P& content) {
-        auto res = co_await RequestAsync(POST, path, headers, params, content.ToJson());
+        Json json_content;
+        try {
+            json_content = content.ToJson();
+        } catch (std::exception &e) {
+            co_return MakeError(-1, -1, e.what());
+        }
+        auto res = co_await RequestAsync(POST, path, headers, params, json_content);
         co_return MakeResult<R>(res);
     }
 
@@ -160,7 +166,11 @@ public:
             const WebPath& path, Headers headers, Params params, std::list<P>& content) {
         net::Json json_content{};
         for (P& p : content) {
-            json_content.push_back(p.ToJson());
+            try {
+                json_content.push_back(p.ToJson());
+            } catch (std::exception &e) {
+                co_return MakeError(-1, -1, e.what());
+            }
         }
         auto res = co_await RequestAsync(POST, path, headers, params, json_content);
         co_return MakeResult<R>(res);

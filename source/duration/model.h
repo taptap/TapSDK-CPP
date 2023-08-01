@@ -56,6 +56,12 @@ public:
 
     [[nodiscard]] u64 ServerTimestamp() const;
 
+    [[nodiscard]] bool Enabled() const;
+
+    [[nodiscard]] u32 TapFrequency() const;
+
+    [[nodiscard]] u32 NoTapFrequency() const;
+
 private:
     bool enable;
     bool no_tap_enable;

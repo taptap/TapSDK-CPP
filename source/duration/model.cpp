@@ -6,7 +6,7 @@
 
 namespace tapsdk::duration {
 
-const char *ActionString(EventAction action) {
+const char* ActionString(EventAction action) {
     switch (action) {
         case GAME_START:
             return "start";
@@ -27,7 +27,7 @@ const char *ActionString(EventAction action) {
     }
 }
 
-ReportConfig::ReportConfig(const net::Json &json) {
+ReportConfig::ReportConfig(const net::Json& json) {
     enable = json["enable"];
     no_tap_enable = json["notap_enable"];
     tap_frequency = json["tap_frequency"];
@@ -38,19 +38,22 @@ ReportConfig::ReportConfig(const net::Json &json) {
 
 u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 
+bool ReportConfig::Enabled() const { return enable; }
+
+u32 ReportConfig::NoTapFrequency() const { return no_tap_frequency; }
+
+u32 ReportConfig::TapFrequency() const { return tap_frequency; }
+
 net::Json ReportContent::ToJson() {
     net::Json json{};
     json["event"] = ActionString(static_cast<EventAction>(event.action));
     json["ts"] = event.timestamp / 1000;
     json["client_id"] = event.game_id;
     json["identifier"] = event.game_pkg;
-    net::Json user{};
-    if (event.tap_user) {
-        user["tds_id"] = event.user_id;
-    } else {
-        user["open_id"] = event.user_id;
+    if (!event.user_id.empty()) {
+        net::Json user = net::Json::parse(event.user_id);
+        json["user"] = user;
     }
-    json["user"] = user;
     json["device_id"] = event.device_id;
     net::Json extra{};
     extra["session_id"] = event.session;
@@ -61,4 +64,4 @@ net::Json ReportContent::ToJson() {
     return std::move(json);
 }
 
-}
+}  // namespace tapsdk::duration

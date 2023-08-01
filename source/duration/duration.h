@@ -17,8 +17,6 @@ namespace tapsdk::duration {
 
 constexpr auto retry_ms = Ms(5 * 1000);
 constexpr auto local_heat_beat_interval = Ms(5 * 1000);
-constexpr auto online_heat_beat_interval = Ms(2 * 60 * 1000);
-constexpr auto online_heat_beat_interval_no_tap = Ms(5 * 60 * 1000);
 
 class DurationStatistics {
 public:
@@ -55,6 +53,8 @@ private:
     std::shared_ptr<Event> local_heat_beat;
     std::shared_ptr<Event> online_heat_beat;
     std::shared_ptr<ReportConfig> report_config;
+    Duration online_heat_beat_interval = Ms(2 * 60 * 1000);
+    Duration online_heat_beat_interval_no_tap = Ms(5 * 60 * 1000);
     Duration online_tick_interval{online_heat_beat_interval};
     std::unique_ptr<DurPersistence> persistence{};
     dexode::EventBus::Listener event_listener{Runtime::Get().GetEventBus()};

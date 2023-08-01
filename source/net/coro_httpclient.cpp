@@ -146,10 +146,10 @@ void CoroHttpClient::RequestAsync(HttpType type,
             });
 }
 
-ResultAsync<Json> CoroHttpClient::RequestAsync(tapsdk::net::HttpType type,
-                                               const tapsdk::WebPath& path,
-                                               tapsdk::net::Headers headers,
-                                               tapsdk::net::Params params,
+ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
+                                               const WebPath& path,
+                                               Headers headers,
+                                               Params params,
                                                const Json& content) {
     WebPath parent{https ? "https://" + host : "http://" + host};
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
