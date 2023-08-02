@@ -42,7 +42,7 @@ public class TapSDK {
             }
             @Override
             public String GetCaCertDir() {
-                return "/system/etc/security/cacerts";
+                return "";
             }
         };
         Device.SetCurrent(device);
