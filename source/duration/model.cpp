@@ -53,8 +53,12 @@ net::Json ReportContent::ToJson() {
     json["client_id"] = event.game_id;
     json["identifier"] = event.game_pkg;
     if (!event.user_id.empty()) {
-        net::Json user = net::Json::parse(event.user_id);
-        json["user"] = user;
+        try {
+            net::Json user = net::Json::parse(event.user_id);
+            json["user"] = user;
+        } catch (std::exception &e) {
+            throw std::runtime_error(fmt::format("Error user json: {}!", e.what()));
+        }
     }
     json["device_id"] = event.device_id;
     net::Json extra{};

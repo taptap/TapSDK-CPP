@@ -103,9 +103,6 @@ void DurationStatistics::InitReportThread() {
                     if (has_heat_beats || !foreground) {
                         continue;
                     }
-                    if (now - latest_online_report < online_tick_interval.count()) {
-                        continue;
-                    }
                     latest_online_report = now;
                     event.timestamp = now;
                     event.last_timestamp = local_session.last_timestamp;
