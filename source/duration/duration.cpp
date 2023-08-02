@@ -57,8 +57,6 @@ void DurationStatistics::InitHeatBeats() {
                            .session = game_session,
                            .timestamp = Timestamp(),
                            .last_timestamp = local_session.last_timestamp};
-            local_session.last_timestamp = event.timestamp;
-            persistence->UpdateSession(local_session);
             report_queue.Put(event);
         }
         timer.PostEvent(online_heat_beat, online_tick_interval);
@@ -110,6 +108,7 @@ void DurationStatistics::InitReportThread() {
                     }
                     latest_online_report = now;
                     event.timestamp = now;
+                    event.last_timestamp = local_session.last_timestamp;
                     has_heat_beats = true;
                     reports.emplace_back(event);
                 }
@@ -120,9 +119,16 @@ void DurationStatistics::InitReportThread() {
                         http_client->PostSync<ReportResult>("statistics", {}, {}, reports);
                 report_success = report_result.has_value();
                 if (report_success) {
-                    LOG_DEBUG("ReportSuccess: {}", reports.size());
                     latest_online_report = now;
                     persistence->Delete(events);
+                    if (has_heat_beats) {
+                        std::unique_lock guard(event_lock);
+                        if (now > local_session.last_timestamp) {
+                            local_session.last_timestamp = now;
+                            persistence->UpdateSession(local_session);
+                        }
+                    }
+                    LOG_DEBUG("ReportSuccess: {}", reports.size());
                 } else {
                     LOG_ERROR("ReportFailed: code: {}, msg: {}", report_result.error().code, report_result.error().msg);
                     report_retry_event.WaitFor(retry_ms);
