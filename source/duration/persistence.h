@@ -23,7 +23,8 @@ inline auto InitDB(const std::filesystem::path& path) {
                                             make_column("user_id", &DurEvent::user_id),
                                             make_column("game_id", &DurEvent::game_id),
                                             make_column("game_pkg", &DurEvent::game_pkg),
-                                            make_column("device_id", &DurEvent::device_id));
+                                            make_column("device_id", &DurEvent::device_id),
+                                            make_column("last_timestamp", &DurEvent::last_timestamp));
     auto game_session_table = make_table<GameSession>("game_session",
                                             make_column("id", &GameSession::id, primary_key().autoincrement()),
                                             make_column("session", &GameSession::session),
@@ -32,8 +33,15 @@ inline auto InitDB(const std::filesystem::path& path) {
                                             make_column("tap_user", &GameSession::tap_user),
                                             make_column("user_id", &GameSession::user_id),
                                             make_column("game_id", &GameSession::game_id),
-                                            make_column("game_pkg", &GameSession::game_pkg));
-    return make_storage(path.string(), event_table, game_session_table);
+                                            make_column("game_pkg", &GameSession::game_pkg),
+                                            make_column("last_timestamp", &GameSession::last_timestamp));
+    auto config_table = make_table<ReportConfig>("report_config",
+                                            make_column("id", &ReportConfig::id, primary_key().autoincrement()),
+                                            make_column("enable", &ReportConfig::enable),
+                                            make_column("no_tap_enable", &ReportConfig::no_tap_enable),
+                                            make_column("tap_frequency", &ReportConfig::tap_frequency),
+                                            make_column("no_tap_frequency", &ReportConfig::no_tap_frequency));
+    return make_storage(path.string(), event_table, game_session_table, config_table);
 }
 
 using Storage = decltype(InitDB(""));
@@ -52,12 +60,16 @@ public:
 
     void UpdateSession(GameSession &session);
 
+    void UpdateConfig(ReportConfig &config);
+
     std::optional<GameSession> GetLatestSession();
+
+    std::optional<ReportConfig> GetLatestConfig();
 
     std::optional<DurEvent> GetLatestEvent();
 
     std::vector<DurEvent> GetEvents();
-    
+
 private:
     std::shared_mutex lock;
     Storage storage;

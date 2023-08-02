@@ -20,6 +20,7 @@ void DurationStatistics::Init() {
     NewGameSession();
     InitEvents();
     InitHeatBeats();
+    InitHistory();
     InitReportThread();
     InitRequest();
 }
@@ -46,6 +47,7 @@ void DurationStatistics::InitHeatBeats() {
     });
     online_heat_beat = Event::Create([&timer, this](Duration later, std::uintptr_t user_data) {
         if (foreground && !game_id.empty()) {
+            std::unique_lock guard(event_lock);
             DurEvent event{.action = HEAT_BEAT,
                            .tap_user = tap_user,
                            .user_id = user_id,
@@ -53,7 +55,10 @@ void DurationStatistics::InitHeatBeats() {
                            .game_pkg = game_pkg,
                            .device_id = device_id,
                            .session = game_session,
-                           .timestamp = Timestamp()};
+                           .timestamp = Timestamp(),
+                           .last_timestamp = local_session.last_timestamp};
+            local_session.last_timestamp = event.timestamp;
+            persistence->UpdateSession(local_session);
             report_queue.Put(event);
         }
         timer.PostEvent(online_heat_beat, online_tick_interval);
@@ -62,19 +67,34 @@ void DurationStatistics::InitHeatBeats() {
     timer.PostEvent(online_heat_beat, online_tick_interval);
 }
 
+void DurationStatistics::InitHistory() {
+    // Config cache
+    auto config = persistence->GetLatestConfig();
+    if (config) {
+        RefreshConfig(*config, false);
+    }
+    // Old report
+    auto pending_events = persistence->GetEvents();
+    if (!pending_events.empty()) {
+        report_queue.Put(pending_events);
+    }
+}
+
 void DurationStatistics::InitReportThread() {
     constexpr auto max_report_events = 20;
+    if (running) return;
+    if (!report_config.enable) return;
+    running = true;
     report_thread = std::make_unique<std::thread>([this]() {
         SetCurrentThreadName("EventReporter");
         u64 latest_online_report{};
-        u64 latest_online_heat_beats{};
         while (running) {
             auto events = report_queue.Take(max_report_events);
-            auto now = Timestamp();
 
             // Do report
             bool report_success;
             do {
+                auto now = Timestamp();
                 std::list<ReportContent> reports{};
                 bool has_heat_beats{false};
                 for (auto& event : events) {
@@ -88,7 +108,6 @@ void DurationStatistics::InitReportThread() {
                     if (now - latest_online_report < online_tick_interval.count()) {
                         continue;
                     }
-                    event.last_timestamp = latest_online_heat_beats;
                     latest_online_report = now;
                     event.timestamp = now;
                     has_heat_beats = true;
@@ -102,7 +121,7 @@ void DurationStatistics::InitReportThread() {
                 report_success = report_result.has_value();
                 if (report_success) {
                     LOG_DEBUG("ReportSuccess: {}", reports.size());
-                    latest_online_heat_beats = now;
+                    latest_online_report = now;
                     persistence->Delete(events);
                 } else {
                     LOG_ERROR("ReportFailed: code: {}, msg: {}", report_result.error().code, report_result.error().msg);
@@ -111,14 +130,10 @@ void DurationStatistics::InitReportThread() {
             } while (!report_success && running);
         }
     });
-    // Old report
-    auto pending_events = persistence->GetEvents();
-    if (!pending_events.empty()) {
-        report_queue.Put(pending_events);
-    }
 }
 
 void DurationStatistics::InitRequest() {
+    running = true;
     request_config = Event::Create(
             [this](Duration later, std::uintptr_t user_data) {
                 constexpr auto config_retry = Ms(3 * 1000);
@@ -126,15 +141,7 @@ void DurationStatistics::InitRequest() {
                 WebPath function{"config"};
                 auto result = http_client->GetSync<ReportConfig>(function / game_id, {}, {});
                 if (result) {
-                    report_config = *result;
-                    Runtime::Get().Timer().SetOnlineTime(Ms(report_config->ServerTimestamp() * 1000));
-                    if (!report_config->Enabled()) {
-                        Stop();
-                    }
-                    online_heat_beat_interval = Ms(report_config->TapFrequency() * 1000);
-                    online_heat_beat_interval_no_tap = Ms(report_config->NoTapFrequency() * 1000);
-                    online_tick_interval =
-                            tap_user ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
+                    RefreshConfig(**result, true);
                 } else {
                     if (config_retry_times-- > 0) {
                         Runtime::Get().Timer().PostEvent(request_config, config_retry);
@@ -157,7 +164,10 @@ void DurationStatistics::NewGameSession() {
                            .game_pkg = session.game_pkg,
                            .device_id = device_id,
                            .session = session.session,
-                           .timestamp = session.last_beats};
+                           .timestamp = session.last_beats,
+                           .last_timestamp = session.last_timestamp};
+        local_session.last_timestamp = new_event.timestamp;
+        persistence->UpdateSession(local_session);
         persistence->AddOrMergeEvent(new_event);
         user_id = latest_session->user_id;
         tap_user = latest_session->tap_user;
@@ -172,6 +182,7 @@ void DurationStatistics::NewGameSession() {
 }
 
 void DurationStatistics::GameStart(Game& game) {
+    std::unique_lock guard(event_lock);
     game_id = game.GetGameID();
     game_pkg = game.GetPackageName();
     DurEvent event{.action = GAME_START,
@@ -188,11 +199,13 @@ void DurationStatistics::GameStart(Game& game) {
     local_session.game_pkg = game_pkg;
     local_session.game_start = event.timestamp;
     local_session.last_beats = event.timestamp;
+    local_session.last_timestamp = event.timestamp;
     persistence->UpdateSession(local_session);
     Runtime::Get().Timer().PostEvent(request_config);
 }
 
 void DurationStatistics::OnBackground() {
+    std::unique_lock guard(event_lock);
     ASSERT_MSG(!game_id.empty(), "Set current game first!");
     foreground = false;
     DurEvent event{.action = GAME_BACKGROUND,
@@ -202,12 +215,16 @@ void DurationStatistics::OnBackground() {
                    .game_pkg = game_pkg,
                    .device_id = device_id,
                    .session = game_session,
-                   .timestamp = Timestamp()};
+                   .timestamp = Timestamp(),
+                   .last_timestamp = local_session.last_timestamp};
+    local_session.last_timestamp = event.timestamp;
+    persistence->UpdateSession(local_session);
     persistence->AddOrMergeEvent(event);
     report_queue.Put(event);
 }
 
 void DurationStatistics::OnForeground() {
+    std::unique_lock guard(event_lock);
     ASSERT_MSG(!game_id.empty(), "Set current game first!");
     foreground = true;
     DurEvent event{.action = GAME_FOREGROUND,
@@ -217,12 +234,16 @@ void DurationStatistics::OnForeground() {
                    .game_pkg = game_pkg,
                    .device_id = device_id,
                    .session = game_session,
-                   .timestamp = Timestamp()};
+                   .timestamp = Timestamp(),
+                   .last_timestamp = local_session.last_timestamp};
+    local_session.last_timestamp = event.timestamp;
+    persistence->UpdateSession(local_session);
     persistence->AddOrMergeEvent(event);
     report_queue.Put(event);
 }
 
 void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
+    std::unique_lock guard(event_lock);
     if (user) {
         // login
         if (user_id != user->GetUserId()) {
@@ -235,7 +256,10 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
                            .game_pkg = game_pkg,
                            .device_id = device_id,
                            .session = game_session,
-                           .timestamp = Timestamp()};
+                           .timestamp = Timestamp(),
+                           .last_timestamp = local_session.last_timestamp};
+            local_session.last_timestamp = event.timestamp;
+            persistence->UpdateSession(local_session);
             persistence->AddOrMergeEvent(event);
             report_queue.Put(event);
         }
@@ -256,18 +280,43 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
                        .game_pkg = game_pkg,
                        .device_id = device_id,
                        .session = game_session,
-                       .timestamp = Timestamp()};
+                       .timestamp = Timestamp(),
+                       .last_timestamp = local_session.last_timestamp};
+        local_session.last_timestamp = event.timestamp;
+        local_session.user_id = user_id;
+        local_session.tap_user = tap_user;
+        persistence->UpdateSession(local_session);
         persistence->AddOrMergeEvent(event);
         report_queue.Put(event);
+    }
+}
+
+void DurationStatistics::RefreshConfig(ReportConfig& config, bool net) {
+    std::unique_lock guard(config_lock);
+    report_config = config;
+    online_heat_beat_interval = Ms(config.TapFrequency() * 1000);
+    online_heat_beat_interval_no_tap = Ms(config.NoTapFrequency() * 1000);
+    online_tick_interval =
+            tap_user ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
+    if (net) {
+        Runtime::Get().Timer().SetOnlineTime(Ms(config.ServerTimestamp() * 1000));
+        if (config.Enabled()) {
+            InitReportThread();
+        } else {
+            Stop();
+        }
+        persistence->UpdateConfig(report_config);
     }
 }
 
 u64 DurationStatistics::Timestamp() { return Runtime::Get().Timer().OnlineTimestamp().count(); }
 
 void DurationStatistics::Stop() {
-    running = false;
-    report_queue.Stop();
-    report_retry_event.Set();
+    if (running) {
+        running = false;
+        report_queue.Stop();
+        report_retry_event.Set();
+    }
 }
 
 DurationStatistics::~DurationStatistics() {

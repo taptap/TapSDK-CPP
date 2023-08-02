@@ -40,6 +40,8 @@ u64 ReportConfig::ServerTimestamp() const { return server_ts; }
 
 bool ReportConfig::Enabled() const { return enable; }
 
+bool ReportConfig::NoTapEnabled() const { return no_tap_enable; }
+
 u32 ReportConfig::NoTapFrequency() const { return no_tap_frequency; }
 
 u32 ReportConfig::TapFrequency() const { return tap_frequency; }

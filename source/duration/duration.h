@@ -31,6 +31,8 @@ private:
 
     void InitHeatBeats();
 
+    void InitHistory();
+
     void InitReportThread();
 
     void NewGameSession();
@@ -43,21 +45,24 @@ private:
 
     void OnNewUser(const std::shared_ptr<TDSUser>& user);
 
+    void RefreshConfig(ReportConfig& config, bool net);
+
     u64 Timestamp();
 
     void Stop();
 
-    std::atomic_bool running{true};
+    std::atomic_bool running{false};
     std::atomic_bool foreground{true};
     GameSession local_session{};
     std::shared_mutex event_lock;
+    std::shared_mutex config_lock;
     std::shared_ptr<Event> request_config;
     std::shared_ptr<Event> local_heat_beat;
     std::shared_ptr<Event> online_heat_beat;
-    std::shared_ptr<ReportConfig> report_config;
-    Duration online_heat_beat_interval = Ms(2 * 60 * 1000);
-    Duration online_heat_beat_interval_no_tap = Ms(5 * 60 * 1000);
-    Duration online_tick_interval{online_heat_beat_interval};
+    ReportConfig report_config{};
+    Duration online_heat_beat_interval = Ms(report_config.tap_frequency * 1000);
+    Duration online_heat_beat_interval_no_tap = Ms(report_config.no_tap_frequency * 1000);
+    Duration online_tick_interval{online_heat_beat_interval_no_tap};
     std::unique_ptr<DurPersistence> persistence{};
     dexode::EventBus::Listener event_listener{Runtime::Get().GetEventBus()};
     std::unique_ptr<net::TapHttpClient> http_client{};

@@ -12,7 +12,10 @@ public class App extends Application {
         super.onCreate();
         try {
             TapSDK.initSDK(this);
-            TDSUser.SetCurrent(new TDSUser("test_id") {
+            TDSUser.SetCurrent(new TDSUser("{\n" +
+                    "    \"tds_id\":\"xxxx\",\n" +
+                    "    \"open_id\":\"xxxx\"\n" +
+                    "}") {
                 @Override
                 public boolean ContainTapInfo() {
                     return false;

@@ -74,6 +74,26 @@ void DurPersistence::UpdateSession(GameSession &session) {
     }
 }
 
+void DurPersistence::UpdateConfig(ReportConfig& config) {
+    std::unique_lock guard(lock);
+    if (config.id == 0) {
+        config.id = storage.insert(config);
+    } else {
+        storage.update(config);
+    }
+}
+
+std::optional<ReportConfig> DurPersistence::GetLatestConfig() {
+    std::shared_lock guard(lock);
+    auto latest = storage.get_all<ReportConfig>(order_by(&ReportConfig::id).desc(), limit(1));
+    if (!latest.empty()) {
+        auto& old = latest.back();
+        return old;
+    } else {
+        return std::nullopt;
+    }
+}
+
 std::optional<GameSession> DurPersistence::GetLatestSession() {
     std::shared_lock guard(lock);
     auto latest = storage.get_all<GameSession>(order_by(&GameSession::id).desc(), limit(1));

@@ -43,6 +43,7 @@ struct GameSession {
     std::string game_pkg;
     u64 game_start;
     u64 last_beats;
+    u64 last_timestamp{};
 };
 
 class ReportResult {
@@ -52,21 +53,25 @@ public:
 
 class ReportConfig {
 public:
+    explicit ReportConfig() = default;
+
     explicit ReportConfig(const net::Json& json);
 
     [[nodiscard]] u64 ServerTimestamp() const;
 
     [[nodiscard]] bool Enabled() const;
 
+    [[nodiscard]] bool NoTapEnabled() const;
+
     [[nodiscard]] u32 TapFrequency() const;
 
     [[nodiscard]] u32 NoTapFrequency() const;
 
-private:
-    bool enable;
-    bool no_tap_enable;
-    u32 tap_frequency;
-    u32 no_tap_frequency;
+    u32 id = 0;
+    bool enable = true;
+    bool no_tap_enable = true;
+    u32 tap_frequency = 150;
+    u32 no_tap_frequency = 300;
     u64 available_start_ts;
     u64 server_ts;
 };

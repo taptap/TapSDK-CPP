@@ -14,7 +14,10 @@ public:
 class TestUser : public tapsdk::TDSUser {
 public:
     bool ContainTapInfo() override { return false; }
-    std::string GetUserId() override { return "test_user_id"; }
+    std::string GetUserId() override { return "{\n"
+                                              "    \"tds_id\":\"xxxx\",\n"
+                                              "    \"open_id\":\"xxxx\"\n"
+                                              "}"; }
     std::string GetUserName() override { return "test_device_name"; }
 };
 
