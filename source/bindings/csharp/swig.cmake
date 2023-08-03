@@ -18,7 +18,7 @@ function(add_swig_csharp_library TgtName)
       CPLUSPLUS On
   )
 
-  file(RELATIVE_PATH PathInProject ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  set(PathInProject "bindings/csharp")
   string(REPLACE "/" "." CSharpPackageName ${PathInProject})
   string(REPLACE "-" "_" CSharpPackageName ${CSharpPackageName})
   string(PREPEND CSharpPackageName "com.taptap.tapsdk.")

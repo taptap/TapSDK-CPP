@@ -18,7 +18,7 @@ function(add_swig_jni_library TgtName)
       CPLUSPLUS On
   )
 
-  file(RELATIVE_PATH PathInProject ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  set(PathInProject "bindings/csharp")
   string(REPLACE "/" "." JVMPackageName ${PathInProject})
   string(REPLACE "-" "_" JVMPackageName ${JVMPackageName})
   string(PREPEND JVMPackageName "com.taptap.tapsdk.")
