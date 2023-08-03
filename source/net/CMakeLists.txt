@@ -16,6 +16,8 @@ endif()
 find_package(OpenSSL 1.1)
 if (NOT OPENSSL_FOUND OR IOS)
     target_link_libraries(net PUBLIC ssl crypto)
+else ()
+    target_link_libraries(net PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 endif()
 
 add_compile_definitions(CINATRA_ENABLE_SSL)
