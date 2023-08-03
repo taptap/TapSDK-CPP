@@ -15,7 +15,7 @@ endif()
 
 find_package(OpenSSL 1.1)
 if (NOT OPENSSL_FOUND OR IOS)
-    target_link_libraries(net PUBLIC ssl crypto)
+    target_link_libraries(net PUBLIC ssl)
 else ()
     target_link_libraries(net PUBLIC OpenSSL::SSL OpenSSL::Crypto)
 endif()

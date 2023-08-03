@@ -18,13 +18,12 @@ add_custom_target(
         $<TARGET_FILE:fmt>
         $<TARGET_FILE:net>
         $<TARGET_FILE:core>
-        $<TARGET_FILE:platform>
         $<TARGET_FILE:duration>
         $<TARGET_FILE:EventBus>
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
         $<TARGET_FILE:bindings-csharp>
-        DEPENDS tds_core net base core platform bindings-csharp
+        DEPENDS tds_core net base core bindings-csharp
         COMMENT "Combining libs..."
 )
 
