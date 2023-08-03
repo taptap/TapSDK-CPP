@@ -22,6 +22,8 @@ public:
     static void SetCurrent(const std::shared_ptr<Device> &device);
     static std::shared_ptr<Device> GetCurrent();
 
+    virtual ~Device() = default;
+
     // 当前 Device ID
     virtual std::string GetDeviceID() = 0;
     // 缓存目录

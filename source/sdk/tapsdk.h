@@ -15,6 +15,8 @@ public:
 
     TDSUser(const std::string& user_id = {});
 
+    virtual ~TDSUser() = default;
+
     virtual std::string GetUserId();
     virtual std::string GetUserName() = 0;
     virtual bool ContainTapInfo() = 0;
@@ -26,6 +28,8 @@ class Game {
 public:
     static void SetCurrent(const std::shared_ptr<Game> &game);
     static std::shared_ptr<Game> GetCurrent();
+
+    virtual ~Game() = default;
 
     // 游戏 Game ID
     virtual std::string GetGameID() = 0;
