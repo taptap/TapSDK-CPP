@@ -20,7 +20,7 @@ set_source_files_properties(${STORY_BOARD_FILES} PROPERTIES MACOSX_PACKAGE_LOCAT
 set_source_files_properties(${ICON_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
 add_executable(app MACOSX_BUNDLE ${APP_SOURCES} ${STORY_BOARD_FILES} ${ICON_FILES})
-target_link_libraries(app PRIVATE sdk)
+target_link_libraries(app PRIVATE tds_core)
 target_link_libraries(app PRIVATE "-framework UIKit")
 target_link_libraries(app PRIVATE "-framework CoreGraphics")
 

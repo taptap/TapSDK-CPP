@@ -2,7 +2,7 @@ add_library(bindings-impl STATIC
         bindings.cpp
         bindings.h)
 
-target_link_libraries(bindings-impl PUBLIC sdk)
+target_link_libraries(bindings-impl PUBLIC tds_core)
 
 # bindings for java / csharp
 file(GLOB_RECURSE SWIG_DEFINES ${CMAKE_CURRENT_SOURCE_DIR}/*.swg)

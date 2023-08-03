@@ -23,7 +23,7 @@ jobs:
           chmod +x build-ios.sh
           ./build-ios.sh
           cd ../ios/build/source/sdk
-          zip -r sdk.framework.zip sdk.framework
+          zip -r tds_core.framework.zip tds_core.framework
 
       - name: Build sim
         run: |
@@ -31,20 +31,20 @@ jobs:
           chmod +x build-ios-sim.sh
           ./build-ios-sim.sh
           cd ../ios/build-sim/source/sdk
-          zip -r sdk.framework.zip sdk.framework
+          zip -r tds_core.framework.zip tds_core.framework
 
       - name: Upload sdk
         uses: actions/upload-artifact@v3.1.2
         with:
           # Artifact name
-          name: sdk.framework.zip
+          name: tds_core.framework.zip
           # A file, directory or wildcard pattern that describes what to upload
-          path: ios/build/source/sdk/sdk.framework.zip
+          path: ios/build/source/sdk/tds_core.framework.zip
 
       - name: Upload sdk sim
         uses: actions/upload-artifact@v3.1.2
         with:
           # Artifact name
-          name: sdk.framework.sim.zip
+          name: tds_core.framework.sim.zip
           # A file, directory or wildcard pattern that describes what to upload
-          path: ios/build-sim/source/sdk/sdk.framework.zip
+          path: ios/build-sim/source/sdk/tds_core.framework.zip

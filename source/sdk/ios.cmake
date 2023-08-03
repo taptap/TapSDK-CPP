@@ -1,10 +1,10 @@
-target_link_libraries(sdk PRIVATE
+target_link_libraries(tds_core PRIVATE
         objc
         "-framework CoreFoundation"
         "-framework Foundation")
 
 set(TARGET_DEPENDENCIES)
-get_target_property(TARGET_DEPENDENCIES sdk LINK_LIBRARIES)
+get_target_property(TARGET_DEPENDENCIES tds_core LINK_LIBRARIES)
 foreach (TARGET_DEPENDENCY ${TARGET_DEPENDENCIES})
     message(STATUS "TARGET_DEPENDENCY: ${TARGET_DEPENDENCY}")
 endforeach ()
@@ -12,8 +12,8 @@ endforeach ()
 # CMake 直接打包 dylib 需要手动合并依赖的 targets
 add_custom_target(
         sdk_combine
-        COMMAND libtool -static -o $<TARGET_FILE:sdk>
-        $<TARGET_FILE:sdk>
+        COMMAND libtool -static -o $<TARGET_FILE:tds_core>
+        $<TARGET_FILE:tds_core>
         $<TARGET_FILE:base>
         $<TARGET_FILE:fmt>
         $<TARGET_FILE:net>
@@ -24,11 +24,11 @@ add_custom_target(
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
         $<TARGET_FILE:bindings-csharp>
-        DEPENDS sdk net base core platform bindings-csharp
+        DEPENDS tds_core net base core platform bindings-csharp
         COMMENT "Combining libs..."
 )
 
-set_target_properties(sdk PROPERTIES
+set_target_properties(tds_core PROPERTIES
         FRAMEWORK TRUE
         FRAMEWORK_VERSION A
         MACOSX_FRAMEWORK_IDENTIFIER com.taptap.tapsdk
