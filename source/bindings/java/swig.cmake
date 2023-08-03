@@ -18,7 +18,7 @@ function(add_swig_jni_library TgtName)
       CPLUSPLUS On
   )
 
-  set(PathInProject "bindings/csharp")
+  set(PathInProject "bindings/java")
   string(REPLACE "/" "." JVMPackageName ${PathInProject})
   string(REPLACE "-" "_" JVMPackageName ${JVMPackageName})
   string(PREPEND JVMPackageName "com.taptap.tapsdk.")
