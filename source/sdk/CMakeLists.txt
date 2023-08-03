@@ -1,5 +1,8 @@
 #export module
 
+set(CMAKE_C_VISIBILITY_PRESET default)
+set(CMAKE_CXX_VISIBILITY_PRESET default)
+
 if (ANDROID)
     set(SDK_BUILD_TYPE SHARED)
 else ()

@@ -56,7 +56,7 @@ target_sources(sqlite_orm INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/incl
 
 target_include_directories(sqlite_orm INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>)
 
-include(ucm)
+#include(ucm)
 
 if (MSVC)
     string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")    
@@ -81,7 +81,7 @@ if (MSVC)
     endif()
 endif()
 
-ucm_print_flags()
+#ucm_print_flags()
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 # Tests

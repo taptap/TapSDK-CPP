@@ -7,7 +7,7 @@ add_library(net STATIC
         coro_httpclient.h
 )
 
-target_link_libraries(net PUBLIC base nlohmann_json httplib)
+target_link_libraries(net PUBLIC base nlohmann_json)
 
 if (WIN32)
     target_link_libraries(net PUBLIC wsock32)
