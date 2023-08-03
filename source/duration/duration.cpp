@@ -85,7 +85,6 @@ void DurationStatistics::InitReportThread() {
     running = true;
     report_thread = std::make_unique<std::thread>([this]() {
         SetCurrentThreadName("EventReporter");
-        u64 latest_online_report{};
         while (running) {
             auto events = report_queue.Take(max_report_events);
 
@@ -103,7 +102,6 @@ void DurationStatistics::InitReportThread() {
                     if (has_heat_beats || !foreground) {
                         continue;
                     }
-                    latest_online_report = now;
                     event.timestamp = now;
                     event.last_timestamp = local_session.last_timestamp;
                     has_heat_beats = true;
@@ -116,7 +114,6 @@ void DurationStatistics::InitReportThread() {
                         http_client->PostSync<ReportResult>("statistics", {}, {}, reports);
                 report_success = report_result.has_value();
                 if (report_success) {
-                    latest_online_report = now;
                     persistence->Delete(events);
                     if (has_heat_beats) {
                         std::unique_lock guard(event_lock);
@@ -169,8 +166,6 @@ void DurationStatistics::NewGameSession() {
                            .session = session.session,
                            .timestamp = session.last_beats,
                            .last_timestamp = session.last_timestamp};
-        local_session.last_timestamp = new_event.timestamp;
-        persistence->UpdateSession(local_session);
         persistence->AddOrMergeEvent(new_event);
         user_id = latest_session->user_id;
         tap_user = latest_session->tap_user;
@@ -220,6 +215,7 @@ void DurationStatistics::OnBackground() {
                    .session = game_session,
                    .timestamp = Timestamp(),
                    .last_timestamp = local_session.last_timestamp};
+    local_session.last_beats = event.timestamp;
     local_session.last_timestamp = event.timestamp;
     persistence->UpdateSession(local_session);
     persistence->AddOrMergeEvent(event);
@@ -239,6 +235,7 @@ void DurationStatistics::OnForeground() {
                    .session = game_session,
                    .timestamp = Timestamp(),
                    .last_timestamp = local_session.last_timestamp};
+    local_session.last_beats = event.timestamp;
     local_session.last_timestamp = event.timestamp;
     persistence->UpdateSession(local_session);
     persistence->AddOrMergeEvent(event);
@@ -261,6 +258,7 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
                            .session = game_session,
                            .timestamp = Timestamp(),
                            .last_timestamp = local_session.last_timestamp};
+            local_session.last_beats = event.timestamp;
             local_session.last_timestamp = event.timestamp;
             persistence->UpdateSession(local_session);
             persistence->AddOrMergeEvent(event);
@@ -285,6 +283,7 @@ void DurationStatistics::OnNewUser(const std::shared_ptr<TDSUser>& user) {
                        .session = game_session,
                        .timestamp = Timestamp(),
                        .last_timestamp = local_session.last_timestamp};
+        local_session.last_beats = event.timestamp;
         local_session.last_timestamp = event.timestamp;
         local_session.user_id = user_id;
         local_session.tap_user = tap_user;
