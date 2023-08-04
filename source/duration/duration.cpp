@@ -128,7 +128,7 @@ void DurationStatistics::InitReportThread() {
                     auto err_code = report_result.error().status;
                     if (err_code >= 400 && err_code < 500 && err_code != 404) {
                         persistence->Delete(events);
-                        continue;
+                        break;
                     }
                 }
             } while (!report_success && running);
