@@ -22,8 +22,9 @@ add_custom_target(
         $<TARGET_FILE:EventBus>
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
+        $<TARGET_FILE:bindings-impl>
         $<TARGET_FILE:bindings-csharp>
-        DEPENDS tds_core net base core bindings-csharp
+        DEPENDS tds_core net base core bindings-impl bindings-csharp
         COMMENT "Combining libs..."
 )
 
