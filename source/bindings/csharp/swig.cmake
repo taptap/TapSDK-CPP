@@ -26,9 +26,9 @@ function(add_swig_csharp_library TgtName)
   string(REPLACE "." "/" OutDir ${CSharpPackageName})
   string(CONCAT OutDirAbs ${CSHARP_BINDING}/${OutDir})
 
-  if (ANDROID)
+  if (IOS)
     swig_add_library(${TgtName}
-            TYPE SHARED
+            TYPE STATIC
             LANGUAGE csharp
             OUTPUT_DIR ${OutDirAbs}
             OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
@@ -37,7 +37,7 @@ function(add_swig_csharp_library TgtName)
     )
   else ()
     swig_add_library(${TgtName}
-            TYPE STATIC
+            TYPE SHARED
             LANGUAGE csharp
             OUTPUT_DIR ${OutDirAbs}
             OUTFILE_DIR ${CMAKE_CURRENT_BINARY_DIR}/cpp
