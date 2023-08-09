@@ -16,7 +16,7 @@ void DurationStatistics::Init() {
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
-    http_client = net::CreateHttpClient("tds-activity-collector.xdrnd.cn/report/v1", true);
+    http_client = net::CreateHttpClient("tds-activity-collector.tapapis.cn/report/v1", true);
     NewGameSession();
     InitEvents();
     InitHeatBeats();
