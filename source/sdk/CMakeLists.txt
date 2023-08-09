@@ -1,6 +1,6 @@
 #export module
 
-if (ANDROID)
+if (ANDROID OR WIN32)
     set(SDK_BUILD_TYPE SHARED)
     set(TDS_LINK_FLAGS "-Wl,--exclude-libs,ALL")
 else ()
