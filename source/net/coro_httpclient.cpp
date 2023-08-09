@@ -7,7 +7,7 @@
 #include "fmt/format.h"
 #include "sdk/platform.h"
 
-static constexpr char* DEFAULT_CA_PEM =
+const static auto DEFAULT_CA_PEM =
         "-----BEGIN CERTIFICATE-----\n"
         "MIIDKDCCAhACCQDHu0UVVUEr4DANBgkqhkiG9w0BAQsFADBWMQswCQYDVQQGEwJD\n"
         "TjEVMBMGA1UEBwwMRGVmYXVsdCBDaXR5MRwwGgYDVQQKDBNEZWZhdWx0IENvbXBh\n"

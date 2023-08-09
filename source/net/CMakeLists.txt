@@ -11,6 +11,9 @@ target_link_libraries(net PUBLIC base nlohmann_json)
 
 if (WIN32)
     target_link_libraries(net PUBLIC wsock32)
+    if (MINGW)
+        target_link_libraries(net PUBLIC $<$<PLATFORM_ID:Windows>:ws2_32>)
+    endif()
 endif()
 
 find_package(OpenSSL 1.1)
