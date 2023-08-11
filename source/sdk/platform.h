@@ -9,6 +9,12 @@
 
 namespace tapsdk::platform {
 
+enum class DeviceType {
+    Local,
+    Sandbox,
+    Cloud
+};
+
 class Window {
 public:
     // 当 App 进入前台
@@ -30,6 +36,8 @@ public:
     virtual std::string GetCacheDir() = 0;
     // CA 证书目录 (可选)
     virtual std::string GetCaCertDir() = 0;
+    // 设备类型
+    virtual DeviceType GetDeviceType();
 };
 
 }

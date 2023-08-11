@@ -27,4 +27,8 @@ std::shared_ptr<Device> Device::GetCurrent() {
     return current_device;
 }
 
+DeviceType Device::GetDeviceType() {
+    return DeviceType::Local;
+}
+
 }

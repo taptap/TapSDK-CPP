@@ -3,6 +3,8 @@
 //
 
 #include "bindings.h"
+
+#include <utility>
 #include "sdk/tapsdk.h"
 #include "sdk/platform.h"
 
@@ -11,7 +13,7 @@ namespace tapsdk::bindings {
 class BDevice : public platform::Device {
 public:
 
-    BDevice(const BridgeConfig &config) : config(config) {}
+    explicit BDevice(BridgeConfig config) : config(std::move(config)) {}
 
     std::string GetDeviceID() override {
         return config.device_id;
@@ -25,6 +27,19 @@ public:
         return config.ca_dir;
     }
 
+    platform::DeviceType GetDeviceType() override {
+        switch (config.device_type) {
+            case DEV_TYPE_LOCAL:
+                return platform::DeviceType::Local;
+            case DEV_TYPE_SANDBOX:
+                return platform::DeviceType::Sandbox;
+            case DEV_TYPE_CLOUD:
+                return platform::DeviceType::Cloud;
+            default:
+                throw std::runtime_error("UnSupport Device!");
+        }
+    }
+
 private:
     BridgeConfig config;
 };
@@ -32,7 +47,7 @@ private:
 class BGame : public tapsdk::Game {
 public:
 
-    BGame(const BridgeGame &info) : game_info(info) {}
+    explicit BGame(BridgeGame info) : game_info(std::move(info)) {}
 
     std::string GetGameID() override {
         return game_info.client_id;
@@ -49,7 +64,7 @@ private:
 class BUser : public TDSUser {
 public:
 
-    BUser(const BridgeUser &info) : info(info) {}
+    explicit BUser(BridgeUser info) : info(std::move(info)) {}
 
     std::string GetUserId() override {
         return info.user_id;
