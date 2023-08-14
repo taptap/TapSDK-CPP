@@ -15,6 +15,7 @@ void DurationStatistics::Init() {
     auto cur_device = platform::Device::GetCurrent();
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
+    dev_type = cur_device->GetDeviceType();
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
     http_client = net::CreateHttpClient("tds-activity-collector.tapapis.cn/report/v1", true);
     NewGameSession();
@@ -96,6 +97,7 @@ void DurationStatistics::InitReportThread() {
                 bool has_heat_beats{false};
                 for (auto& event : events) {
                     if (event.action != HEAT_BEAT) {
+                        event.dev_type = dev_type;
                         reports.emplace_back(event);
                         continue;
                     }
@@ -105,6 +107,7 @@ void DurationStatistics::InitReportThread() {
                     event.timestamp = now;
                     event.last_timestamp = local_session.last_timestamp;
                     has_heat_beats = true;
+                    event.dev_type = dev_type;
                     reports.emplace_back(event);
                 }
                 if (reports.empty()) {

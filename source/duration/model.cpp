@@ -27,6 +27,19 @@ const char* ActionString(EventAction action) {
     }
 }
 
+const char* DevTypeString(platform::DeviceType type) {
+    switch (type) {
+        case platform::DeviceType::Local:
+            return "local";
+        case platform::DeviceType::Sandbox:
+            return "sandbox";
+        case platform::DeviceType::Cloud:
+            return "cloud";
+        default:
+            return "";
+    }
+}
+
 ReportConfig::ReportConfig(const net::Json& json) {
     enable = json["enable"];
     no_tap_enable = json["notap_enable"];
@@ -67,6 +80,7 @@ net::Json ReportContent::ToJson() {
         extra["last_ts"] = event.last_timestamp / 1000;
     }
     json["extra"] = extra;
+    json["environment"] = DevTypeString(event.dev_type);
     return std::move(json);
 }
 

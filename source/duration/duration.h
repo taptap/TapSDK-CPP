@@ -12,6 +12,7 @@
 #include "core/runtime.h"
 #include "duration/persistence.h"
 #include "net/network.h"
+#include "sdk/platform.h"
 
 namespace tapsdk::duration {
 
@@ -70,6 +71,7 @@ private:
     BlockingQueue<DurEvent> report_queue{UINT32_MAX};
     HostEvent report_retry_event{};
     bool tap_user;
+    platform::DeviceType dev_type;
     std::string device_id;
     std::string user_id;
     std::string game_id;

@@ -6,6 +6,7 @@
 
 #include "base/types.h"
 #include "net/httpclient.h"
+#include "sdk/platform.h"
 
 namespace tapsdk::duration {
 class DurPersistence;
@@ -32,6 +33,7 @@ struct DurEvent {
     std::string session;
     u64 timestamp;
     u64 last_timestamp{};
+    platform::DeviceType dev_type{platform::DeviceType::Local};
 };
 
 struct GameSession {
