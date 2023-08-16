@@ -30,14 +30,14 @@ jobs:
         uses: actions/upload-artifact@v3.1.2
         with:
           # Artifact name
-          name: libtds_core.a
+          name: libtds_core.so
           # A file, directory or wildcard pattern that describes what to upload
-          path: build/source/sdk/libtds_core.a
+          path: build/source/sdk/libtds_core.so
 
       - name: Upload csharp-binding
         uses: actions/upload-artifact@v3.1.2
         with:
           # Artifact name
-          name: libcsharp-binding.a
+          name: libcsharp-binding.so
           # A file, directory or wildcard pattern that describes what to upload
-          path: build/source/bindings/libcsharp-binding.a
+          path: build/source/bindings/libcsharp-binding.so
