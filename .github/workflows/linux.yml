@@ -14,6 +14,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: install ninja
+        run: sudo apt-get install ninja-build
+
       - name: install swig
         run: sudo apt-get install swig
 
