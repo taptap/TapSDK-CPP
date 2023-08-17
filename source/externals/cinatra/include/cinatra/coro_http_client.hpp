@@ -1186,10 +1186,9 @@ class coro_http_client {
     }
 
     if (should_add) {
-      char buf[32];
-      auto [ptr, ec] = std::to_chars(buf, buf + 32, content_len);
+      auto len_str = fmt::format("{}", content_len);
       req_str.append("Content-Length: ")
-          .append(std::string_view(buf, ptr - buf))
+          .append(len_str)
           .append("\r\n");
     }
 
