@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <string_view>
 #include <unordered_map>
-namespace fs = std::filesystem;
+#include "ghc/fs_std_select.hpp"
 
 namespace cinatra {
 enum class content_type {

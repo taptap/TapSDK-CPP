@@ -1,6 +1,7 @@
 #pragma once
 #include "utils.hpp"
 #include <string>
+#include "ghc/fs_std_select.hpp"
 
 namespace cinatra::smtp {
 struct email_server {
@@ -130,7 +131,7 @@ private:
     }
 
     std::string filename =
-        std::filesystem::path(data_.filepath).filename().string();
+        fs::path(data_.filepath).filename().string();
     out << "--cinatra\r\nContent-Type: application/octet-stream; name=\""
         << filename << "\"\r\n";
     out << "Content-Transfer-Encoding: base64\r\n";

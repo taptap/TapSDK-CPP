@@ -19,7 +19,7 @@
 #ifndef ASYNC_SIMPLE_UTIL_CONDITION_H
 #define ASYNC_SIMPLE_UTIL_CONDITION_H
 
-#if __has_include(<semaphore>)
+#if __has_include(<semaphore>) && !defined(__APPLE__)
 #include <semaphore>
 #else
 #include <atomic>
@@ -30,7 +30,7 @@
 namespace async_simple {
 namespace util {
 
-#if __has_include(<semaphore>)
+#if __has_include(<semaphore>) && !defined(__APPLE__)
 class Condition : public std::binary_semaphore {
 public:
     explicit Condition(ptrdiff_t num = 0) : std::binary_semaphore(num) {}

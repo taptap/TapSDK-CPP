@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <filesystem>
+#include "ghc/fs_std_select.hpp"
 #include <memory>
 #include <shared_mutex>
 #include "duration/model.h"
@@ -13,7 +13,7 @@
 namespace tapsdk::duration {
 using namespace sqlite_orm;
 
-inline auto InitDB(const std::filesystem::path& path) {
+inline auto InitDB(const fs::path& path) {
     auto event_table = make_table<DurEvent>("dur_event",
                                             make_column("id", &DurEvent::id, primary_key().autoincrement()),
                                             make_column("action", &DurEvent::action),
@@ -48,7 +48,7 @@ using Storage = decltype(InitDB(""));
 
 class DurPersistence {
 public:
-    explicit DurPersistence(const std::filesystem::path& cache_dir);
+    explicit DurPersistence(const fs::path& cache_dir);
 
     void AddOrMergeEvent(DurEvent &event);
 

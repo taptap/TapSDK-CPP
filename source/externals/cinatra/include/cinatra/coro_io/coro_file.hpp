@@ -15,8 +15,6 @@
  */
 #pragma once
 #include <asio/io_context.hpp>
-#include <filesystem>
-#include <fstream>
 
 #include "async_simple/Promise.h"
 #include "async_simple/Traits.h"
@@ -39,6 +37,7 @@
 #include "asio/error.hpp"
 #include "async_simple/coro/Lazy.h"
 #include "coro_io.hpp"
+#include "ghc/fs_std_select.hpp"
 
 namespace coro_io {
 #if defined(ENABLE_FILE_IO_URING)
@@ -86,8 +85,7 @@ class coro_file {
     std::ios::openmode open_flags = flags == open_mode::read
                                         ? std::ios::binary | std::ios::in
                                         : std::ios::out | std::ios::app;
-    stream_file_ = std::make_unique<std::fstream>(
-        std::filesystem::path(filepath), open_flags);
+    stream_file_ = std::make_unique<fs::fstream>(fs::path(filepath), open_flags);
     if (!stream_file_->is_open()) {
       std::cout << "open file " << filepath << " failed "
                 << "\n";
@@ -115,7 +113,7 @@ class coro_file {
 
   static size_t file_size(std::string_view filepath) {
     std::error_code ec;
-    size_t size = std::filesystem::file_size(filepath, ec);
+    size_t size = fs::file_size(filepath, ec);
     return size;
   }
 

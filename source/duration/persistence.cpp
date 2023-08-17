@@ -7,7 +7,7 @@
 
 namespace tapsdk::duration {
 
-DurPersistence::DurPersistence(const std::filesystem::path& cache_dir)
+DurPersistence::DurPersistence(const fs::path& cache_dir)
         : storage{InitDB(cache_dir / "tap_dur.sqlite")} {
     storage.sync_schema();
 }

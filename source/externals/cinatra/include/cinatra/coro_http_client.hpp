@@ -25,6 +25,7 @@
 #include "response_cv.hpp"
 #include "uri.hpp"
 #include "websocket.hpp"
+#include "ghc/fs_std_select.hpp"
 
 namespace coro_io {
 template <typename T, typename U>
@@ -269,8 +270,8 @@ class coro_http_client {
                               const std::string &domain = "localhost") {
     try {
       ssl_init_ret_ = false;
-      auto full_cert_file = std::filesystem::path(base_path).append(cert_file);
-      if (std::filesystem::exists(full_cert_file)) {
+      auto full_cert_file = fs::path(base_path).append(cert_file);
+      if (fs::exists(full_cert_file)) {
         ssl_ctx_.load_verify_file(full_cert_file.string());
       }
       else {
@@ -620,19 +621,19 @@ class coro_http_client {
     }
 
     std::error_code ec;
-    bool r = std::filesystem::exists(filename, ec);
+    bool r = fs::exists(filename, ec);
     if (!r || ec) {
 #ifndef NDEBUG
       if (ec) {
         std::cout << ec.message() << "\n";
       }
       std::cout << "file not exists, "
-                << std::filesystem::current_path().string() << std::endl;
+                << fs::current_path().string() << std::endl;
 #endif
       return false;
     }
 
-    size_t file_size = std::filesystem::file_size(filename);
+    size_t file_size = fs::file_size(filename);
     form_data_.emplace(std::move(name),
                        multipart_t{std::move(filename), "", file_size});
     return true;
@@ -845,7 +846,7 @@ class coro_http_client {
       co_return resp_data{{}, 404};
     }
 
-    if (!std::filesystem::exists(filename)) {
+    if (!fs::exists(filename)) {
       co_return resp_data{
           std::make_error_code(std::errc::no_such_file_or_directory), 404};
     }
@@ -1460,7 +1461,7 @@ class coro_http_client {
       content_len += key.size() + 1;
       if (!part.filename.empty()) {
         content_len += (12 + part.filename.size() + 1);
-        auto ext = std::filesystem::path(part.filename).extension().string();
+        auto ext = fs::path(part.filename).extension().string();
         if (auto it = g_content_type_map.find(ext);
             it != g_content_type_map.end()) {
           content_len += (14 + it->second.size());
@@ -1483,17 +1484,17 @@ class coro_http_client {
     part_content_head.append(key).append("\"");
     bool is_file = !part.filename.empty();
     std::string short_name =
-        std::filesystem::path(part.filename).filename().string();
+        fs::path(part.filename).filename().string();
     if (is_file) {
       part_content_head.append("; filename=\"").append(short_name).append("\"");
-      auto ext = std::filesystem::path(short_name).extension().string();
+      auto ext = fs::path(short_name).extension().string();
       if (auto it = g_content_type_map.find(ext);
           it != g_content_type_map.end()) {
         part_content_head.append("Content-Type: ").append(it->second);
       }
 
       std::error_code ec;
-      if (!std::filesystem::exists(part.filename, ec)) {
+      if (!fs::exists(part.filename, ec)) {
         co_return resp_data{
             std::make_error_code(std::errc::no_such_file_or_directory), 404};
       }
