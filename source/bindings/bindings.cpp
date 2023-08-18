@@ -91,8 +91,12 @@ void InitSDK(BridgeConfig &config) {
     Init(conf);
 }
 
-void SetCurrentUser(BridgeUser &user) {
-    TDSUser::SetCurrent(std::make_shared<BUser>(user));
+void SetCurrentUser(BridgeUser *user) {
+    if (user) {
+        TDSUser::SetCurrent(std::make_shared<BUser>(*user));
+    } else {
+        TDSUser::SetCurrent({});
+    }
 }
 
 void SetCurrentGame(BridgeGame &game) {

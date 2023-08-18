@@ -32,7 +32,7 @@ struct BridgeGame {
 
 void InitSDK(BridgeConfig &config);
 void SetCurrentGame(BridgeGame &game);
-void SetCurrentUser(BridgeUser &user);
+void SetCurrentUser(BridgeUser *user);
 
 void OnWindowForeground();
 void OnWindowBackground();
