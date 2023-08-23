@@ -26,7 +26,7 @@ function(add_swig_csharp_library TgtName)
   string(REPLACE "." "/" OutDir ${CSharpPackageName})
   string(CONCAT OutDirAbs ${CSHARP_BINDING}/${OutDir})
 
-  if (IOS)
+  if (APPLE)
     swig_add_library(${TgtName}
             TYPE STATIC
             LANGUAGE csharp
@@ -35,6 +35,7 @@ function(add_swig_csharp_library TgtName)
             SOURCES
             ${SWIG_CSHARP_LIB_SOURCES}
     )
+    set_target_properties(${TgtName} PROPERTIES SUFFIX ".a")
   else ()
     swig_add_library(${TgtName}
             TYPE SHARED
@@ -44,10 +45,6 @@ function(add_swig_csharp_library TgtName)
             SOURCES
             ${SWIG_CSHARP_LIB_SOURCES}
     )
-  endif()
-
-  if(APPLE)
-    set_target_properties(${TgtName} PROPERTIES SUFFIX ".a")
   endif()
 
   set_property(TARGET ${TgtName} PROPERTY SWIG_COMPILE_OPTIONS -namespace ${CSharpPackageName})

@@ -9,6 +9,14 @@ foreach (TARGET_DEPENDENCY ${TARGET_DEPENDENCIES})
     message(STATUS "TARGET_DEPENDENCY: ${TARGET_DEPENDENCY}")
 endforeach ()
 
+if (DEFINED CSHARP_BINDING)
+    set(TARGET_FILE_BINDING $<TARGET_FILE:bindings-csharp>)
+    set(TARGET_DEPEND_BINDING bindings-csharp)
+else ()
+    set(TARGET_FILE_BINDING)
+    set(TARGET_DEPEND_BINDING)
+endif ()
+
 # CMake 直接打包 dylib 需要手动合并依赖的 targets
 add_custom_target(
         sdk_combine
@@ -23,8 +31,8 @@ add_custom_target(
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
         $<TARGET_FILE:bindings-impl>
-        $<TARGET_FILE:bindings-csharp>
-        DEPENDS tds_core net base core bindings-impl bindings-csharp
+        ${TARGET_FILE_BINDING}
+        DEPENDS tds_core net base core bindings-impl ${TARGET_DEPEND_BINDING}
         COMMENT "Combining libs..."
 )
 

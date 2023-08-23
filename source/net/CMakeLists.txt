@@ -17,7 +17,7 @@ if (WIN32)
 endif()
 
 find_package(OpenSSL 1.1)
-if (NOT OPENSSL_FOUND OR IOS)
+if (NOT OPENSSL_FOUND OR APPLE)
     target_link_libraries(net PUBLIC ssl)
 else ()
     target_link_libraries(net PUBLIC OpenSSL::SSL OpenSSL::Crypto)

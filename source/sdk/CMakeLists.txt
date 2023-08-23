@@ -23,6 +23,6 @@ set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/platform.h
 )
 
-if (IOS)
-    include(ios.cmake)
+if (APPLE)
+    include(apple.cmake)
 endif()
