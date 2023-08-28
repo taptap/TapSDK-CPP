@@ -21,6 +21,7 @@ target_link_libraries(tds_core PRIVATE duration net ${TDS_LINK_FLAGS})
 set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/tapsdk.h
         ${CMAKE_CURRENT_SOURCE_DIR}/platform.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/future.h
 )
 
 if (APPLE)

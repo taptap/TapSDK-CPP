@@ -53,4 +53,9 @@ std::shared_ptr<Game> Game::GetCurrent() {
     return current_game;
 }
 
+Future<TDSUser> Login(const char *name, const char *passwd) {
+    Future<TDSUser> future{};
+    return future;
+}
+
 }  // namespace tapsdk

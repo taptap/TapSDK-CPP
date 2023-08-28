@@ -4,6 +4,7 @@
 /* Put headers and other declarations here */
 #include "bindings/bindings.h"
 #include <memory>
+using namespace tapsdk;
 %}
 
 // 添加系统的一些文件，处理一些常用的基本类型，具体可以参考SWIG的帮助文档
@@ -13,6 +14,7 @@
 %include windows.i
 %include typemaps.i
 %include std_shared_ptr.i
+%include std_function.i
 #ifdef SWIGJAVA   //swig到java的swig预定义宏
 %include <enums.swg>
 %rename (toDString) toString;
@@ -22,4 +24,10 @@
 %shared_ptr(tapsdk::Game);
 %feature("director") TDSUser;
 %feature("director") Game;
+%std_function(FutureCallback, void, Result<TDSUser>);
+%include "sdk/future.h"
 %include "sdk/tapsdk.h"
+namespace tapsdk {
+%template(TDSUserResult) Result<TDSUser>;
+%template(TDSUserFuture) Future<TDSUser>;
+}

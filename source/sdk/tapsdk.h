@@ -3,6 +3,7 @@
 #include <memory>
 #include <string>
 #include <cstdint>
+#include "future.h"
 
 namespace tapsdk {
 
@@ -43,5 +44,7 @@ struct Config {
 };
 
 bool Init(const Config &config);
+
+Future<TDSUser> Login(const char *name, const char *passwd);
 
 }  // namespace tapsdk
