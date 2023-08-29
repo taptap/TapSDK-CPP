@@ -136,7 +136,7 @@ void DurationStatistics::InitReportThread() {
                     LOG_DEBUG("ReportSuccess: {}", reports.size());
                 } else {
                     LOG_ERROR("ReportFailed: code: {}, msg: {}",
-                              report_result.error().code,
+                              report_result.error().status,
                               report_result.error().msg);
                     auto err_code = report_result.error().status;
                     if (err_code >= 400 && err_code < 500 && err_code != 404) {
