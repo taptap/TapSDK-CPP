@@ -26,7 +26,7 @@ bool Init(const Config& config) {
     Runtime::Get().Init();
     if (sdk_config.enable_duration_statistics) {
         duration_statistics = std::make_unique<duration::DurationStatistics>();
-        duration_statistics->Init();
+        duration_statistics->Init(sdk_config.region);
     }
     return true;
 }

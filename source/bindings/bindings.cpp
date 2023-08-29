@@ -85,9 +85,9 @@ private:
 void InitSDK(BridgeConfig &config) {
     platform::Device::SetCurrent(std::make_shared<BDevice>(config));
     Config conf {
-        config.enable_duration_statistics = config.enable_duration_statistics
+        .enable_duration_statistics = config.enable_duration_statistics,
+        .region = config.region
     };
-
     Init(conf);
 }
 

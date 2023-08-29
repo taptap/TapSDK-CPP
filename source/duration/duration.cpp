@@ -11,13 +11,21 @@
 
 namespace tapsdk::duration {
 
-void DurationStatistics::Init() {
+void DurationStatistics::Init(Region region) {
     auto cur_device = platform::Device::GetCurrent();
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
     dev_type = cur_device->GetDeviceType();
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
-    http_client = net::CreateHttpClient("tds-activity-collector.tapapis.cn/report/v1", true);
+    const char* url;
+    if (region == Region::Global) {
+        url = "tds-activity-collector.tapapis.com/report/v1";
+    } else if (region == Region::CN) {
+        url = "tds-activity-collector.tapapis.cn/report/v1";
+    } else {
+        ASSERT_MSG(false, "Unk region {} !", static_cast<int>(region));
+    }
+    http_client = net::CreateHttpClient(url, true);
     NewGameSession();
     InitEvents();
     InitHeatBeats();
@@ -127,7 +135,9 @@ void DurationStatistics::InitReportThread() {
                     }
                     LOG_DEBUG("ReportSuccess: {}", reports.size());
                 } else {
-                    LOG_ERROR("ReportFailed: code: {}, msg: {}", report_result.error().code, report_result.error().msg);
+                    LOG_ERROR("ReportFailed: code: {}, msg: {}",
+                              report_result.error().code,
+                              report_result.error().msg);
                     auto err_code = report_result.error().status;
                     if (err_code >= 400 && err_code < 500 && err_code != 404) {
                         persistence->Delete(events);
@@ -305,8 +315,7 @@ void DurationStatistics::RefreshConfig(ReportConfig& config, bool net) {
     report_config = config;
     online_heat_beat_interval = Ms(config.TapFrequency() * 1000);
     online_heat_beat_interval_no_tap = Ms(config.NoTapFrequency() * 1000);
-    online_tick_interval =
-            tap_user ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
+    online_tick_interval = tap_user ? online_heat_beat_interval : online_heat_beat_interval_no_tap;
     if (net) {
         Runtime::Get().Timer().SetOnlineTime(Ms(config.ServerTimestamp() * 1000));
         if (config.Enabled()) {
