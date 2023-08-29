@@ -67,7 +67,7 @@ std::shared_ptr<cinatra::coro_http_client> CoroHttpClient::AcquireClient() {
         if (https) {
             auto cur_device = platform::Device::GetCurrent();
             auto ca_cert_path = cur_device ? cur_device->GetCaCertDir() : "";
-            client->set_·(host);
+            client->set_sni_hostname(host);
             if (!ca_cert_path.empty()) {
                 client->init_ssl(ca_cert_path);
             } else {
