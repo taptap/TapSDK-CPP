@@ -19,9 +19,9 @@ void DurationStatistics::Init(Region region) {
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
     const char* url;
     if (region == Region::Global) {
-        url = "tds-activity-collector.tapapis.com/report/v1";
+        url = "tds-activity-collector.tapapis.com";
     } else if (region == Region::CN) {
-        url = "tds-activity-collector.tapapis.cn/report/v1";
+        url = "tds-activity-collector.tapapis.cn";
     } else {
         ASSERT_MSG(false, "Unk region {} !", static_cast<int>(region));
     }
@@ -122,7 +122,7 @@ void DurationStatistics::InitReportThread() {
                     continue;
                 }
                 auto report_result =
-                        http_client->PostSync<ReportResult>("statistics", {}, {}, reports);
+                        http_client->PostSync<ReportResult>("report/v1/statistics", {}, {}, reports);
                 report_success = report_result.has_value();
                 if (report_success) {
                     persistence->Delete(events);
@@ -155,7 +155,7 @@ void DurationStatistics::InitRequest() {
             [this](Duration later, std::uintptr_t user_data) {
                 constexpr auto config_retry = Ms(3 * 1000);
                 auto config_retry_times = 3;
-                WebPath function{"config"};
+                WebPath function{"report/v1/config"};
                 auto result = http_client->GetSync<ReportConfig>(function / game_id, {}, {});
                 if (result) {
                     RefreshConfig(**result, true);
