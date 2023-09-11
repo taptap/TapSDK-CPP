@@ -14,7 +14,6 @@ using namespace tapsdk;
 %include windows.i
 %include typemaps.i
 %include std_shared_ptr.i
-%include std_function.i
 #ifdef SWIGJAVA   //swig到java的swig预定义宏
 %include <enums.swg>
 %rename (toDString) toString;
@@ -24,10 +23,11 @@ using namespace tapsdk;
 %shared_ptr(tapsdk::Game);
 %feature("director") TDSUser;
 %feature("director") Game;
-%std_function(FutureCallback, void, Result<TDSUser>);
+%feature("director") FutureCallback<TDSUser>;
 %include "sdk/future.h"
 %include "sdk/tapsdk.h"
 namespace tapsdk {
+%template(TDSUserCallback) FutureCallback<TDSUser>;
 %template(TDSUserResult) Result<TDSUser>;
 %template(TDSUserFuture) Future<TDSUser>;
 }

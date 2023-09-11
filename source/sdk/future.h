@@ -48,8 +48,11 @@ private:
     Error error{};
 };
 
-template <typename T> using FutureCallback = std::function<void (const Result<T> &)>;
 template <typename T> class Future;
+template <typename T> class FutureCallback {
+public:
+    virtual void Callback(const Result<T> &result) {};
+};
 
 template <typename T> class Promise : NonCopyAndMove {
     friend class Future<T>;
@@ -58,7 +61,7 @@ private:
     std::condition_variable cond_var{};
     bool retrieved{false};
     Result<T> result{};
-    FutureCallback<T> cb{};
+    FutureCallback<T> *cb{};
 };
 
 template <typename T> class Future {
@@ -66,13 +69,13 @@ public:
 
     Future() : promise{std::make_shared<Promise<T>>()} {}
 
-    void AWait(const FutureCallback<T> &callback) {
+    void AWait(FutureCallback<T> &callback) {
         std::unique_lock guard(promise->lock);
         if (promise->retrieved) {
             guard.unlock();
-            callback(promise->result);
+            callback.Callback(promise->result);
         } else {
-            promise->cb = callback;
+            promise->cb = &callback;
         }
     }
 
@@ -94,7 +97,7 @@ public:
         promise->cond_var.notify_all();
         if (promise->cb) {
             guard.unlock();
-            promise->cb(promise->result);
+            promise->cb->Callback(promise->result);
         }
     }
 
