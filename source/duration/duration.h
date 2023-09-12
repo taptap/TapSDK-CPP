@@ -21,7 +21,7 @@ constexpr auto local_heat_beat_interval = Ms(5 * 1000);
 
 class DurationStatistics {
 public:
-    void Init();
+    void Init(Region region);
 
     virtual ~DurationStatistics();
 

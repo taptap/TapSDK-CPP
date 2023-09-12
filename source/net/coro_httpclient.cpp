@@ -67,6 +67,7 @@ std::shared_ptr<cinatra::coro_http_client> CoroHttpClient::AcquireClient() {
         if (https) {
             auto cur_device = platform::Device::GetCurrent();
             auto ca_cert_path = cur_device ? cur_device->GetCaCertDir() : "";
+            client->set_sni_hostname(host);
             if (!ca_cert_path.empty()) {
                 client->init_ssl(ca_cert_path);
             } else {
@@ -171,7 +172,7 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
     } else {
         co_return MakeError(value.status,
                             value.net_err.value(),
-                            !value.resp_body.empty() ? value.resp_body.data() : "");
+                            !value.resp_body.empty() ? value.resp_body.data() : value.net_err.message());
     }
 }
 

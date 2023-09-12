@@ -4,6 +4,7 @@
 /* Put headers and other declarations here */
 #include "bindings/bindings.h"
 using namespace tapsdk::bindings;
+using namespace tapsdk;
 %}
 
 // 添加系统的一些文件，处理一些常用的基本类型，具体可以参考SWIG的帮助文档

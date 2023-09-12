@@ -14,6 +14,7 @@ namespace tapsdk::bindings {
 
 struct BridgeConfig {
     bool enable_duration_statistics{true};
+    Region region{Region::CN};
     std::string device_id{};
     std::string cache_dir{};
     std::string ca_dir{};

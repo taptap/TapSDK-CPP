@@ -9,6 +9,11 @@ namespace tapsdk {
 
 class TDSUser;
 
+enum class Region : int {
+    CN = 0,
+    Global
+};
+
 class TDSUser {
 public:
     static void SetCurrent(const std::shared_ptr<TDSUser>& user);
@@ -40,7 +45,8 @@ public:
 };
 
 struct Config {
-    bool enable_duration_statistics;
+    bool enable_duration_statistics = false;
+    Region region = Region::CN;
 };
 
 bool Init(const Config &config);
