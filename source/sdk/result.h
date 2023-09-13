@@ -1,10 +1,10 @@
 #pragma once
 
 #include <condition_variable>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
+#include <utility>
 
 namespace tapsdk {
 
@@ -23,25 +23,23 @@ protected:
 enum ErrorCode { NO_ERR = 0, ERR_TIMEOUT = 1 };
 
 struct Error {
-    ErrorCode code{NO_ERR};
+    int code{NO_ERR};
     std::string msg;
 };
 
-template <typename T> class Result {
+template <typename T = void> class Result {
 public:
-    Result() = default;
+    explicit Result() : error{NO_ERR} {}
 
-    Result(const std::shared_ptr<T>& v) : value{v} {}
+    explicit Result(const std::shared_ptr<T>& v) : value{v} {}
 
-    Result(const Error& e) : error{e} {}
+    explicit Result(Error e) : error{std::move(e)} {}
 
-    std::shared_ptr<T> GetValue() {
-        return value;
-    }
+    std::shared_ptr<T> GetValue() const { return value; }
 
-    Error GetError() {
-        return error;
-    }
+    Error GetError() const { return error; }
+
+    bool Success() const { return error.code != NO_ERR; }
 
 private:
     std::shared_ptr<T> value{};
@@ -51,7 +49,7 @@ private:
 template <typename T> class Future;
 template <typename T> class FutureCallback {
 public:
-    virtual void Callback(const Result<T> &result) {};
+    virtual void Callback(const Result<T>& result){};
 };
 
 template <typename T> class Promise : NonCopyAndMove {
@@ -61,15 +59,14 @@ private:
     std::condition_variable cond_var{};
     bool retrieved{false};
     Result<T> result{};
-    FutureCallback<T> *cb{};
+    FutureCallback<T>* cb{};
 };
 
 template <typename T> class Future {
 public:
-
     Future() : promise{std::make_shared<Promise<T>>()} {}
 
-    void AWait(FutureCallback<T> &callback) {
+    void AWait(FutureCallback<T>& callback) {
         std::unique_lock guard(promise->lock);
         if (promise->retrieved) {
             guard.unlock();
@@ -79,7 +76,7 @@ public:
         }
     }
 
-    Result<T> Get() {
+    Result<T> &Get() {
         std::unique_lock guard(promise->lock);
         while (!promise->retrieved) {
             promise->cond_var.wait(guard);
@@ -87,7 +84,23 @@ public:
         return promise->result;
     }
 
-    void Set(const Result<T>& res) {
+    Result<T>* GetPtr() {
+        std::unique_lock guard(promise->lock);
+        while (!promise->retrieved) {
+            promise->cond_var.wait(guard);
+        }
+        return &promise->result;
+    }
+
+    const Result<T>* operator->() const { return GetPtr(); }
+    Result<T>* operator->() { return GetPtr(); }
+
+    const Result<T>& operator*() const& { return Get(); }
+    Result<T>& operator*() & { return Get(); }
+    const Result<T>&& operator*() const&& { return std::move(Get()); }
+    Result<T>&& operator*() && { return std::move(Get()); }
+
+    void Set(const Result<T>& res) const {
         std::unique_lock guard(promise->lock);
         if (promise->retrieved) {
             return;

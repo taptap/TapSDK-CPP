@@ -15,8 +15,8 @@ class CoroHttpClient : public TapHttpClient {
 public:
     CoroHttpClient(const char* host, bool https);
 
-    void CommonHeader(const char* key, const char* value) override;
-    void CommonParam(const char* key, const char* value) override;
+    void CommonHeader(std::string_view key, std::string_view value) override;
+    void CommonParam(std::string_view key, std::string_view value) override;
 
     void RequestAsync(HttpType type,
                       const WebPath& path,
@@ -29,12 +29,12 @@ public:
                                    const WebPath& path,
                                    Headers headers,
                                    Params params,
-                                   const Json& content = {}) override;
+                                   const Content &content = {},
+                                   ContentType content_type = {}) override;
 
 private:
-
     std::shared_ptr<cinatra::coro_http_client> AcquireClient();
-    void RecycleClient(const std::shared_ptr<cinatra::coro_http_client> &client);
+    void RecycleClient(const std::shared_ptr<cinatra::coro_http_client>& client);
 
     std::unordered_map<std::string, std::string> headers;
     std::unordered_map<std::string, std::string> params;

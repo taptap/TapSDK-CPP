@@ -43,6 +43,8 @@ static std::string ToParam(Params& params) {
     bool first{true};
     for (auto& [key, value] : params) {
         if (!first) {
+            res.append("&");
+        } else {
             res.append("?");
             first = false;
         }
@@ -97,14 +99,14 @@ void CoroHttpClient::RecycleClient(const std::shared_ptr<cinatra::coro_http_clie
     }
 }
 
-void CoroHttpClient::CommonHeader(const char* key, const char* value) {
-    ASSERT(key && value);
-    headers[key] = value;
+void CoroHttpClient::CommonHeader(std::string_view key, std::string_view value) {
+    ASSERT(!key.empty() && !value.empty());
+    headers[key.data()] = value;
 }
 
-void CoroHttpClient::CommonParam(const char* key, const char* value) {
-    ASSERT(key && value);
-    params[key] = value;
+void CoroHttpClient::CommonParam(std::string_view key, std::string_view value) {
+    ASSERT(!key.empty() && !value.empty());
+    params[key.data()] = value;
 }
 
 void CoroHttpClient::RequestAsync(HttpType type,
@@ -151,13 +153,17 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
                                                const WebPath& path,
                                                Headers headers,
                                                Params params,
-                                               const Json& content) {
+                                               const Content& content,
+                                               ContentType content_type) {
     WebPath parent{https ? "https://" + host : "http://" + host};
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
-    cinatra::req_context<> ctx{
-            content.empty() ? cinatra::req_content_type::none : cinatra::req_content_type::json,
-            ToParam(params),
-            content.empty() ? "" : content.dump()};
+    auto cina_content_type = cinatra::req_content_type::none;
+    if (content_type == ContentType::FORM) {
+        cina_content_type = cinatra::req_content_type::form_url_encode;
+    } else if (content_type == ContentType::JSON) {
+        cina_content_type = cinatra::req_content_type::json;
+    }
+    cinatra::req_context<> ctx{cina_content_type, ToParam(params), content};
     auto co_client = AcquireClient();
     auto value = co_await co_client->async_request(
             parent / path, co_type, std::move(ctx), ToHeader(headers));
@@ -170,9 +176,10 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
             co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
         }
     } else {
-        co_return MakeError(value.status,
-                            value.net_err.value(),
-                            !value.resp_body.empty() ? value.resp_body.data() : value.net_err.message());
+        co_return MakeError(
+                value.status,
+                value.net_err.value(),
+                !value.resp_body.empty() ? value.resp_body.data() : value.net_err.message());
     }
 }
 

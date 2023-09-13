@@ -6,6 +6,20 @@
 
 namespace tapsdk::net {
 
+Content ToContent(Forms forms) {
+    Content content{};
+    bool first{true};
+    for (auto& [key, value] : forms) {
+        if (!first) {
+            content.append("&");
+        } else {
+            first = false;
+        }
+        content.append(fmt::format("{}={}", key, value));
+    }
+    return content;
+}
+
 ResultWrap::ResultWrap(std::string_view response) {
     if (response.empty()) {
         code = -1;
@@ -14,11 +28,24 @@ ResultWrap::ResultWrap(std::string_view response) {
     }
     try {
         json resp = json::parse(response);
-        code = resp["code"];
-        if (code == 0) {
-            content = resp["data"];
+        // old wrap
+        if (resp.find("success") != resp.end()) {
+            bool success = resp["success"];
+            if (success) {
+                code = 0;
+                content = resp["data"];
+            } else {
+                resp = resp["data"];
+                code = resp["code"];
+                msg = resp["msg"];
+            }
         } else {
-            msg = resp["msg"];
+            code = resp["code"];
+            if (code == 0) {
+                content = resp["data"];
+            } else {
+                msg = resp["msg"];
+            }
         }
     } catch (...) {
         code = -1;

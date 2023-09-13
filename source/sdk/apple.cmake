@@ -27,12 +27,13 @@ add_custom_target(
         $<TARGET_FILE:net>
         $<TARGET_FILE:core>
         $<TARGET_FILE:duration>
+        $<TARGET_FILE:login>
         $<TARGET_FILE:EventBus>
         $<TARGET_FILE:ssl>
         $<TARGET_FILE:crypto>
         $<TARGET_FILE:bindings-impl>
         ${TARGET_FILE_BINDING}
-        DEPENDS tds_core net base core bindings-impl ${TARGET_DEPEND_BINDING}
+        DEPENDS tds_core net base core bindings-impl duration login ${TARGET_DEPEND_BINDING}
         COMMENT "Combining libs..."
 )
 

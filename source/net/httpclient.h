@@ -7,6 +7,7 @@
 #include <list>
 #include <memory>
 #include <string>
+#include <span>
 
 #ifdef ANDROID
 
@@ -17,6 +18,7 @@
 #endif
 
 #include "async_simple/coro/Lazy.h"
+#include "async_simple/coro/Sleep.h"
 #include "async_simple/coro/SyncAwait.h"
 #include "base/expected.h"
 #include "base/types.h"
@@ -28,14 +30,19 @@ using namespace nlohmann;
 constexpr auto http_timeout_ms = 10 * 1000;  // ms
 
 enum HttpType { GET, POST };
+enum ContentType { JSON, FORM };
 
+using Content = std::string;
 using Json = nlohmann::json;
 using Pair = std::pair<std::string, std::string>;
 using OnReturn = const std::function<void(const Json& content)>&;
 template <class T> using OnSuccess = const std::function<void(const std::shared_ptr<T>& content)>&;
 using OnFailed = const std::function<void(int status, int code, const std::string& msg)>&;
-using Params = std::initializer_list<Pair>;
-using Headers = std::initializer_list<Pair>;
+using Params = std::span<Pair>;
+using Headers = std::span<Pair>;
+using Forms = std::span<Pair>;
+
+Content ToContent(Forms forms);
 
 class ResultWrap {
 public:
@@ -59,8 +66,9 @@ struct Error {
     std::string msg;
 };
 
-template <class T> using Result = expected<T, Error>;
-template <class T> using ResultAsync = async_simple::coro::Lazy<Result<T>>;
+template <typename T> using Result = expected<T, Error>;
+template <typename T> using ResultAsync = async_simple::coro::Lazy<Result<T>>;
+template <typename T> using ResultCallback = async_simple::Try<Result<T>>;
 
 template <typename T>
 concept JsonResult = requires(const Json& str) {
@@ -78,6 +86,10 @@ template <typename LazyType> inline auto SyncAwait(LazyType&& lazy) {
 
 inline unexpected<Error> MakeError(int status, int code, const std::string& msg) {
     return unexpected(Error{status, code, msg});
+}
+
+inline unexpected<Error> MakeError(const Error &error) {
+    return unexpected(error);
 }
 
 template <JsonResult T>
@@ -99,9 +111,9 @@ public:
 
     virtual ~TapHttpClient() = default;
 
-    virtual void CommonHeader(const char* key, const char* value) = 0;
+    virtual void CommonHeader(std::string_view key, std::string_view value) = 0;
 
-    virtual void CommonParam(const char* key, const char* value) = 0;
+    virtual void CommonParam(std::string_view key, std::string_view value) = 0;
 
     virtual void RequestAsync(HttpType type,
                               const WebPath& path,
@@ -114,7 +126,7 @@ public:
                                            const WebPath& path,
                                            Headers headers,
                                            Params params,
-                                           const Json& content = {}) = 0;
+                                           const Content &content = {}, ContentType content_type = {}) = 0;
 
     template <JsonResult R> void PostAsync(const WebPath& path,
                                            Headers headers,
@@ -150,6 +162,12 @@ public:
         co_return MakeResult<R>(res);
     }
 
+    template <JsonResult R>
+    ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params, Forms forms) {
+        auto res = co_await RequestAsync(POST, path, headers, params, ToContent(forms), FORM);
+        co_return MakeResult<R>(res);
+    }
+
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
             const WebPath& path, Headers headers, Params params, P& content) {
         Json json_content;
@@ -158,7 +176,7 @@ public:
         } catch (std::exception &e) {
             co_return MakeError(-1, -1, e.what());
         }
-        auto res = co_await RequestAsync(POST, path, headers, params, json_content);
+        auto res = co_await RequestAsync(POST, path, headers, params, json_content.dump(), JSON);
         co_return MakeResult<R>(res);
     }
 
@@ -172,7 +190,7 @@ public:
                 co_return MakeError(-1, -1, e.what());
             }
         }
-        auto res = co_await RequestAsync(POST, path, headers, params, json_content);
+        auto res = co_await RequestAsync(POST, path, headers, params, json_content.dump(), JSON);
         co_return MakeResult<R>(res);
     }
 
@@ -183,13 +201,29 @@ public:
     }
 
     template <JsonResult T>
+    ResultAsync<std::shared_ptr<T>> GetAsync(const WebPath& path, Headers headers, Params params, Forms forms) {
+        auto res = co_await RequestAsync(GET, path, headers, params, ToContent(forms), FORM);
+        co_return MakeResult<T>(res);
+    }
+
+    template <JsonResult T>
     Result<std::shared_ptr<T>> GetSync(const WebPath& path, Headers headers, Params params) {
         return SyncAwait(GetAsync<T>(path, headers, params));
     }
 
     template <JsonResult T>
+    Result<std::shared_ptr<T>> GetSync(const WebPath& path, Headers headers, Params params, Forms forms) {
+        return SyncAwait(GetAsync<T>(path, headers, params, forms));
+    }
+
+    template <JsonResult T>
     Result<std::shared_ptr<T>> PostSync(const WebPath& path, Headers headers, Params params) {
         return SyncAwait(PostAsync<T>(path, headers, params));
+    }
+
+    template <JsonResult T>
+    Result<std::shared_ptr<T>> PostSync(const WebPath& path, Headers headers, Params params, Forms forms) {
+        return SyncAwait(PostAsync<T>(path, headers, params, forms));
     }
 
     template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(const WebPath& path,

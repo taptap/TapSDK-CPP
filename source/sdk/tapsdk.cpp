@@ -2,11 +2,12 @@
 // Created by 甘尧 on 2023/6/29.
 //
 
+#include "tapsdk.h"
 #include "base/logging.h"
 #include "core/events.h"
 #include "core/runtime.h"
 #include "duration/duration.h"
-#include "tapsdk.h"
+#include "login/tap_login.h"
 
 namespace tapsdk {
 
@@ -21,12 +22,19 @@ static std::shared_ptr<Game> current_game;
 // modules
 static std::unique_ptr<duration::DurationStatistics> duration_statistics;
 
+const char* SDKVersionName() {
+    return TDS_VERSION;
+}
+
 bool Init(const Config& config) {
     sdk_config = config;
     Runtime::Get().Init();
     if (sdk_config.enable_duration_statistics) {
         duration_statistics = std::make_unique<duration::DurationStatistics>();
         duration_statistics->Init(sdk_config.region);
+    }
+    if (sdk_config.enable_tap_login) {
+        login::Init(config);
     }
     return true;
 }
@@ -53,9 +61,8 @@ std::shared_ptr<Game> Game::GetCurrent() {
     return current_game;
 }
 
-Future<TDSUser> Login(const char *name, const char *passwd) {
-    Future<TDSUser> future{};
-    return future;
+Future<AccessToken> Login(const std::vector<std::string> &perm) {
+    return login::Login(perm);
 }
 
 }  // namespace tapsdk

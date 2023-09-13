@@ -46,4 +46,16 @@ TEST_CASE("Test sdk-init") {
 
 TEST_CASE("Test sdk-login") {
     SetupEnv();
+    tapsdk::Config config {
+            .enable_tap_login = true,
+            .enable_duration_statistics = false,
+            .client_id = "0RiAlMny7jiz086FaU"
+    };
+    tapsdk::Init(config);
+    tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
+    tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
+    auto login_result = *tapsdk::Login({});
+    while (true) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }

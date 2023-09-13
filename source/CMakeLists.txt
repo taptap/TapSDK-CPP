@@ -24,6 +24,8 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -s")
 endif ()
 
+add_definitions(-DTDS_VERSION="1.0.0")
+
 # Enable modules to include each other's files
 include_directories(.)
 
@@ -33,5 +35,6 @@ add_subdirectory(core)
 add_subdirectory(net)
 add_subdirectory(sdk)
 add_subdirectory(duration)
+add_subdirectory(login)
 add_subdirectory(tests)
 add_subdirectory(bindings)
