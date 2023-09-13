@@ -84,17 +84,6 @@ public:
         return promise->result;
     }
 
-    Result<T>* GetPtr() {
-        std::unique_lock guard(promise->lock);
-        while (!promise->retrieved) {
-            promise->cond_var.wait(guard);
-        }
-        return &promise->result;
-    }
-
-    const Result<T>* operator->() const { return GetPtr(); }
-    Result<T>* operator->() { return GetPtr(); }
-
     const Result<T>& operator*() const& { return Get(); }
     Result<T>& operator*() & { return Get(); }
     const Result<T>&& operator*() const&& { return std::move(Get()); }

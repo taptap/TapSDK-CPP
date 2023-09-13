@@ -24,7 +24,7 @@ using namespace tapsdk;
 %feature("director") TDSUser;
 %feature("director") Game;
 %feature("director") FutureCallback<TDSUser>;
-%include "sdk/future.h"
+%include "sdk/result.h"
 %include "sdk/tapsdk.h"
 namespace tapsdk {
 %template(TDSUserCallback) FutureCallback<TDSUser>;
