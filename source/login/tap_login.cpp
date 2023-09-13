@@ -39,11 +39,10 @@ static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std:
     }
     // show qrcode in ui
     auto current_window = platform::Window::GetCurrent();
-    if (current_window) {
-        current_window->ShowQRCode(qrcode_result.value()->qrcode_url);
-    } else {
+    if (!current_window) {
         co_return net::MakeError(-1, -1, "No window!, is current background?");
     }
+    auto window_cancelable = current_window->ShowQRCode(qrcode_result.value()->qrcode_url);
     // start check state
     auto check_start_time = TimeSecNow();
     auto expires_in = qrcode_result->get()->expires_in;
@@ -54,6 +53,9 @@ static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std:
             co_return token_result;
         }
         co_await async_simple::coro::sleep(std::chrono::seconds(interval));
+        if (window_cancelable->Canceled()) {
+            co_return net::MakeError(-1, -1, "Canceled!");
+        }
     }
     co_return net::MakeError(-1, -1, "Timeout!");
 }

@@ -1,6 +1,8 @@
 #include <filesystem>
+#include <iostream>
 #include <thread>
 #include <catch2/catch_test_macros.hpp>
+#include "externals/libqrencode/qrencode.h"
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
 
@@ -29,24 +31,30 @@ public:
 
 class TestWindow : public tapsdk::platform::Window {
 public:
-    void ShowQRCode(const std::string& path) override {}
+
+    void PrintQR(QRcode *qrcode) {
+        unsigned char *p = qrcode->data;
+        for(int y=0; y<qrcode->width; y++) {
+            for(int x=0; x<qrcode->width; x++) {
+                std::cout << ((*p & 1) ? "##" : "  ");
+                p++;
+            }
+            std::cout << "\n";
+        }
+    }
+
+    std::shared_ptr<tapsdk::platform::Cancelable> ShowQRCode(const std::string& qr_code) override {
+        QRcode *qrcode;
+        qrcode = QRcode_encodeString(qr_code.c_str(), 2, QR_ECLEVEL_L, QR_MODE_8, 1);
+        PrintQR(qrcode);
+        QRcode_free(qrcode);
+        return std::make_shared<tapsdk::platform::Cancelable>();
+    }
 };
 
 static void SetupEnv() {
     tapsdk::platform::Device::SetCurrent(std::make_shared<TestDevice>());
-}
-
-TEST_CASE("Test sdk-init") {
-    SetupEnv();
-    tapsdk::Config config {
-            .enable_duration_statistics = true,
-    };
-    tapsdk::Init(config);
-    tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
-    tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
-    while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
+    tapsdk::platform::Window::SetCurrent(std::make_shared<TestWindow>());
 }
 
 TEST_CASE("Test sdk-login") {

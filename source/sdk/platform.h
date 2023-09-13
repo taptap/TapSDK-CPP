@@ -3,16 +3,23 @@
 //
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <string>
-#include <cstdint>
 
 namespace tapsdk::platform {
 
-enum class DeviceType {
-    Local,
-    Sandbox,
-    Cloud
+enum class DeviceType { Local, Sandbox, Cloud };
+
+class Cancelable {
+public:
+    explicit Cancelable() = default;
+
+    bool Canceled();
+    void Cancel();
+
+private:
+    std::atomic<bool> canceled{false};
 };
 
 class Window {
@@ -22,15 +29,15 @@ public:
     // 当 App 进入后台
     static void OnBackground();
 
-    static void SetCurrent(const std::shared_ptr<Window> &window);
+    static void SetCurrent(const std::shared_ptr<Window>& window);
     static std::shared_ptr<Window> GetCurrent();
 
-    virtual void ShowQRCode(const std::string &qr_content) = 0;
+    virtual std::shared_ptr<Cancelable> ShowQRCode(const std::string& qr_content) = 0;
 };
 
 class Device {
 public:
-    static void SetCurrent(const std::shared_ptr<Device> &device);
+    static void SetCurrent(const std::shared_ptr<Device>& device);
     static std::shared_ptr<Device> GetCurrent();
 
     virtual ~Device() = default;
@@ -45,4 +52,4 @@ public:
     virtual DeviceType GetDeviceType();
 };
 
-}
+}  // namespace tapsdk::platform
