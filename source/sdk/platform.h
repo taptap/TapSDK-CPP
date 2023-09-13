@@ -25,7 +25,7 @@ public:
     static void SetCurrent(const std::shared_ptr<Window> &window);
     static std::shared_ptr<Window> GetCurrent();
 
-    virtual void ShowQRCode(const std::string &path) = 0;
+    virtual void ShowQRCode(const std::string &qr_content) = 0;
 };
 
 class Device {
