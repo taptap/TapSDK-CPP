@@ -2,10 +2,12 @@
 // Created by 甘尧 on 2023/7/5.
 //
 
+#include <regex>
 #include "base/logging.h"
 #include "coro_httpclient.h"
 #include "fmt/format.h"
 #include "sdk/platform.h"
+#include "net/network.h"
 
 const static auto DEFAULT_CA_PEM =
         "-----BEGIN CERTIFICATE-----\n"
@@ -51,6 +53,18 @@ static std::string ToParam(Params& params) {
         res.append(fmt::format("{}={}", key, value));
     }
     return std::move(res);
+}
+
+static std::string GetHost(const std::string &url) {
+    std::regex host_regex(R"(^(?:https?:\/\/)?([^\/\?#]+))");
+    std::smatch match;
+
+    if (std::regex_search(url, match, host_regex) && match.size() > 1) {
+        std::string host = match.str(1);
+        return host;
+    } else {
+        return {};
+    }
 }
 
 CoroHttpClient::CoroHttpClient(const char* host, bool https) : TapHttpClient(host, https) {}
@@ -175,6 +189,29 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
         } else {
             co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
         }
+    } else {
+        co_return MakeError(
+                value.status,
+                value.net_err.value(),
+                !value.resp_body.empty() ? value.resp_body.data() : value.net_err.message());
+    }
+}
+
+ResultAsync<DownloadResult> DownloadAsync(const char *url, const char *path) {
+    cinatra::coro_http_client http_client{};
+    auto cur_device = platform::Device::GetCurrent();
+    auto ca_cert_path = cur_device ? cur_device->GetCaCertDir() : "";
+    http_client.set_req_timeout(std::chrono::milliseconds(http_timeout_ms));
+    http_client.set_conn_timeout(std::chrono::milliseconds(http_timeout_ms));
+    http_client.set_sni_hostname(GetHost(url));
+    if (!ca_cert_path.empty()) {
+        http_client.init_ssl(ca_cert_path);
+    } else {
+        http_client.init_ssl_content(DEFAULT_CA_PEM);
+    }
+    auto value = co_await http_client.async_download(url, path);
+    if (value.status == 200) {
+        co_return DownloadResult{};
     } else {
         co_return MakeError(
                 value.status,

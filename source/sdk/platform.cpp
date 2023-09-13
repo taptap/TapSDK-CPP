@@ -10,6 +10,7 @@
 namespace tapsdk::platform {
 
 static std::shared_ptr<Device> current_device{};
+static std::shared_ptr<Window> current_window{};
 
 void Window::OnForeground() {
     Runtime::Get().GetEventBus()->notifyNow(events::Foreground{});
@@ -29,6 +30,14 @@ std::shared_ptr<Device> Device::GetCurrent() {
 
 DeviceType Device::GetDeviceType() {
     return DeviceType::Local;
+}
+
+void Window::SetCurrent(const std::shared_ptr<Window>& window) {
+    current_window = window;
+}
+
+std::shared_ptr<Window> Window::GetCurrent() {
+    return current_window;
 }
 
 }

@@ -21,6 +21,11 @@ public:
     static void OnForeground();
     // 当 App 进入后台
     static void OnBackground();
+
+    static void SetCurrent(const std::shared_ptr<Window> &window);
+    static std::shared_ptr<Window> GetCurrent();
+
+    virtual void ShowQRCode(const std::string &path) = 0;
 };
 
 class Device {

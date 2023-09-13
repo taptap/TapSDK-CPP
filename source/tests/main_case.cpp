@@ -27,6 +27,11 @@ public:
     std::string GetPackageName() override { return "test_game_pkg"; }
 };
 
+class TestWindow : public tapsdk::platform::Window {
+public:
+    void ShowQRCode(const std::string& path) override {}
+};
+
 static void SetupEnv() {
     tapsdk::platform::Device::SetCurrent(std::make_shared<TestDevice>());
 }

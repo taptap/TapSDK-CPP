@@ -37,9 +37,23 @@ static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std:
     if (!qrcode_result.has_value()) {
         co_return net::MakeError(qrcode_result.error());
     }
-
-    // start check state
     auto check_start_time = TimeSecNow();
+    // download qrcode file
+    auto qrcode_url = qrcode_result->get()->qrcode_url;
+    auto current_device = platform::Device::GetCurrent();
+    auto download_path = fmt::format("{}/qrcode.{}", current_device->GetCacheDir(), check_start_time);
+    auto download_result = co_await net::DownloadAsync(qrcode_url.c_str(), download_path.c_str());
+    if (!download_result.has_value()) {
+        co_return net::MakeError(download_result.error());
+    }
+    // show qrcode in ui
+    auto current_window = platform::Window::GetCurrent();
+    if (current_window) {
+        current_window->ShowQRCode(download_path);
+    } else {
+        co_return net::MakeError(-1, -1, "No window!, is current background?");
+    }
+    // start check state
     auto expires_in = qrcode_result->get()->expires_in;
     auto interval = qrcode_result->get()->interval;
     while (TimeSecNow() - check_start_time < expires_in) {
@@ -49,7 +63,7 @@ static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std:
         }
         co_await async_simple::coro::sleep(std::chrono::seconds(interval));
     }
-    co_return net::MakeError(-1, 0, "Timeout!");
+    co_return net::MakeError(-1, -1, "Timeout!");
 }
 
 Future<AccessToken> Login(const std::vector<std::string>& perm) {

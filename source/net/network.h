@@ -11,6 +11,9 @@
 
 namespace tapsdk::net {
 
+struct DownloadResult {};
+
 std::unique_ptr<TapHttpClient> CreateHttpClient(const char *host, bool https);
+ResultAsync<DownloadResult> DownloadAsync(const char *url, const char *path);
 
 }
