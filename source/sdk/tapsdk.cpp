@@ -8,6 +8,7 @@
 #include "core/runtime.h"
 #include "duration/duration.h"
 #include "login/tap_login.h"
+#include "tracker/tap_tracker.h"
 
 namespace tapsdk {
 
@@ -35,6 +36,9 @@ bool Init(const Config& config) {
     }
     if (sdk_config.enable_tap_login) {
         login::Init(config);
+    }
+    if (sdk_config.enable_tap_tracker) {
+        tracker::Init(config);
     }
     return true;
 }
@@ -64,5 +68,7 @@ std::shared_ptr<Game> Game::GetCurrent() {
 Future<AccessToken> Login(const std::vector<std::string> &perm) {
     return login::Login(perm);
 }
+
+TrackMessage::TrackMessage(std::string topic) : topic(std::move(topic)) {}
 
 }  // namespace tapsdk

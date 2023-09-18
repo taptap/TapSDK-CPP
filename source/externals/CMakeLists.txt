@@ -1,3 +1,4 @@
+include(import_remote.cmake)
 add_subdirectory(fmt)
 #add_subdirectory(cpp-httplib)
 add_subdirectory(filesystem)
@@ -8,7 +9,14 @@ add_subdirectory(cinatra)
 add_subdirectory(sqlite3)
 add_subdirectory(sqlite_orm)
 add_subdirectory(event_bus)
-add_subdirectory(libqrencode)
+add_subdirectory(protobuf)
+# lz4
+set(LZ4_BUNDLED_MODE ON)
+add_subdirectory(lz4/contrib/cmake_unofficial)
+add_library(lz4::lz4 ALIAS lz4_static)
+if (NOT ANDROID)
+    add_subdirectory(libqrencode)
+endif()
 #add_subdirectory(marl)
 
 # openssl

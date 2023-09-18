@@ -1,0 +1,13 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+message TrackMsgContent
+{
+    string key = 1;
+    string value = 2;
+}
+
+message TrackMsgCacheProto {
+    repeated TrackMsgContent log_contents = 1;
+    repeated TrackMsgContent log_commons = 2;
+}

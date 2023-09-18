@@ -4,4 +4,4 @@ add_library(core STATIC
         events.h
 )
 
-target_link_libraries(core PRIVATE base)
+target_link_libraries(core PRIVATE tapsdk::base)

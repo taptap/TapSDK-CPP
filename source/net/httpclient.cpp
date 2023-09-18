@@ -6,8 +6,8 @@
 
 namespace tapsdk::net {
 
-Content ToContent(Forms forms) {
-    Content content{};
+std::string ToContent(Forms forms) {
+    std::string content{};
     bool first{true};
     for (auto& [key, value] : forms) {
         if (!first) {

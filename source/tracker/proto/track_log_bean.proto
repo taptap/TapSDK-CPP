@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package com.tds.common.tracker.entities;
+option java_outer_classname = "LogBean";
+option optimize_for = LITE_RUNTIME;
+
+message LogContent
+{
+  string Key = 1;
+  string Value = 2;
+}
+
+message Log
+{
+  uint32 Time = 1;// UNIX Time Format
+  repeated LogContent Contents = 2;
+}
+message LogGroup
+{
+  repeated Log Logs = 1;
+  string Category = 2;
+  string Topic = 3;
+  string Source = 4;
+  string MachineUUID = 5;
+}
+
+message LogGroupList {
+  repeated LogGroup LogGroups = 1;
+}

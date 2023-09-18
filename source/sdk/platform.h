@@ -35,6 +35,19 @@ public:
     virtual std::shared_ptr<Cancelable> ShowQRCode(const std::string& qr_content) = 0;
 };
 
+struct DeviceInfo {
+    std::string platform;
+    std::string os_version;
+    std::string android_id;
+    std::string app_version;
+    std::string cache_path;
+    std::string app_package_name;
+    std::string ram_size;
+    std::string rom_size;
+    std::string network_type;
+    std::string mobile_type;
+};
+
 class Device {
 public:
     static void SetCurrent(const std::shared_ptr<Device>& device);

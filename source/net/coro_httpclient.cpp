@@ -167,7 +167,7 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
                                                const WebPath& path,
                                                Headers headers,
                                                Params params,
-                                               const Content& content,
+                                               Content content,
                                                ContentType content_type) {
     WebPath parent{https ? "https://" + host : "http://" + host};
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
@@ -177,7 +177,7 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
     } else if (content_type == ContentType::JSON) {
         cina_content_type = cinatra::req_content_type::json;
     }
-    cinatra::req_context<> ctx{cina_content_type, ToParam(params), content};
+    cinatra::req_context<Content> ctx{cina_content_type, ToParam(params), content};
     auto co_client = AcquireClient();
     auto value = co_await co_client->async_request(
             parent / path, co_type, std::move(ctx), ToHeader(headers));

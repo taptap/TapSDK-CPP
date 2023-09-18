@@ -29,7 +29,7 @@ public:
                                    const WebPath& path,
                                    Headers headers,
                                    Params params,
-                                   const Content &content = {},
+                                   Content content = {},
                                    ContentType content_type = {}) override;
 
 private:

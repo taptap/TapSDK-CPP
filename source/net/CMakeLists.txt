@@ -7,7 +7,7 @@ add_library(net STATIC
         coro_httpclient.h
 )
 
-target_link_libraries(net PUBLIC base nlohmann_json ghc_filesystem mpark_variant)
+target_link_libraries(net PUBLIC tapsdk::base nlohmann_json ghc_filesystem)
 
 if (WIN32)
     target_link_libraries(net PUBLIC wsock32)

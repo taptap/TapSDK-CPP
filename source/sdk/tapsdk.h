@@ -51,11 +51,32 @@ public:
     virtual std::string GetPackageName() = 0;
 };
 
+class TrackMessage {
+public:
+    explicit TrackMessage(std::string topic);
+
+    virtual void AddContent(const std::string &key, const std::string &value) = 0;
+    virtual void AddParam(const std::string &key, const std::string &value) = 0;
+
+protected:
+    std::string topic;
+};
+
+struct TrackerConfig {
+    std::string project;
+    std::string endpoint;
+    std::string log_store;
+    std::string access_keyid;
+    std::string access_key_secret;
+};
+
 struct Config {
     bool enable_tap_login = false;
     bool enable_duration_statistics = false;
+    bool enable_tap_tracker = false;
     std::string client_id{};
     Region region = Region::CN;
+    TrackerConfig *tracker_config{};
 };
 
 const char* SDKVersionName();

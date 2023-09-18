@@ -16,7 +16,7 @@ add_library(tds_core
         platform.h
         )
 
-target_link_libraries(tds_core PRIVATE duration login net ${TDS_LINK_FLAGS})
+target_link_libraries(tds_core PRIVATE duration login tracker net ${TDS_LINK_FLAGS})
 
 set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/tapsdk.h

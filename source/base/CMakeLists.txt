@@ -1,4 +1,4 @@
-add_library(base STATIC
+add_library(tapsdk_base STATIC
         common_funcs.h
         types.h
         stack_container.h
@@ -20,8 +20,10 @@ add_library(base STATIC
         uuid.h
 )
 
-target_link_libraries(base PUBLIC fmt EventBus)
+target_link_libraries(tapsdk_base PUBLIC fmt EventBus)
 
 if (ANDROID)
-    target_link_libraries(base PUBLIC log)
+    target_link_libraries(tapsdk_base PUBLIC log)
 endif ()
+
+add_library(tapsdk::base ALIAS tapsdk_base)
