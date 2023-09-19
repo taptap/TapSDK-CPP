@@ -4,7 +4,13 @@ set(Protobuf_INCLUDE_DIR ${protobuf_SOURCE_DIR}/src)
 set(Protobuf_LIBRARIES ${protobuf_BINARY_DIR})
 set(PROTOBUF_LITE_LIBRARY libprotobuf-lite)
 
-set(PROTOC_EXECUTABLE ${protobuf_BINARY_DIR}/protoc)
+# Set protoc compiler
+cmake_host_system_information(RESULT PROTOC_OS_RESULT QUERY OS_NAME)
+if (${PROTOC_OS_RESULT} STREQUAL "Windows")
+    set(PROTOC_EXECUTABLE ${protobuf_BINARY_DIR}/protoc.exe)
+else ()
+    set(PROTOC_EXECUTABLE ${protobuf_BINARY_DIR}/protoc)
+endif ()
 add_executable(protobuf::protoc IMPORTED)
 set_property(TARGET protobuf::protoc PROPERTY IMPORTED_LOCATION "${PROTOC_EXECUTABLE}")
 
