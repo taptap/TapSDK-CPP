@@ -58,16 +58,20 @@ public:
     virtual void AddContent(const std::string &key, const std::string &value) = 0;
     virtual void AddParam(const std::string &key, const std::string &value) = 0;
 
+    std::string &GetTopic();
+
 protected:
     std::string topic;
 };
 
 struct TrackerConfig {
-    std::string project;
     std::string endpoint;
-    std::string log_store;
     std::string access_keyid;
     std::string access_key_secret;
+    std::string project;
+    std::string log_store;
+    int sdk_version;
+    std::string sdk_version_name;
 };
 
 struct Config {
@@ -79,10 +83,15 @@ struct Config {
     TrackerConfig *tracker_config{};
 };
 
+// init
 const char* SDKVersionName();
-
 bool Init(const Config& config);
 
+// login
 Future<AccessToken> Login(const std::vector<std::string> &perm);
+
+// tracker
+std::shared_ptr<TrackMessage> CreateTracker(const std::string &topic);
+void FlushTracker(const std::shared_ptr<TrackMessage> &tracker);
 
 }  // namespace tapsdk

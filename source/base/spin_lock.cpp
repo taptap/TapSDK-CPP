@@ -2,8 +2,8 @@
 // Created by 甘尧 on 2023/7/7.
 //
 
-#include "base/spin_lock.h"
 #include <thread>
+#include "base/spin_lock.h"
 
 #if _MSC_VER
 #include <intrin.h>

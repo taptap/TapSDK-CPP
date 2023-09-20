@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <mutex>
-#include <chrono>
 #include <atomic>
+#include <chrono>
+#include <mutex>
 #include "types.h"
 
 namespace tapsdk {

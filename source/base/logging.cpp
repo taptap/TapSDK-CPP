@@ -43,8 +43,6 @@ void LogMessage(base::log::Level level, const std::string& message) {
 #endif
 }
 
-void AssertFailed(const std::string& message) {
-    throw std::logic_error(message);
-}
+void AssertFailed(const std::string& message) { throw std::logic_error(message); }
 
 }  // namespace base::log

@@ -1185,11 +1185,10 @@ class coro_http_client {
       should_add = false;
     }
 
-    if (should_add) {
-      auto len_str = fmt::format("{}", content_len);
-      req_str.append("Content-Length: ")
-          .append(len_str)
-          .append("\r\n");
+    if (should_add && req_headers_.find("Content-Length") == req_headers_.end()) {
+        auto len_str = fmt::format("{}", content_len);
+        req_str.append("Content-Length: ")
+          .append(len_str);
     }
 
     req_str.append("\r\n");

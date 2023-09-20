@@ -1,12 +1,12 @@
 #pragma once
 
 #include <atomic>
+#include <cassert>
+#include <cmath>
 #include <condition_variable>
 #include <mutex>
 #include <vector>
 #include <queue>
-#include <cmath>
-#include <cassert>
 
 namespace tapsdk {
 
@@ -30,7 +30,7 @@ public:
     void Put(const std::vector<T>& tasks) {
         std::unique_lock<std::mutex> lock(mtx);
         if (queue_.size() + tasks.size() <= capacity_ && !stopped) {
-            for (auto &task : tasks) {
+            for (auto& task : tasks) {
                 queue_.push(task);
             }
             empty_.notify_all();

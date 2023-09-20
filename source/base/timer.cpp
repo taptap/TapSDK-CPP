@@ -132,9 +132,7 @@ std::chrono::nanoseconds CoreTimer::TimeEpoch() {
     return std::chrono::high_resolution_clock::now().time_since_epoch();
 }
 
-u64 CoreTimer::TimeNs() {
-    return TimeEpoch().count();
-}
+u64 CoreTimer::TimeNs() { return TimeEpoch().count(); }
 
 void CoreTimer::SetOnlineTime(Ms ms) {
     auto local_now = std::chrono::system_clock::now().time_since_epoch();
@@ -144,7 +142,8 @@ void CoreTimer::SetOnlineTime(Ms ms) {
 }
 
 Ms CoreTimer::OnlineTimestamp() {
-    auto local_now_ms = std::chrono::duration_cast<Ms>(std::chrono::system_clock::now().time_since_epoch());
+    auto local_now_ms =
+            std::chrono::duration_cast<Ms>(std::chrono::system_clock::now().time_since_epoch());
     if (online_time_set) {
         return local_now_ms - time_ep_since_online + online_time;
     } else {

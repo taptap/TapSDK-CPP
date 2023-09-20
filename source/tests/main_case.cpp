@@ -11,6 +11,7 @@ public:
     std::string GetDeviceID() override { return "test_device_id"; }
     std::string GetCacheDir() override { return std::filesystem::current_path().string(); }
     std::string GetCaCertDir() override { return ""; }
+    std::shared_ptr<tapsdk::platform::DeviceInfo> GetDeviceInfo() override { return std::make_shared<tapsdk::platform::DeviceInfo>(); }
 };
 
 class TestUser : public tapsdk::TDSUser {
@@ -59,15 +60,31 @@ static void SetupEnv() {
 
 TEST_CASE("Test sdk-login") {
     SetupEnv();
+    tapsdk::TrackerConfig tracker_config {
+            .endpoint = "openlog.taptap.com",
+            .access_keyid = "uZ8Yy6cSXVOR6AMRPj",
+            .access_key_secret = "AVhR1Bu9qfLR1cGbZMAdZ5rzJSxfoEiQaFf1T2P7",
+            .project = "tds",
+            .log_store = "sdk-user-event"
+    };
     tapsdk::Config config {
             .enable_tap_login = true,
             .enable_duration_statistics = false,
-            .client_id = "0RiAlMny7jiz086FaU"
+            .enable_tap_tracker = true,
+            .client_id = "0RiAlMny7jiz086FaU",
+            .tracker_config = &tracker_config
     };
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
     tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
-    auto login_result = *tapsdk::Login({});
+//    auto login_result = *tapsdk::Login({});
+    auto ta = tapsdk::CreateTracker("tracker_for_tapsdk");
+    ta->AddContent("page_id", "page_game");
+    ta->AddContent("login_action", "taptap_authorization_start");
+    ta->AddContent("page_name", "游戏");
+    ta->AddContent("time", "1695086167");
+
+    tapsdk::FlushTracker(ta);
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

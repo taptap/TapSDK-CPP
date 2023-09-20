@@ -18,6 +18,13 @@ add_library(tapsdk_base STATIC
         expected.h
         uuid.cpp
         uuid.h
+        md5.cpp
+        md5.h
+        base64.cpp
+        base64.h
+        hmac.h
+        sha1.cpp
+        sha1.h
 )
 
 target_link_libraries(tapsdk_base PUBLIC fmt EventBus)

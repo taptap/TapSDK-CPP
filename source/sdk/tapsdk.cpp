@@ -71,4 +71,16 @@ Future<AccessToken> Login(const std::vector<std::string> &perm) {
 
 TrackMessage::TrackMessage(std::string topic) : topic(std::move(topic)) {}
 
+std::string& TrackMessage::GetTopic() {
+    return topic;
+}
+
+std::shared_ptr<TrackMessage> CreateTracker(const std::string &topic) {
+    return tracker::CreateTracker(topic);
+}
+
+void FlushTracker(const std::shared_ptr<TrackMessage> &tracker) {
+    tracker::FlushTracker(tracker);
+}
+
 }  // namespace tapsdk
