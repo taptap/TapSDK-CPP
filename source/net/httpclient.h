@@ -30,8 +30,9 @@ using namespace nlohmann;
 constexpr auto http_timeout_ms = 10 * 1000;  // ms
 
 enum HttpType { GET, POST };
-enum ContentType { BIN, JSON, FORM };
+enum ContentType { NONE, JSON, FORM };
 
+static_assert(sizeof(char) == sizeof(u8));
 using Content = std::span<char>;
 using Json = nlohmann::json;
 using Pair = std::pair<std::string, std::string>;
@@ -42,23 +43,17 @@ using Params = std::span<Pair>;
 using Headers = std::span<Pair>;
 using Forms = std::span<Pair>;
 
-std::string ToContent(Forms forms);
-
-class ResultWrap {
-public:
-    explicit ResultWrap(std::string_view response);
-
-    [[nodiscard]] int GetCode() const;
-
-    [[nodiscard]] const std::string& GetMsg() const;
-
-    [[nodiscard]] const Json& GetContent() const;
-
-private:
+struct ResultWrapper {
     int code;
     std::string msg;
-    Json content;
+    Json content{};
 };
+
+using UnwrapResult = ResultWrapper (*)(std::string_view response);
+
+ResultWrapper TapUnwrapResult(std::string_view response);
+
+std::string ToContent(Forms forms);
 
 struct Error {
     int status;
@@ -104,7 +99,7 @@ template <JsonResult T> inline Result<std::shared_ptr<T>> MakeResult(Result<Json
 
 class TapHttpClient {
 public:
-    TapHttpClient(const char* host, bool https) : host{host}, https{https} {};
+    TapHttpClient(const char* host, bool https) : host{host}, https{https}, unwrap_result{&TapUnwrapResult} {};
 
     virtual ~TapHttpClient() = default;
 
@@ -155,7 +150,7 @@ public:
     }
 
     template <JsonResult R>
-    ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params, Content content = {}, ContentType type = ContentType::BIN) {
+    ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params, Content content = {}, ContentType type = ContentType::NONE) {
         auto res = co_await RequestAsync(POST, path, headers, params, content, type);
         co_return MakeResult<R>(res);
     }
@@ -248,9 +243,12 @@ public:
         return SyncAwait(PostAsync<R>(path, headers, params, content));
     }
 
+    void SetResultUnwrap(UnwrapResult unwrap_result);
+
 protected:
     const WebPath host;
     const bool https;
+    UnwrapResult unwrap_result;
 };
 
 }  // namespace tapsdk::net

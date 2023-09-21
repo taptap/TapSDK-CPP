@@ -37,6 +37,7 @@ constexpr auto TAP_TRACKER_VERSION = "1.0.1";
 static std::shared_mutex tracker_lock;
 static TrackerConfig tracker_config;
 static std::unordered_map<std::string, TopicTrackers> flushed_trackers{};
+static std::unique_ptr<net::TapHttpClient> http_client{};
 
 static std::string HashHmac(const std::string& content, const std::string& key) {
     std::string sha1hmac = hmac<SHA1>(content, key);
@@ -175,10 +176,6 @@ static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
                                       tracker_config.access_keyid,
                                       HashHmac(header_sig, tracker_config.access_key_secret));
 
-    auto http_client = net::CreateHttpClient(tracker_config.endpoint.c_str(), true);
-    http_client->SetResultUnwrap([] (auto response) -> auto {
-        return net::ResultWrapper{-1, ""};
-    });
     std::vector<net::Pair> headers{
             {"x-log-timestamp", fmt::format("{}", time_stamp)},
             {"Content-MD5", buffer_md5_string},
@@ -204,6 +201,10 @@ static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
 void Init(const Config& config) {
     ASSERT(config.tracker_config);
     tracker_config = *config.tracker_config;
+    http_client = net::CreateHttpClient(tracker_config.endpoint.c_str(), true);
+    http_client->SetResultUnwrap([] (auto response) -> auto {
+        return net::ResultWrapper{-1, ""};
+    });
 }
 
 std::shared_ptr<TrackMessage> CreateTracker(const std::string& topic) {

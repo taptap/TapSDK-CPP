@@ -32,14 +32,6 @@ const static auto DEFAULT_CA_PEM =
 
 namespace tapsdk::net {
 
-static std::unordered_map<std::string, std::string> ToHeader(Headers& headers) {
-    std::unordered_map<std::string, std::string> res{};
-    for (auto& [key, value] : headers) {
-        res[key] = value;
-    }
-    return std::move(res);
-}
-
 static std::string ToParam(Params& params) {
     std::string res{};
     bool first{true};
@@ -72,12 +64,6 @@ CoroHttpClient::CoroHttpClient(const char* host, bool https) : TapHttpClient(hos
 std::shared_ptr<cinatra::coro_http_client> CoroHttpClient::AcquireClient() {
     auto create_client = [&] {
         auto client = std::make_shared<cinatra::coro_http_client>();
-        for (auto& [key, value] : headers) {
-            client->add_header(key, value);
-        }
-        for (auto& [key, value] : params) {
-            client->add_str_part(key, value);
-        }
         client->set_req_timeout(std::chrono::milliseconds(http_timeout_ms));
         client->set_conn_timeout(std::chrono::milliseconds(http_timeout_ms));
         if (https) {
@@ -93,16 +79,23 @@ std::shared_ptr<cinatra::coro_http_client> CoroHttpClient::AcquireClient() {
         return client;
     };
     std::unique_lock guard(client_lock);
+    std::shared_ptr<cinatra::coro_http_client> client{};
     if (client_pool.empty()) {
         guard.unlock();
-        return create_client();
+        client = create_client();
     } else {
-        auto client = client_pool.front();
+        client = client_pool.front();
         client_pool.pop();
         client->reset();
         guard.unlock();
-        return client;
     }
+    for (auto& [key, value] : common_params) {
+        client->add_str_part(key, value);
+    }
+    for (auto& [key, value] : common_headers) {
+        client->add_header(key, value);
+    }
+    return client;
 }
 
 void CoroHttpClient::RecycleClient(const std::shared_ptr<cinatra::coro_http_client>& client) {
@@ -115,12 +108,12 @@ void CoroHttpClient::RecycleClient(const std::shared_ptr<cinatra::coro_http_clie
 
 void CoroHttpClient::CommonHeader(std::string_view key, std::string_view value) {
     ASSERT(!key.empty() && !value.empty());
-    headers[key.data()] = value;
+    common_headers[key.data()] = value;
 }
 
 void CoroHttpClient::CommonParam(std::string_view key, std::string_view value) {
     ASSERT(!key.empty() && !value.empty());
-    params[key.data()] = value;
+    common_params[key.data()] = value;
 }
 
 void CoroHttpClient::RequestAsync(HttpType type,
@@ -133,18 +126,21 @@ void CoroHttpClient::RequestAsync(HttpType type,
     auto co_type = type == GET ? cinatra::http_method::GET : cinatra::http_method::POST;
     cinatra::req_context<> ctx{cinatra::req_content_type::string, ToParam(params), ""};
     auto co_client = AcquireClient();
-    co_client->async_request(parent / path, co_type, std::move(ctx), ToHeader(headers))
+    for (auto& [key, value] : headers) {
+        co_client->add_header(key, value);
+    }
+    co_client->async_request(parent / path, co_type, std::move(ctx))
             .start([co_client, this, success, failed](
                            async_simple::Try<cinatra::resp_data> result) {
                 if (result.available()) {
                     auto& value = result.value();
                     if (value.status == 200) {
-                        ResultWrap tap_res{value.resp_body};
-                        if (tap_res.GetCode() == 0) {
-                            success(tap_res.GetContent());
+                        auto tap_res = unwrap_result(value.resp_body);
+                        if (tap_res.code == 0) {
+                            success(tap_res.content);
                         } else {
                             if (failed) {
-                                failed(200, tap_res.GetCode(), tap_res.GetMsg());
+                                failed(200, tap_res.code, tap_res.msg);
                             }
                         }
                     } else {
@@ -179,15 +175,18 @@ ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
     }
     cinatra::req_context<Content> ctx{cina_content_type, ToParam(params), content};
     auto co_client = AcquireClient();
+    for (auto& [key, value] : headers) {
+        co_client->add_header(key, value);
+    }
     auto value = co_await co_client->async_request(
-            parent / path, co_type, std::move(ctx), ToHeader(headers));
+            parent / path, co_type, std::move(ctx));
     RecycleClient(co_client);
     if (value.status == 200) {
-        ResultWrap tap_res{value.resp_body};
-        if (tap_res.GetCode() == 0) {
-            co_return tap_res.GetContent();
+        auto tap_res = unwrap_result(value.resp_body);
+        if (tap_res.code == 0) {
+            co_return tap_res.content;
         } else {
-            co_return MakeError(200, tap_res.GetCode(), tap_res.GetMsg());
+            co_return MakeError(200, tap_res.code, tap_res.msg);
         }
     } else {
         co_return MakeError(

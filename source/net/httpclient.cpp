@@ -20,11 +20,12 @@ std::string ToContent(Forms forms) {
     return content;
 }
 
-ResultWrap::ResultWrap(std::string_view response) {
+ResultWrapper TapUnwrapResult(std::string_view response) {
+    int code = -1;
+    std::string msg{"Invalid response!"};
+    Json content;
     if (response.empty()) {
-        code = -1;
-        msg = "No response!";
-        return;
+        return ResultWrapper{code, msg, content};
     }
     try {
         json resp = json::parse(response);
@@ -51,10 +52,11 @@ ResultWrap::ResultWrap(std::string_view response) {
         code = -1;
         msg = "Invalid response!";
     }
+    return ResultWrapper{code, msg, content};
 }
 
-int ResultWrap::GetCode() const { return code; }
-const std::string& ResultWrap::GetMsg() const { return msg; }
-const Json& ResultWrap::GetContent() const { return content; }
+void TapHttpClient::SetResultUnwrap(UnwrapResult unwrap_result) {
+    this->unwrap_result = unwrap_result;
+}
 
 }  // namespace tapsdk::net

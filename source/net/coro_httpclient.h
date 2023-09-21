@@ -36,8 +36,8 @@ private:
     std::shared_ptr<cinatra::coro_http_client> AcquireClient();
     void RecycleClient(const std::shared_ptr<cinatra::coro_http_client>& client);
 
-    std::unordered_map<std::string, std::string> headers;
-    std::unordered_map<std::string, std::string> params;
+    std::unordered_map<std::string, std::string> common_headers;
+    std::unordered_map<std::string, std::string> common_params;
     std::mutex client_lock;
     std::queue<std::shared_ptr<cinatra::coro_http_client>> client_pool;
 };

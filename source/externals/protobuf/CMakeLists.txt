@@ -1,5 +1,7 @@
 set(protobuf_VERSION 24.3)
+# 禁止 test 加速编译
 set(protobuf_BUILD_TESTS OFF)
+# 禁止编译 protoc 加速编译
 set(protobuf_BUILD_PROTOC_BINARIES OFF)
 # protobuf src
 import_remote("https://github.com/protocolbuffers/protobuf.git" TAG "v${protobuf_VERSION}" CMAKE "./" ALIAS protobuf)
@@ -20,7 +22,7 @@ else ()
     message(FATAL_ERROR "cmake host ${PROTOC_OS_RESULT} do not support!")
 endif ()
 
-# download protobuf bin
+# download protoc compiler
 if (NOT EXISTS ${protobuf_BINARY_DIR}/${protoc_BINARY})
     message("protoc download begin ==================================")
     file(DOWNLOAD
