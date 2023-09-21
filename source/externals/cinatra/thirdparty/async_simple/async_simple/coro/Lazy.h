@@ -149,18 +149,18 @@ public:
     T&& result() && {
         if (std::holds_alternative<std::exception_ptr>(_value))
             AS_UNLIKELY {
-                std::rethrow_exception(std::get<std::exception_ptr>(_value));
+                std::rethrow_exception(*std::get_if<std::exception_ptr>(&_value));
             }
         assert(std::holds_alternative<T>(_value));
-        return std::move(std::get<T>(_value));
+        return std::move(*std::get_if<T>(&_value));
     }
 
     Try<T> tryResult() noexcept {
         if (std::holds_alternative<std::exception_ptr>(_value))
-            AS_UNLIKELY { return Try<T>(std::get<std::exception_ptr>(_value)); }
+            AS_UNLIKELY { return Try<T>(*std::get_if<std::exception_ptr>(&_value)); }
         else {
             assert(std::holds_alternative<T>(_value));
-            return Try<T>(std::move(std::get<T>(_value)));
+            return Try<T>(std::move(*std::get_if<T>(&_value)));
         }
     }
 
