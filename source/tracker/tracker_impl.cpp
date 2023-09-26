@@ -198,6 +198,18 @@ static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
     co_return upload_result;
 }
 
+void SyncCacheTrackers(const std::string& topic, const TopicTrackers& trackers) {
+
+}
+
+static net::ResultAsync<std::shared_ptr<UploadResult>> CacheAndUploadTrackers(
+        const std::string& topic, const TopicTrackers& trackers) {
+    auto result = co_await UploadTopicTrackers(topic, trackers);
+
+
+    co_return result;
+}
+
 void Init(const Config& config) {
     ASSERT(config.tracker_config);
     tracker_config = *config.tracker_config;

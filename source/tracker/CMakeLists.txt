@@ -30,7 +30,9 @@ add_library(tracker STATIC
         model.h
         tracker_impl.cpp
         tracker_impl.h
-        ${TRACKER_PROTO_SRCS})
+        ${TRACKER_PROTO_SRCS}
+        cache.cpp
+        cache.h)
 
 target_link_libraries(tracker PUBLIC net core sqlite_orm ${PROTOBUF_LITE_LIBRARY} lz4_static)
 target_include_directories(tracker PRIVATE ${PROTOBUF_INCLUDE_DIRS} ${TRACKER_PROTO_HDRS})

@@ -16,6 +16,18 @@ using s16 = int16_t;
 using s32 = int32_t;
 using s64 = int64_t;
 
+constexpr inline u64 operator ""_KB(unsigned long long n) {
+    return static_cast<u64>(n) * UINT64_C(1024);
+}
+
+constexpr inline u64 operator ""_MB(unsigned long long n) {
+    return operator ""_KB(n) * UINT64_C(1024);
+}
+
+constexpr inline u64 operator ""_GB(unsigned long long n) {
+    return operator ""_MB(n) * UINT64_C(1024);
+}
+
 class WebPath : public std::string {
 public:
     WebPath(const std::string& str) : std::string{str} {}

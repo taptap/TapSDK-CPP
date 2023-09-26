@@ -25,9 +25,11 @@ add_library(tapsdk_base STATIC
         hmac.h
         sha1.cpp
         sha1.h
+        file.cpp
+        file.h
 )
 
-target_link_libraries(tapsdk_base PUBLIC fmt EventBus)
+target_link_libraries(tapsdk_base PUBLIC fmt EventBus ghc_filesystem)
 
 if (ANDROID)
     target_link_libraries(tapsdk_base PUBLIC log)
