@@ -30,177 +30,177 @@ enum class status_type {
 
 enum class content_encoding { gzip, none };
 
-constexpr std::string_view ok_sv = "OK";
-constexpr std::string_view created =
+inline std::string_view ok_sv = "OK";
+inline std::string_view created =
     "<html>"
     "<head><title>Created</title></head>"
     "<body><h1>201 Created</h1></body>"
     "</html>";
 
-constexpr std::string_view accepted =
+inline std::string_view accepted =
     "<html>"
     "<head><title>Accepted</title></head>"
     "<body><h1>202 Accepted</h1></body>"
     "</html>";
 
-constexpr std::string_view no_content =
+inline std::string_view no_content =
     "<html>"
     "<head><title>No Content</title></head>"
     "<body><h1>204 Content</h1></body>"
     "</html>";
 
-constexpr std::string_view multiple_choices =
+inline std::string_view multiple_choices =
     "<html>"
     "<head><title>Multiple Choices</title></head>"
     "<body><h1>300 Multiple Choices</h1></body>"
     "</html>";
 
-constexpr std::string_view moved_permanently =
+inline std::string_view moved_permanently =
     "<html>"
     "<head><title>Moved Permanently</title></head>"
     "<body><h1>301 Moved Permanently</h1></body>"
     "</html>";
 
-constexpr std::string_view temporary_redirect =
+inline std::string_view temporary_redirect =
     "<html>"
     "<head><title>Temporary Redirect</title></head>"
     "<body><h1>307 Temporary Redirect</h1></body>"
     "</html>";
 
-constexpr std::string_view moved_temporarily =
+inline std::string_view moved_temporarily =
     "<html>"
     "<head><title>Moved Temporarily</title></head>"
     "<body><h1>302 Moved Temporarily</h1></body>"
     "</html>";
 
-constexpr std::string_view not_modified =
+inline std::string_view not_modified =
     "<html>"
     "<head><title>Not Modified</title></head>"
     "<body><h1>304 Not Modified</h1></body>"
     "</html>";
 
-constexpr std::string_view bad_request =
+inline std::string_view bad_request =
     "<html>"
     "<head><title>Bad Request</title></head>"
     "<body><h1>400 Bad Request</h1></body>"
     "</html>";
 
-constexpr std::string_view unauthorized =
+inline std::string_view unauthorized =
     "<html>"
     "<head><title>Unauthorized</title></head>"
     "<body><h1>401 Unauthorized</h1></body>"
     "</html>";
 
-constexpr std::string_view forbidden =
+inline std::string_view forbidden =
     "<html>"
     "<head><title>Forbidden</title></head>"
     "<body><h1>403 Forbidden</h1></body>"
     "</html>";
 
-constexpr std::string_view not_found =
+inline std::string_view not_found =
     "<html>"
     "<head><title>Not Found</title></head>"
     "<body><h1>404 Not Found</h1></body>"
     "</html>";
 
-constexpr std::string_view conflict =
+inline std::string_view conflict =
     "<html>"
     "<head><title>Conflict</title></head>"
     "<body><h1>409 Conflict</h1></body>"
     "</html>";
 
-std::string_view internal_server_error =
+inline std::string_view internal_server_error =
     "<html>"
     "<head><title>Internal Server Error</title></head>"
     "<body><h1>500 Internal Server Error</h1></body>"
     "</html>";
 
-constexpr std::string_view not_implemented =
+inline std::string_view not_implemented =
     "<html>"
     "<head><title>Not Implemented</title></head>"
     "<body><h1>501 Not Implemented</h1></body>"
     "</html>";
 
-constexpr std::string_view bad_gateway =
+inline std::string_view bad_gateway =
     "<html>"
     "<head><title>Bad Gateway</title></head>"
     "<body><h1>502 Bad Gateway</h1></body>"
     "</html>";
 
-constexpr std::string_view service_unavailable =
+inline std::string_view service_unavailable =
     "<html>"
     "<head><title>Service Unavailable</title></head>"
     "<body><h1>503 Service Unavailable</h1></body>"
     "</html>";
 
-constexpr std::string_view switching_protocols =
+inline constexpr std::string_view switching_protocols =
     "HTTP/1.1 101 Switching Protocals\r\n";
-constexpr std::string_view rep_ok = "HTTP/1.1 200 OK\r\n";
-constexpr std::string_view rep_created = "HTTP/1.1 201 Created\r\n";
-constexpr std::string_view rep_accepted = "HTTP/1.1 202 Accepted\r\n";
-constexpr std::string_view rep_no_content =
+inline constexpr std::string_view rep_ok = "HTTP/1.1 200 OK\r\n";
+inline constexpr std::string_view rep_created = "HTTP/1.1 201 Created\r\n";
+inline constexpr std::string_view rep_accepted = "HTTP/1.1 202 Accepted\r\n";
+inline constexpr std::string_view rep_no_content =
     "HTTP/1.1 204 No Content\r\n";
-constexpr std::string_view rep_partial_content =
+inline constexpr std::string_view rep_partial_content =
     "HTTP/1.1 206 Partial Content\r\n";
-constexpr std::string_view rep_multiple_choices =
+inline constexpr std::string_view rep_multiple_choices =
     "HTTP/1.1 300 Multiple Choices\r\n";
-constexpr std::string_view rep_moved_permanently =
+inline constexpr std::string_view rep_moved_permanently =
     "HTTP/1.1 301 Moved Permanently\r\n";
-constexpr std::string_view rep_temporary_redirect =
+inline constexpr std::string_view rep_temporary_redirect =
     "HTTP/1.1 307 Temporary Redirect\r\n";
-constexpr std::string_view rep_moved_temporarily =
+inline constexpr std::string_view rep_moved_temporarily =
     "HTTP/1.1 302 Moved Temporarily\r\n";
-constexpr std::string_view rep_not_modified =
+inline constexpr std::string_view rep_not_modified =
     "HTTP/1.1 304 Not Modified\r\n";
-constexpr std::string_view rep_bad_request =
+inline constexpr std::string_view rep_bad_request =
     "HTTP/1.1 400 Bad Request\r\n";
-constexpr std::string_view rep_unauthorized =
+inline constexpr std::string_view rep_unauthorized =
     "HTTP/1.1 401 Unauthorized\r\n";
-constexpr std::string_view rep_forbidden = "HTTP/1.1 403 Forbidden\r\n";
-constexpr std::string_view rep_not_found = "HTTP/1.1 404 Not Found\r\n";
-constexpr std::string_view rep_conflict = "HTTP/1.1 409 Conflict\r\n";
-constexpr std::string_view rep_internal_server_error =
+inline constexpr std::string_view rep_forbidden = "HTTP/1.1 403 Forbidden\r\n";
+inline constexpr std::string_view rep_not_found = "HTTP/1.1 404 Not Found\r\n";
+inline constexpr std::string_view rep_conflict = "HTTP/1.1 409 Conflict\r\n";
+inline constexpr std::string_view rep_internal_server_error =
     "HTTP/1.1 500 Internal Server Error\r\n";
-constexpr std::string_view rep_not_implemented =
+inline constexpr std::string_view rep_not_implemented =
     "HTTP/1.1 501 Not Implemented\r\n";
-constexpr std::string_view rep_bad_gateway =
+inline constexpr std::string_view rep_bad_gateway =
     "HTTP/1.1 502 Bad Gateway\r\n";
-constexpr std::string_view rep_service_unavailable =
+inline constexpr std::string_view rep_service_unavailable =
     "HTTP/1.1 503 Service Unavailable\r\n";
 
-constexpr std::string_view rep_html =
+inline constexpr std::string_view rep_html =
     "Content-Type: text/html; charset=UTF-8\r\n";
-constexpr std::string_view rep_json =
+inline constexpr std::string_view rep_json =
     "Content-Type: application/json; charset=UTF-8\r\n";
-constexpr std::string_view rep_string =
+inline constexpr std::string_view rep_string =
     "Content-Type: text/plain; charset=UTF-8\r\n";
-constexpr std::string_view rep_multipart =
+inline constexpr std::string_view rep_multipart =
     "Content-Type: multipart/form-data; boundary=";
 
-constexpr std::string_view rep_keep = "Connection: keep-alive\r\n";
-constexpr std::string_view rep_close = "Connection: close     \r\n";
-constexpr std::string_view rep_len = "Content-Length: ";
-constexpr std::string_view rep_crcf = "\r\n";
-constexpr std::string_view rep_server = "Server: cinatra\r\n";
+inline constexpr std::string_view rep_keep = "Connection: keep-alive\r\n";
+inline constexpr std::string_view rep_close = "Connection: close     \r\n";
+inline constexpr std::string_view rep_len = "Content-Length: ";
+inline constexpr std::string_view rep_crcf = "\r\n";
+inline constexpr std::string_view rep_server = "Server: cinatra\r\n";
 
-const char name_value_separator[] = {':', ' '};
-// std::string_view crlf = "\r\n";
+inline const char name_value_separator[] = {':', ' '};
+// inline std::string_view crlf = "\r\n";
 
 constexpr std::string_view crlf = "\r\n";
 constexpr std::string_view last_chunk = "0\r\n";
-const std::string http_chunk_header =
+inline const std::string http_chunk_header =
     "HTTP/1.1 200 OK\r\n"
     "Transfer-Encoding: chunked\r\n";
 /*"Content-Type: video/mp4\r\n"
 "\r\n";*/
 
-const std::string http_range_chunk_header =
+inline const std::string http_range_chunk_header =
     "HTTP/1.1 206 Partial Content\r\n"
     "Transfer-Encoding: chunked\r\n";
 /*"Content-Type: video/mp4\r\n"
 "\r\n";*/
 
-constexpr std::string_view to_content_type_str(req_content_type type) {
+inline constexpr std::string_view to_content_type_str(req_content_type type) {
   switch (type) {
     case req_content_type::html:
       return rep_html;
@@ -255,7 +255,7 @@ template <unsigned num>
 struct num_to_string : detail::explode<num / 10, num % 10> {};
 
 template <typename T>
-decltype(auto) to_buffer(status_type status) {
+inline decltype(auto) to_buffer(status_type status) {
   switch (status) {
     case status_type::switching_protocols:
       return T(switching_protocols.data(), switching_protocols.length());
@@ -305,7 +305,7 @@ decltype(auto) to_buffer(status_type status) {
   }
 }
 
-constexpr std::string_view to_rep_string(status_type status) {
+inline constexpr std::string_view to_rep_string(status_type status) {
   switch (status) {
     case cinatra::status_type::switching_protocols:
       return switching_protocols;
@@ -373,7 +373,7 @@ constexpr std::string_view to_rep_string(status_type status) {
   }
 }
 
-std::string_view to_string(status_type status) {
+inline std::string_view to_string(status_type status) {
   switch (status) {
     case status_type::ok:
       return ok_sv;

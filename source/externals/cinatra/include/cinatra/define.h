@@ -28,22 +28,22 @@ enum class req_content_type {
   none
 };
 
-constexpr auto HTML = req_content_type::html;
-constexpr auto JSON = req_content_type::json;
-constexpr auto TEXT = req_content_type::string;
-constexpr auto RANGES = req_content_type::ranges;
-constexpr auto NONE = req_content_type::none;
+constexpr inline auto HTML = req_content_type::html;
+constexpr inline auto JSON = req_content_type::json;
+constexpr inline auto TEXT = req_content_type::string;
+constexpr inline auto RANGES = req_content_type::ranges;
+constexpr inline auto NONE = req_content_type::none;
 
-const std::string_view STATIC_RESOURCE = "cinatra_static_resource";
-const std::string CSESSIONID = "CSESSIONID";
+inline const std::string_view STATIC_RESOURCE = "cinatra_static_resource";
+inline const std::string CSESSIONID = "CSESSIONID";
 
-const static std::string CRCF = "\r\n";
-const static std::string TWO_CRCF = "\r\n\r\n";
-const static std::string BOUNDARY = "--CinatraBoundary2B8FAF4A80EDB307";
-const static std::string MULTIPART_END =
+const static inline std::string CRCF = "\r\n";
+const static inline std::string TWO_CRCF = "\r\n\r\n";
+const static inline std::string BOUNDARY = "--CinatraBoundary2B8FAF4A80EDB307";
+const static inline std::string MULTIPART_END =
     CRCF + "--" + BOUNDARY + "--" + TWO_CRCF;
 
-const std::unordered_map<std::string, std::string> g_content_type_map = {
+inline std::unordered_map<std::string, std::string> g_content_type_map = {
     {".css", "text/css"},
     {".csv", "text/csv"},
     {".htm", "text/html"},
@@ -141,14 +141,14 @@ enum component_of_time_format {
   ending
 };
 
-constexpr std::array<int, 17> month_table = {
+inline constexpr std::array<int, 17> month_table = {
     11, 4, -1, 7, -1, -1, -1, 0, 6, 3, 5, 2, 10, 8, -1, 9, 1};
 
-constexpr std::array<int, 17> week_table = {
+inline constexpr std::array<int, 17> week_table = {
     2, 4, 3, 1, -1, -1, -1, 6, -1, -1, -1, -1, 0, -1, -1, 5, -1};
 
 // Mon, 02 Jan 2006 15:04:05 GMT
-constexpr std::array<component_of_time_format, 32> http_time_format{
+inline constexpr std::array<component_of_time_format, 32> http_time_format{
     component_of_time_format::day_name, component_of_time_format::comma,
     component_of_time_format::SP,       component_of_time_format::day,
     component_of_time_format::SP,       component_of_time_format::month_name,
@@ -159,7 +159,7 @@ constexpr std::array<component_of_time_format, 32> http_time_format{
     component_of_time_format::SP,       component_of_time_format::GMT,
     component_of_time_format::ending};
 // 2006-01-02T15:04:05.000Z
-constexpr std::array<component_of_time_format, 32> utc_time_format{
+inline constexpr std::array<component_of_time_format, 32> utc_time_format{
     component_of_time_format::year,
     component_of_time_format::hyphen,
     component_of_time_format::month,
@@ -176,7 +176,7 @@ constexpr std::array<component_of_time_format, 32> utc_time_format{
     component_of_time_format::Z,
     component_of_time_format::ending};
 // 20060102T150405000Z
-constexpr std::array<component_of_time_format, 32>
+inline constexpr std::array<component_of_time_format, 32>
     utc_time_without_punctuation_format{
         component_of_time_format::year,
         component_of_time_format::month,
@@ -188,30 +188,30 @@ constexpr std::array<component_of_time_format, 32>
         component_of_time_format::second_decimal_part,
         component_of_time_format::Z,
         component_of_time_format::ending};
-constexpr int len_of_http_time_format =
+constexpr inline int len_of_http_time_format =
     3 + 1 + 1 + 2 + 1 + 3 + 1 + 4 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 3;
 // ignore second_decimal_part
-constexpr int len_of_utc_time_format =
+constexpr inline int len_of_utc_time_format =
     4 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 2 + 1 + 0 + 1;
 // ignore second_decimal_part
-constexpr int len_of_utc_time_without_punctuation_format =
+constexpr inline int len_of_utc_time_without_punctuation_format =
     4 + 2 + 2 + 1 + 2 + 2 + 2 + 0 + 1;
-constexpr std::int64_t absolute_zero_year = -292277022399;
-constexpr std::int64_t days_per_100_years = 365 * 100 + 24;
-constexpr std::int64_t days_per_400_years = 365 * 400 + 97;
-constexpr std::int64_t days_per_4_years = 365 * 4 + 1;
-constexpr std::int64_t seconds_per_minute = 60;
-constexpr std::int64_t seconds_per_hour = 60 * seconds_per_minute;
-constexpr std::int64_t seconds_per_day = 24 * seconds_per_hour;
-constexpr std::int64_t seconds_per_week = 7 * seconds_per_day;
-constexpr std::int64_t internal_year = 1;
-constexpr std::int64_t absolute_to_internal =
+constexpr inline std::int64_t absolute_zero_year = -292277022399;
+constexpr inline std::int64_t days_per_100_years = 365 * 100 + 24;
+constexpr inline std::int64_t days_per_400_years = 365 * 400 + 97;
+constexpr inline std::int64_t days_per_4_years = 365 * 4 + 1;
+constexpr inline std::int64_t seconds_per_minute = 60;
+constexpr inline std::int64_t seconds_per_hour = 60 * seconds_per_minute;
+constexpr inline std::int64_t seconds_per_day = 24 * seconds_per_hour;
+constexpr inline std::int64_t seconds_per_week = 7 * seconds_per_day;
+constexpr inline std::int64_t internal_year = 1;
+constexpr inline std::int64_t absolute_to_internal =
     (absolute_zero_year - internal_year) *
     std::int64_t(365.2425 * seconds_per_day);
-constexpr std::int64_t unix_to_internal =
+constexpr inline std::int64_t unix_to_internal =
     (1969 * 365 + 1969 / 4 - 1969 / 100 + 1969 / 400) * seconds_per_day;
-constexpr std::int64_t internal_to_unix = -unix_to_internal;
-constexpr std::array<std::int32_t, 13> days_before = {
+constexpr inline std::int64_t internal_to_unix = -unix_to_internal;
+constexpr inline std::array<std::int32_t, 13> days_before = {
     0,
     31,
     31 + 28,
