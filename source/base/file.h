@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <utility>
 #include <mutex>
-#include "types.h"
+#include <utility>
 #include "common_funcs.h"
+#include "types.h"
 
 #define HAS_UNIX_FD defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 
@@ -48,13 +48,12 @@ DECLARE_ENUM_FLAG_OPERATORS(FileAccessMode)
 
 class File {
 public:
-
     explicit File(std::string path) : path(std::move(path)) {}
 
     virtual ~File();
 
-    static bool Create(const std::string &path);
-    static bool Delete(const std::string &path);
+    static bool Create(const std::string& path);
+    static bool Delete(const std::string& path);
     bool Open(FileAccessMode mode);
     bool IsOpen();
     bool Close();
@@ -82,6 +81,6 @@ private:
     FileAccessMode open_mode;
 };
 
-bool Unmap(void *mem, size_t size);
+bool Unmap(void* mem, size_t size);
 
 }  // namespace tapsdk

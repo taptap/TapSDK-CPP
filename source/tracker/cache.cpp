@@ -2,16 +2,15 @@
 // Created by 甘尧 on 2023/9/25.
 //
 
-#include "cache.h"
 #include <utility>
-#include "unistd.h"
-#include "base/logging.h"
 #include "base/alignment.h"
+#include "base/logging.h"
+#include "cache.h"
+#include "unistd.h"
 
 #ifdef __APPLE__
 #include <libkern/OSCacheControl.h>
 #endif
-
 
 namespace tapsdk::tracker {
 
@@ -22,13 +21,13 @@ constexpr auto index_file_size = sizeof(CacheIndex) + max_track_counts * sizeof(
 constexpr auto max_cache_size = 1024 * 1024 * 4;
 const static auto cache_idx_size = AlignUp(index_file_size, getpagesize());
 
-static void ClearDCache(void *start, size_t size) {
+static void ClearDCache(void* start, size_t size) {
 #ifdef __APPLE__
-    sys_dcache_flush(reinterpret_cast<char *>(start), size);
+    sys_dcache_flush(reinterpret_cast<char*>(start), size);
 #endif
 }
 
-bool CacheToDisk(const std::string &topic, const std::list<std::shared_ptr<TrackMessage>> &msgs) {
+bool CacheToDisk(const std::string& topic, const std::list<std::shared_ptr<TrackMessage>>& msgs) {
     return true;
 }
 
@@ -39,8 +38,12 @@ TrackCache::TrackCache(std::string topic, std::string path)
 }
 
 void TrackCache::Init() {
-    ASSERT_MSG(index_file->Open(FileAccessMode::ReadWrite), "Index file {} open failed!", index_file->GetPath());
-    ASSERT_MSG(content_file->Open(FileAccessMode::ReadWrite), "Content file {} open failed!", index_file->GetPath());
+    ASSERT_MSG(index_file->Open(FileAccessMode::ReadWrite),
+               "Index file {} open failed!",
+               index_file->GetPath());
+    ASSERT_MSG(content_file->Open(FileAccessMode::ReadWrite),
+               "Content file {} open failed!",
+               index_file->GetPath());
 
     auto should_init{false};
 
@@ -59,10 +62,10 @@ void TrackCache::Init() {
     auto use_mmap = index_file_mem && content_file_mem;
 
     if (use_mmap) {
-        index_header = reinterpret_cast<CacheIndex *>(index_file_mem);
-        auto entry_start = reinterpret_cast<u8 *>(index_file_mem) + sizeof(CacheIndex);
-        entries = {reinterpret_cast<CacheEntry *>(entry_start), max_track_counts};
-        entries_header = reinterpret_cast<CacheEntries *>(content_file_mem);
+        index_header = reinterpret_cast<CacheIndex*>(index_file_mem);
+        auto entry_start = reinterpret_cast<u8*>(index_file_mem) + sizeof(CacheIndex);
+        entries = {reinterpret_cast<CacheEntry*>(entry_start), max_track_counts};
+        entries_header = reinterpret_cast<CacheEntries*>(content_file_mem);
     } else {
         index_header = &idx_header_buf;
         entries_header = &cnt_header_buf;
@@ -98,11 +101,13 @@ bool TrackCache::Push(u64 time, std::span<u8> content) {
     u32 cache_offset = sizeof(CacheEntries);
     if (!entries.empty()) {
         if (index_header->entry_size > 0) {
-            auto &last_entry = entries[index_header->entry_size - 1];
+            auto& last_entry = entries[index_header->entry_size - 1];
             cache_offset = last_entry.offset + last_entry.length;
         }
-        std::memcpy(reinterpret_cast<u8 *>(entries_header) + cache_offset, content.data(), content.size());
-        auto &entry = entries[index_header->entry_size];
+        std::memcpy(reinterpret_cast<u8*>(entries_header) + cache_offset,
+                    content.data(),
+                    content.size());
+        auto& entry = entries[index_header->entry_size];
         entry.offset = cache_offset;
         entry.length = content.size();
         entry.time = time;
@@ -111,15 +116,17 @@ bool TrackCache::Push(u64 time, std::span<u8> content) {
         return content_file->Commit() && index_file->Commit();
     } else {
         if (index_header->entry_size > 0) {
-            auto last_entry = index_file->Read<CacheEntry>(sizeof(CacheIndex) + (index_header->entry_size - 1) * sizeof(CacheEntry));
+            auto last_entry = index_file->Read<CacheEntry>(
+                    sizeof(CacheIndex) + (index_header->entry_size - 1) * sizeof(CacheEntry));
             cache_offset = last_entry.offset + last_entry.length;
         }
         CacheEntry entry{};
         entry.offset = cache_offset;
         entry.length = content.size();
         entry.time = time;
-        content_file->Write((void *) content.data(), entry.offset, entry.length);
-        index_file->Write(entry, sizeof(CacheIndex) + sizeof(CacheEntry) * index_header->entry_size);
+        content_file->Write((void*)content.data(), entry.offset, entry.length);
+        index_file->Write(entry,
+                          sizeof(CacheIndex) + sizeof(CacheEntry) * index_header->entry_size);
         index_header->entry_size++;
         entries_header->size += content.size();
         content_file->Write(entries_header->size, offsetof(CacheEntries, size));
@@ -137,4 +144,4 @@ TrackCache::~TrackCache() {
     }
 }
 
-}
+}  // namespace tapsdk::tracker

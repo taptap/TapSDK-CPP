@@ -4,9 +4,9 @@
 
 #pragma once
 
+#include "base/file.h"
 #include "net/network.h"
 #include "sdk/tapsdk.h"
-#include "base/file.h"
 
 namespace tapsdk::tracker {
 
@@ -47,12 +47,12 @@ private:
     std::unique_ptr<File> index_file;
     std::unique_ptr<File> content_file;
 
-    CacheIndex *index_header{};
-    CacheEntries *entries_header{};
+    CacheIndex* index_header{};
+    CacheEntries* entries_header{};
     std::span<CacheEntry> entries{};
 
     CacheIndex idx_header_buf{};
     CacheEntries cnt_header_buf{};
 };
 
-}
+}  // namespace tapsdk::tracker
