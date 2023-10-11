@@ -10,11 +10,35 @@
 
 namespace tapsdk::tracker {
 
-class TrackCache {
+#pragma pack(push, 4)
+struct CacheEntry {
+    u32 offset;
+    u32 length;
+    u32 time;
+};
+
+struct CacheIndex {
+    std::array<u8, 4> magic;
+    u32 ver_code;
+    u32 entry_size;
+};
+
+struct CacheEntries {
+    std::array<u8, 4> magic;
+    u32 ver_code;
+    u32 size;
+};
+#pragma pack(pop)
+
+class TrackCache : DeleteCopyAndMove {
 public:
     explicit TrackCache(std::string topic, std::string path);
 
     void Init();
+
+    bool Push(u64 time, std::span<u8> content);
+
+    virtual ~TrackCache();
 
 private:
     std::string topic;
@@ -22,6 +46,13 @@ private:
     std::mutex lock;
     std::unique_ptr<File> index_file;
     std::unique_ptr<File> content_file;
+
+    CacheIndex *index_header{};
+    CacheEntries *entries_header{};
+    std::span<CacheEntry> entries{};
+
+    CacheIndex idx_header_buf{};
+    CacheEntries cnt_header_buf{};
 };
 
 }

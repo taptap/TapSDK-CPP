@@ -23,7 +23,6 @@ public:
 
     std::span<u8> Serialize();
     bool Deserialize(std::span<u8> data);
-    u32 GetCreateTime() const;
     void Flushed();
 
     google::protobuf::RepeatedPtrField<TrackMsgContent> &GetContents();
@@ -32,7 +31,6 @@ public:
 private:
     std::atomic<bool> dirty{false};
     std::atomic<bool> flushed{false};
-    u32 create_time;
     std::vector<u8> data{};
     TrackMsgCacheProto proto{};
 };

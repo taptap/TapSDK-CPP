@@ -59,9 +59,11 @@ public:
     virtual void AddParam(const std::string &key, const std::string &value) = 0;
 
     std::string &GetTopic();
+    uint32_t GetCreateTime();
 
 protected:
     std::string topic;
+    uint32_t create_time;
 };
 
 struct TrackerConfig {

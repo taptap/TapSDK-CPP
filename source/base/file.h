@@ -51,6 +51,10 @@ public:
 
     explicit File(std::string path) : path(std::move(path)) {}
 
+    virtual ~File();
+
+    static bool Create(const std::string &path);
+    static bool Delete(const std::string &path);
     bool Open(FileAccessMode mode);
     bool IsOpen();
     bool Close();
@@ -61,6 +65,7 @@ public:
     void* Map(size_t offset, size_t size);
     bool Flush();
     bool Commit();
+    std::string GetPath();
 
     template <typename T> T Read(size_t offset = 0) {
         T t;

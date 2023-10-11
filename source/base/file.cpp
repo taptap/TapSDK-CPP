@@ -30,16 +30,47 @@ namespace tapsdk {
     }
 }
 
+bool File::Create(const std::string& path) {
+    if (!fs::exists(path)) {
+        auto file = std::fopen(path.c_str(), "w");
+        if (file) {
+            std::fclose(file);
+        }
+        return file;
+    } else {
+        return true;
+    }
+}
+
+bool File::Delete(const std::string& path) {
+    if (fs::exists(path)) {
+        if (fs::is_regular_file(path)) {
+            return fs::remove(path);
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+
 bool File::Open(tapsdk::FileAccessMode mode) {
     Close();
-    file = std::fopen(path.c_str(), AccessModeToStr(mode));
+    if (!fs::exists(path)) {
+        auto parent = fs::path(path).parent_path();
+        if (!fs::exists(parent)) {
+            fs::create_directories(parent);
+        }
+        Create(path);
+    }
     errno = 0;
+    file = std::fopen(path.c_str(), AccessModeToStr(mode));
     if (IsOpen()) {
         open_mode = mode;
         return true;
     } else {
         const auto ec = std::error_code{errno, std::generic_category()};
-        LOG_ERROR("Failed to close the file at path={}, ec_message={}", path, ec.message());
+        LOG_ERROR("Failed to open the file at path={}, ec_message={}", path, ec.message());
         return false;
     }
 }
@@ -110,7 +141,9 @@ bool File::Write(void* src, size_t offset, size_t size) {
 }
 
 void* File::Map(size_t offset, size_t size) {
-    ASSERT_MSG(IsOpen());
+    if (!IsOpen()) {
+        return nullptr;
+    }
 #if HAS_UNIX_FD
     int prot{0};
     if ((open_mode & FileAccessMode::Read) != FileAccessMode::None) {
@@ -119,9 +152,10 @@ void* File::Map(size_t offset, size_t size) {
     if ((open_mode & FileAccessMode::Write) != FileAccessMode::None) {
         prot |= PROT_WRITE;
     }
-    return mmap(nullptr, size, prot, MAP_SHARED | MAP_FIXED, fileno(file), offset);
+    auto res = mmap(nullptr, size, prot, MAP_SHARED, fileno(file), offset);
+    return res != MAP_FAILED ? res : nullptr;
 #else
-    return {};
+    return nullptr;
 #endif
 }
 
@@ -163,6 +197,10 @@ bool File::Resize(size_t new_size) {
 
     return set_size_result;
 }
+
+std::string File::GetPath() { return path; }
+
+File::~File() { Close(); }
 
 bool Unmap(void* mem, size_t size) {
 #if HAS_UNIX_FD

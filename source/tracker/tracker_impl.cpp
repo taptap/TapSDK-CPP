@@ -15,7 +15,9 @@
 #include "track_log_bean.pb.h"
 #include "tracker/model.h"
 #include "tracker/tracker_impl.h"
+#include "tracker/cache.h"
 #include "base/uuid.h"
+#include "ghc/fs_std_select.hpp"
 
 namespace tapsdk::tracker {
 
@@ -36,7 +38,9 @@ constexpr auto TAP_TRACKER_VERSION = "1.0.1";
 
 static std::shared_mutex tracker_lock;
 static TrackerConfig tracker_config;
+static fs::path tracker_cache;
 static std::unordered_map<std::string, TopicTrackers> flushed_trackers{};
+static std::unordered_map<std::string, TrackCache> topic_disk_caches{};
 static std::unique_ptr<net::TapHttpClient> http_client{};
 
 static std::string HashHmac(const std::string& content, const std::string& key) {
@@ -48,7 +52,9 @@ static std::string HashHmac(const std::string& content, const std::string& key) 
 }
 
 TrackMessageImpl::TrackMessageImpl(const std::string& topic)
-        : TrackMessage(topic), create_time(std::time(nullptr)) {}
+        : TrackMessage(topic) {
+    create_time = std::time(nullptr);
+}
 
 void TrackMessageImpl::AddContent(const std::string& key, const std::string& value) {
     ASSERT(!flushed);
@@ -86,8 +92,6 @@ google::protobuf::RepeatedPtrField<TrackMsgContent>& TrackMessageImpl::GetParams
 bool TrackMessageImpl::Deserialize(std::span<u8> data_) {
     return proto.ParseFromArray(data_.data(), data_.size());
 }
-
-u32 TrackMessageImpl::GetCreateTime() const { return create_time; }
 
 void TrackMessageImpl::Flushed() { flushed = true; }
 
@@ -213,6 +217,9 @@ static net::ResultAsync<std::shared_ptr<UploadResult>> CacheAndUploadTrackers(
 void Init(const Config& config) {
     ASSERT(config.tracker_config);
     tracker_config = *config.tracker_config;
+    auto dev = platform::Device::GetCurrent();
+    ASSERT(dev);
+    tracker_cache = dev->GetCacheDir();
     http_client = net::CreateHttpClient(tracker_config.endpoint.c_str(), true);
     http_client->SetResultUnwrap([] (auto response) -> auto {
         return net::ResultWrapper{-1, ""};
@@ -226,9 +233,23 @@ std::shared_ptr<TrackMessage> CreateTracker(const std::string& topic) {
 }
 
 void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
+    std::scoped_lock guard(tracker_lock);
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
     tracker_impl->Flushed();
     flushed_trackers[tracker->GetTopic()].push_back(tracker_impl);
+
+    if (!topic_disk_caches.contains(tracker->GetTopic())) {
+        auto cache_path = tracker_cache / "tds_tracker" / tracker->GetTopic();
+        auto [itr, success] = topic_disk_caches.try_emplace(tracker->GetTopic(), tracker->GetTopic(), cache_path);
+        if (success) {
+            auto &cache = itr->second;
+            cache.Init();
+            cache.Push(tracker->GetCreateTime(), tracker_impl->Serialize());
+        }
+    } else {
+        auto &cache = topic_disk_caches.find(tracker_impl->GetTopic())->second;
+        cache.Push(tracker->GetCreateTime(), tracker_impl->Serialize());
+    }
     UploadTopicTrackers(tracker->GetTopic(), flushed_trackers[tracker->GetTopic()])
             .start([](auto result) { auto result_val = result.value(); });
 }

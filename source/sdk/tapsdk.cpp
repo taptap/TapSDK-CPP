@@ -2,12 +2,12 @@
 // Created by 甘尧 on 2023/6/29.
 //
 
-#include "tapsdk.h"
 #include "base/logging.h"
 #include "core/events.h"
 #include "core/runtime.h"
 #include "duration/duration.h"
 #include "login/tap_login.h"
+#include "tapsdk.h"
 #include "tracker/tap_tracker.h"
 
 namespace tapsdk {
@@ -23,9 +23,7 @@ static std::shared_ptr<Game> current_game;
 // modules
 static std::unique_ptr<duration::DurationStatistics> duration_statistics;
 
-const char* SDKVersionName() {
-    return TDS_VERSION;
-}
+const char* SDKVersionName() { return TDS_VERSION; }
 
 bool Init(const Config& config) {
     sdk_config = config;
@@ -53,34 +51,27 @@ std::shared_ptr<TDSUser> TDSUser::GetCurrent() { return current_user; }
 
 std::string TDSUser::GetUserId() { return user_id; }
 
-TDSUser::TDSUser(const std::string& id)
-        : user_id{id} {}
+TDSUser::TDSUser(const std::string& id) : user_id{id} {}
 
 void Game::SetCurrent(const std::shared_ptr<Game>& game) {
     current_game = game;
     Runtime::Get().GetEventBus()->notifyNow(events::GameStart{game});
 }
 
-std::shared_ptr<Game> Game::GetCurrent() {
-    return current_game;
-}
+std::shared_ptr<Game> Game::GetCurrent() { return current_game; }
 
-Future<AccessToken> Login(const std::vector<std::string> &perm) {
-    return login::Login(perm);
-}
+Future<AccessToken> Login(const std::vector<std::string>& perm) { return login::Login(perm); }
 
 TrackMessage::TrackMessage(std::string topic) : topic(std::move(topic)) {}
 
-std::string& TrackMessage::GetTopic() {
-    return topic;
-}
+std::string& TrackMessage::GetTopic() { return topic; }
 
-std::shared_ptr<TrackMessage> CreateTracker(const std::string &topic) {
+uint32_t TrackMessage::GetCreateTime() { return create_time; }
+
+std::shared_ptr<TrackMessage> CreateTracker(const std::string& topic) {
     return tracker::CreateTracker(topic);
 }
 
-void FlushTracker(const std::shared_ptr<TrackMessage> &tracker) {
-    tracker::FlushTracker(tracker);
-}
+void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) { tracker::FlushTracker(tracker); }
 
 }  // namespace tapsdk
