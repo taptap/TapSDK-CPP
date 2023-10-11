@@ -38,6 +38,10 @@ public:
 
     bool Push(u64 time, std::span<u8> content);
 
+    std::list<std::shared_ptr<TrackMessage>> Load();
+
+    void Clear();
+
     virtual ~TrackCache();
 
 private:

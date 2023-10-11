@@ -6,6 +6,7 @@
 #include "base/alignment.h"
 #include "base/logging.h"
 #include "cache.h"
+#include "tracker_impl.h"
 #include "unistd.h"
 
 #ifdef __APPLE__
@@ -16,9 +17,9 @@ namespace tapsdk::tracker {
 
 constexpr std::array<u8, 4> cache_magic = {'t', 'd', 's', 'c'};
 constexpr auto cache_version_code = 1;
-constexpr auto max_track_counts = 10000;
+constexpr auto max_track_counts = 5000;
 constexpr auto index_file_size = sizeof(CacheIndex) + max_track_counts * sizeof(CacheEntry);
-constexpr auto max_cache_size = 1024 * 1024 * 4;
+constexpr auto max_cache_size = 1024 * 1024 * 2;
 const static auto cache_idx_size = AlignUp(index_file_size, getpagesize());
 
 static void ClearDCache(void* start, size_t size) {
@@ -73,7 +74,7 @@ void TrackCache::Init() {
         *index_header = index_file->Read<CacheIndex>(0);
     }
 
-    if (should_init || entries_header->magic != cache_magic) {
+    if (should_init || index_header->magic != cache_magic || entries_header->magic != cache_magic) {
         entries_header->ver_code = cache_version_code;
         entries_header->magic = cache_magic;
         index_header->ver_code = cache_version_code;
@@ -124,15 +125,63 @@ bool TrackCache::Push(u64 time, std::span<u8> content) {
         entry.offset = cache_offset;
         entry.length = content.size();
         entry.time = time;
-        content_file->Write((void*)content.data(), entry.offset, entry.length);
-        index_file->Write(entry,
-                          sizeof(CacheIndex) + sizeof(CacheEntry) * index_header->entry_size);
+        if (!content_file->Write((void*)content.data(), entry.offset, entry.length)) {
+            return false;
+        }
+        if (!index_file->Write(
+                    entry, sizeof(CacheIndex) + sizeof(CacheEntry) * index_header->entry_size)) {
+            return false;
+        }
         index_header->entry_size++;
         entries_header->size += content.size();
-        content_file->Write(entries_header->size, offsetof(CacheEntries, size));
-        index_file->Write(index_header->entry_size, offsetof(CacheIndex, entry_size));
+        if (!content_file->Write(entries_header->size, offsetof(CacheEntries, size))) {
+            return false;
+        }
+        if (!index_file->Write(index_header->entry_size, offsetof(CacheIndex, entry_size))) {
+            return false;
+        }
         return content_file->Flush() && index_file->Flush();
     }
+}
+
+std::list<std::shared_ptr<TrackMessage>> TrackCache::Load() {
+    std::list<std::shared_ptr<TrackMessage>> res{};
+    ASSERT(index_header->entry_size <= max_track_counts);
+    if (!entries.empty()) {
+        for (u32 i = 0; i < index_header->entry_size; ++i) {
+            auto& entry = entries[i];
+            ASSERT(entry.offset + entry.length < max_cache_size);
+            std::span<u8> data{reinterpret_cast<u8*>(entries_header) + entry.offset, entry.length};
+            auto tracker = std::make_shared<TrackMessageImpl>(topic);
+            if (tracker->Deserialize(data)) {
+                res.push_back(tracker);
+            }
+        }
+    } else {
+        std::vector<CacheEntry> cache_entries(index_header->entry_size);
+        ASSERT(index_file->Read(cache_entries.data(),
+                                sizeof(CacheIndex),
+                                sizeof(CacheEntry) * index_header->entry_size));
+        for (u32 i = 0; i < index_header->entry_size; ++i) {
+            auto& entry = cache_entries[i];
+            ASSERT(entry.offset + entry.length < max_cache_size);
+            std::vector<u8> data(entry.length);
+            ASSERT(content_file->Read(data.data(), entry.offset, entry.length));
+            auto tracker = std::make_shared<TrackMessageImpl>(topic);
+            if (tracker->Deserialize(data)) {
+                res.push_back(tracker);
+            }
+        }
+    }
+    return res;
+}
+
+void TrackCache::Clear() {
+    u32 zero = 0;
+    content_file->Write(zero, offsetof(CacheEntries, size));
+    index_file->Write(zero, offsetof(CacheIndex, entry_size));
+    content_file->Flush();
+    index_file->Flush();
 }
 
 TrackCache::~TrackCache() {

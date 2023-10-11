@@ -22,7 +22,7 @@
 namespace tapsdk::tracker {
 
 using namespace com::tds::common::tracker::entities;
-using TopicTrackers = std::list<std::shared_ptr<TrackMessageImpl>>;
+using TopicTrackers = std::list<std::shared_ptr<TrackMessage>>;
 
 constexpr auto header_fmt = "POST\n"
         "{}\n"
@@ -121,7 +121,8 @@ static net::ResultAsync<std::vector<u8>> SerializeTopicTrackers(const std::strin
                                                                 const TopicTrackers& trackers) {
     LogGroup group;
     group.set_topic(topic);
-    for (auto& msg : trackers) {
+    for (const auto& track : trackers) {
+        auto msg = std::dynamic_pointer_cast<TrackMessageImpl>(track);
         auto log = group.add_logs();
         log->set_time(msg->GetCreateTime());
         // Contents
@@ -206,6 +207,45 @@ void SyncCacheTrackers(const std::string& topic, const TopicTrackers& trackers) 
 
 }
 
+void SyncLoadTrackersCache() {
+    fs::directory_iterator list{};
+    try {
+        list = fs::directory_iterator(tracker_cache / "tds_tracker");
+    } catch (...) {
+        LOG_DEBUG("No cache files!");
+    }
+    for (auto &f : list) {
+        auto file_name = f.path().filename().string();
+        auto is_dir = f.is_directory();
+        if (is_dir) continue;
+
+        auto idx_index = file_name.find_last_of(".idx");
+        auto is_index = idx_index == (file_name.length() - 4);
+        auto topic = file_name.substr(0, idx_index);
+
+        if (is_index) {
+            std::scoped_lock guard(tracker_lock);
+            if (!topic_disk_caches.contains(topic)) {
+                auto cache_path = tracker_cache / "tds_tracker" / topic;
+                auto [itr, success] = topic_disk_caches.try_emplace(topic, topic, cache_path);
+                if (success) {
+                    auto &cache = itr->second;
+                    try {
+                        cache.Init();
+                        auto res = cache.Load();
+                        if (!res.empty()) {
+                            flushed_trackers[topic].merge(res);
+                        }
+                    } catch (...) {
+                        File::Delete(cache_path);
+                        topic_disk_caches.erase(itr);
+                    }
+                }
+            }
+        }
+    }
+}
+
 static net::ResultAsync<std::shared_ptr<UploadResult>> CacheAndUploadTrackers(
         const std::string& topic, const TopicTrackers& trackers) {
     auto result = co_await UploadTopicTrackers(topic, trackers);
@@ -224,6 +264,7 @@ void Init(const Config& config) {
     http_client->SetResultUnwrap([] (auto response) -> auto {
         return net::ResultWrapper{-1, ""};
     });
+    SyncLoadTrackersCache();
 }
 
 std::shared_ptr<TrackMessage> CreateTracker(const std::string& topic) {
@@ -243,8 +284,13 @@ void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
         auto [itr, success] = topic_disk_caches.try_emplace(tracker->GetTopic(), tracker->GetTopic(), cache_path);
         if (success) {
             auto &cache = itr->second;
-            cache.Init();
-            cache.Push(tracker->GetCreateTime(), tracker_impl->Serialize());
+            try {
+                cache.Init();
+                cache.Push(tracker->GetCreateTime(), tracker_impl->Serialize());
+            } catch (...) {
+                File::Delete(cache_path);
+                topic_disk_caches.erase(itr);
+            }
         }
     } else {
         auto &cache = topic_disk_caches.find(tracker_impl->GetTopic())->second;

@@ -72,7 +72,7 @@ public:
         return std::move(t);
     }
 
-    template <typename T> void Write(T& t, size_t offset) { Write(&t, offset, sizeof(T)); }
+    template <typename T> bool Write(T& t, size_t offset) { return Write(&t, offset, sizeof(T)); }
 
 private:
     std::string path;
