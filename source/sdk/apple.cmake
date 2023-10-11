@@ -17,24 +17,26 @@ else ()
     set(TARGET_DEPEND_BINDING)
 endif ()
 
-# CMake 直接打包 dylib 需要手动合并依赖的 targets
-add_custom_target(
-        sdk_combine
-        COMMAND libtool -static -o $<TARGET_FILE:tds_core>
-        $<TARGET_FILE:tds_core>
-        $<TARGET_FILE:base>
-        $<TARGET_FILE:fmt>
-        $<TARGET_FILE:net>
-        $<TARGET_FILE:core>
-        $<TARGET_FILE:duration>
-        $<TARGET_FILE:EventBus>
-        $<TARGET_FILE:ssl>
-        $<TARGET_FILE:crypto>
-        $<TARGET_FILE:bindings-impl>
-        ${TARGET_FILE_BINDING}
-        DEPENDS tds_core net base core bindings-impl ${TARGET_DEPEND_BINDING}
-        COMMENT "Combining libs..."
-)
+if (NOT DEFINED BUILD_FOR_SHARED)
+    # CMake 直接打包 dylib 需要手动合并依赖的 targets
+    add_custom_target(
+            sdk_combine
+            COMMAND libtool -static -o $<TARGET_FILE:tds_core>
+            $<TARGET_FILE:tds_core>
+            $<TARGET_FILE:base>
+            $<TARGET_FILE:fmt>
+            $<TARGET_FILE:net>
+            $<TARGET_FILE:core>
+            $<TARGET_FILE:duration>
+            $<TARGET_FILE:EventBus>
+            $<TARGET_FILE:ssl>
+            $<TARGET_FILE:crypto>
+            $<TARGET_FILE:bindings-impl>
+            ${TARGET_FILE_BINDING}
+            DEPENDS tds_core net base core bindings-impl ${TARGET_DEPEND_BINDING}
+            COMMENT "Combining libs..."
+    )
+endif ()
 
 set_target_properties(tds_core PROPERTIES
         FRAMEWORK TRUE
