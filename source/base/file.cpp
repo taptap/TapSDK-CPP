@@ -163,12 +163,20 @@ bool File::Close() {
     if (!IsOpen()) {
         return false;
     }
+    cur_size = 0;
     return std::fclose(file);
 }
 
 size_t File::Size() {
+    if (cur_size) {
+        return cur_size;
+    }
     try {
-        return fs::file_size(path);
+        auto size = fs::file_size(path);
+        if (IsOpen()) {
+            cur_size = size;
+        }
+        return size;
     } catch (...) {
         return 0;
     }
@@ -193,6 +201,8 @@ bool File::Resize(size_t new_size) {
                   path,
                   new_size,
                   ec.message());
+    } else {
+        cur_size = new_size;
     }
 
     return set_size_result;

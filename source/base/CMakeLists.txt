@@ -27,6 +27,9 @@ add_library(tapsdk_base STATIC
         sha1.h
         file.cpp
         file.h
+        cityhash.cpp
+        cityhash.h
+        swap.h
 )
 
 target_link_libraries(tapsdk_base PUBLIC fmt EventBus ghc_filesystem)

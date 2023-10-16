@@ -1,0 +1,12 @@
+syntax = "proto3";
+option optimize_for = LITE_RUNTIME;
+
+message TrackDiskCacheConfig
+{
+    string topic = 1;
+    string endpoint = 2;
+    string access_keyid = 3;
+    string access_key_secret = 4;
+    string project = 5;
+    string log_store = 6;
+}

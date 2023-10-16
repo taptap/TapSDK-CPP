@@ -72,13 +72,14 @@ public:
         return std::move(t);
     }
 
-    template <typename T> bool Write(T& t, size_t offset) { return Write(&t, offset, sizeof(T)); }
+    template <typename T> bool Write(T& t, size_t offset = 0) { return Write(&t, offset, sizeof(T)); }
 
 private:
     std::string path;
     std::FILE* file{};
     std::mutex lock;
     FileAccessMode open_mode;
+    size_t cur_size{};
 };
 
 bool Unmap(void* mem, size_t size);

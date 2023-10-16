@@ -3,6 +3,7 @@
 //
 
 #include "base/logging.h"
+#include "base/cityhash.h"
 #include "core/events.h"
 #include "core/runtime.h"
 #include "duration/duration.h"
@@ -62,14 +63,41 @@ std::shared_ptr<Game> Game::GetCurrent() { return current_game; }
 
 Future<AccessToken> Login(const std::vector<std::string>& perm) { return login::Login(perm); }
 
-TrackMessage::TrackMessage(std::string topic) : topic(std::move(topic)) {}
+TrackMessage::TrackMessage(const std::shared_ptr<TrackerConfig> &config) : config(config) {}
 
-std::string& TrackMessage::GetTopic() { return topic; }
+std::shared_ptr<TrackerConfig> TrackMessage::GetConfig() const {
+    return config;
+}
 
-uint32_t TrackMessage::GetCreateTime() { return create_time; }
+uint32_t TrackMessage::GetCreateTime() const { return create_time; }
 
-std::shared_ptr<TrackMessage> CreateTracker(const std::string& topic) {
-    return tracker::CreateTracker(topic);
+uint64_t TrackerConfig::Hash() {
+    if (hash) {
+        return hash;
+    }
+
+    struct {
+        u64 topic;
+        u64 endpoint;
+        u64 access_keyid;
+        u64 access_key_secret;
+        u64 project;
+        u64 log_store;
+    } hash_struct{};
+
+    hash_struct.topic = CityHash64(topic.c_str(), topic.length());
+    hash_struct.endpoint = CityHash64(endpoint.c_str(), endpoint.length());
+    hash_struct.access_keyid = CityHash64(access_keyid.c_str(), access_keyid.length());
+    hash_struct.access_key_secret = CityHash64(access_key_secret.c_str(), access_key_secret.length());
+    hash_struct.project = CityHash64(project.c_str(), project.length());
+    hash_struct.log_store = CityHash64(log_store.c_str(), log_store.length());
+
+    hash = CityHash64(reinterpret_cast<const char*>(&hash_struct), sizeof(hash_struct));
+    return hash;
+}
+
+std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig> &config) {
+    return tracker::CreateTracker(config);
 }
 
 void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) { tracker::FlushTracker(tracker); }

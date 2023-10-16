@@ -60,31 +60,34 @@ static void SetupEnv() {
 
 TEST_CASE("Test sdk-login") {
     SetupEnv();
-    tapsdk::TrackerConfig tracker_config {
-            .endpoint = "openlog.taptap.com",
-            .access_keyid = "uZ8Yy6cSXVOR6AMRPj",
-            .access_key_secret = "AVhR1Bu9qfLR1cGbZMAdZ5rzJSxfoEiQaFf1T2P7",
-            .project = "tds",
-            .log_store = "sdk-user-event"
-    };
     tapsdk::Config config {
             .enable_tap_login = true,
             .enable_duration_statistics = false,
             .enable_tap_tracker = true,
             .client_id = "0RiAlMny7jiz086FaU",
-            .tracker_config = &tracker_config
     };
+
+    auto tracker_config = std::make_shared<tapsdk::TrackerConfig>();
+    tracker_config->topic = "tds_topic";
+    tracker_config->endpoint = "openlog.taptap.com";
+    tracker_config->access_keyid = "uZ8Yy6cSXVOR6AMRPj";
+    tracker_config->access_key_secret = "AVhR1Bu9qfLR1cGbZMAdZ5rzJSxfoEiQaFf1T2P7";
+    tracker_config->project = "tds";
+    tracker_config->log_store = "sdk-user-event";
+
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
     tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
 //    auto login_result = *tapsdk::Login({});
-    auto ta = tapsdk::CreateTracker("tracker_for_tapsdk");
+    auto ta = tapsdk::CreateTracker(tracker_config);
     ta->AddContent("page_id", "page_game");
     ta->AddContent("login_action", "taptap_authorization_start");
     ta->AddContent("page_name", "游戏");
     ta->AddContent("time", "1695086167");
 
-    tapsdk::FlushTracker(ta);
+    for (int i = 0; i < 10000; ++i) {
+        tapsdk::FlushTracker(ta);
+    }
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

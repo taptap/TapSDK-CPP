@@ -51,22 +51,8 @@ public:
     virtual std::string GetPackageName() = 0;
 };
 
-class TrackMessage {
-public:
-    explicit TrackMessage(std::string topic);
-
-    virtual void AddContent(const std::string &key, const std::string &value) = 0;
-    virtual void AddParam(const std::string &key, const std::string &value) = 0;
-
-    std::string &GetTopic();
-    uint32_t GetCreateTime();
-
-protected:
-    std::string topic;
-    uint32_t create_time;
-};
-
 struct TrackerConfig {
+    std::string topic;
     std::string endpoint;
     std::string access_keyid;
     std::string access_key_secret;
@@ -74,6 +60,24 @@ struct TrackerConfig {
     std::string log_store;
     int sdk_version;
     std::string sdk_version_name;
+    uint64_t hash = 0;
+
+    uint64_t Hash();
+};
+
+class TrackMessage {
+public:
+    explicit TrackMessage(const std::shared_ptr<TrackerConfig> &config);
+
+    virtual void AddContent(const std::string &key, const std::string &value) = 0;
+    virtual void AddParam(const std::string &key, const std::string &value) = 0;
+
+    std::shared_ptr<TrackerConfig> GetConfig() const;
+    uint32_t GetCreateTime() const;
+
+protected:
+    std::shared_ptr<TrackerConfig> config;
+    uint32_t create_time;
 };
 
 struct Config {
@@ -81,8 +85,8 @@ struct Config {
     bool enable_duration_statistics = false;
     bool enable_tap_tracker = false;
     std::string client_id{};
+    std::string process_name{};
     Region region = Region::CN;
-    TrackerConfig *tracker_config{};
 };
 
 // init
@@ -93,7 +97,7 @@ bool Init(const Config& config);
 Future<AccessToken> Login(const std::vector<std::string> &perm);
 
 // tracker
-std::shared_ptr<TrackMessage> CreateTracker(const std::string &topic);
+std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig> &config);
 void FlushTracker(const std::shared_ptr<TrackMessage> &tracker);
 
 }  // namespace tapsdk

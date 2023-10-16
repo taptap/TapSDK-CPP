@@ -12,7 +12,7 @@ namespace tapsdk::tracker {
 
 void Init(const Config &config);
 
-std::shared_ptr<TrackMessage> CreateTracker(const std::string &topic);
+std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig> &config);
 void FlushTracker(const std::shared_ptr<TrackMessage> &tracker);
 
 }

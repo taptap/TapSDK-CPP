@@ -6,17 +6,45 @@
 
 #include <span>
 #include <atomic>
+#include <list>
 #include "base/types.h"
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
+#include "net/network.h"
 #include "track_msg_cache.pb.h"
 #include "google/protobuf/arena.h"
 
 namespace tapsdk::tracker {
 
+class DiskCache;
+
+class TopicTracker {
+public:
+    explicit TopicTracker(const std::string &path, u64 hash, const std::shared_ptr<TrackerConfig>& config = {});
+
+    bool Push(const std::shared_ptr<TrackMessage> &tracker);
+
+    std::vector<u8> SerializeToUpload();
+
+    net::TapHttpClient &GetHttpClient();
+
+    std::shared_ptr<TrackerConfig> GetConfig();
+
+    u32 GetCount() const;
+
+    void Clear();
+
+private:
+    std::mutex lock;
+    std::shared_ptr<TrackerConfig> config;
+    std::list<std::shared_ptr<TrackMessage>> trackers;
+    std::unique_ptr<DiskCache> disk_cache;
+    std::unique_ptr<net::TapHttpClient> http_client;
+};
+
 class TrackMessageImpl : public TrackMessage {
 public:
-    explicit TrackMessageImpl(const std::string& topic);
+    explicit TrackMessageImpl(const std::shared_ptr<TrackerConfig> &config);
 
     void AddContent(const std::string& key, const std::string& value) override;
     void AddParam(const std::string& key, const std::string& value) override;

@@ -11,52 +11,60 @@
 namespace tapsdk::tracker {
 
 #pragma pack(push, 4)
-struct CacheEntry {
-    u32 offset;
+struct CacheHeader {
+    std::array<u8, 4> magic;
+    u32 ver_code;
+    u64 config_hash;
+    u32 config_size;
+    u32 record_count;
+    u32 record_size;
+};
+
+struct RecordHeader {
+    std::array<u8, 4> magic;
+    u64 hash;
     u32 length;
     u32 time;
 };
-
-struct CacheIndex {
-    std::array<u8, 4> magic;
-    u32 ver_code;
-    u32 entry_size;
-};
-
-struct CacheEntries {
-    std::array<u8, 4> magic;
-    u32 ver_code;
-    u32 size;
-};
 #pragma pack(pop)
 
-class TrackCache : DeleteCopyAndMove {
+class DiskCache : DeleteCopyAndMove {
 public:
-    explicit TrackCache(std::string topic, std::string path);
+    constexpr static auto config_offset = sizeof(CacheHeader);
+
+    explicit DiskCache(u64 hash, std::string path, const std::shared_ptr<TrackerConfig>& config = {});
+
+    ~DiskCache() override;
 
     void Init();
 
-    bool Push(u64 time, std::span<u8> content);
+    std::shared_ptr<TrackerConfig> GetConfig();
+
+    bool Push(u32 time, std::span<u8> content);
 
     std::list<std::shared_ptr<TrackMessage>> Load();
 
     void Clear();
 
-    virtual ~TrackCache();
+    void Destroy();
 
 private:
-    std::string topic;
+    bool IsMapped();
+
+    void LoadConfig();
+
+    void SaveConfig();
+
+    void Reset();
+
+    u64 hash;
     std::string path;
+    std::shared_ptr<TrackerConfig> config;
+
     std::mutex lock;
-    std::unique_ptr<File> index_file;
-    std::unique_ptr<File> content_file;
-
-    CacheIndex* index_header{};
-    CacheEntries* entries_header{};
-    std::span<CacheEntry> entries{};
-
-    CacheIndex idx_header_buf{};
-    CacheEntries cnt_header_buf{};
+    std::unique_ptr<File> file;
+    CacheHeader header_buf{};
+    CacheHeader *cache_header = &header_buf;
 };
 
 }  // namespace tapsdk::tracker

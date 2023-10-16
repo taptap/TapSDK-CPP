@@ -10,6 +10,8 @@ using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
 using u64 = uint64_t;
+using u128 = std::array<u64, 2>;
+static_assert(sizeof(u128) == 16, "u128 must be 128 bits wide");
 
 using s8 = int8_t;
 using s16 = int16_t;
