@@ -25,7 +25,6 @@
 namespace tapsdk::tracker {
 
 using namespace com::tds::common::tracker::entities;
-using TopicTrackers = std::list<std::shared_ptr<TrackMessage>>;
 
 constexpr auto header_fmt =
         "POST\n"
@@ -47,7 +46,7 @@ using TrackerCacheIds = std::bitset<MAX_CACHE_COUNT>;
 static std::mutex tracker_lock;
 static std::mutex upload_lock;
 static fs::path tracker_cache;
-static std::unordered_map<u64, std::map<u32, std::shared_ptr<TopicTracker>>> trackers_cache{};
+static std::unordered_map<u64, std::map<u32, std::shared_ptr<TrackerCache>>> trackers_cache{};
 static std::unordered_map<u64, TrackerCacheIds> tracker_cache_ids{};
 static std::shared_ptr<Event> check_upload_event;
 
@@ -103,7 +102,7 @@ bool TrackMessageImpl::Deserialize(std::span<u8> data_) {
 
 void TrackMessageImpl::Flushed() { flushed = true; }
 
-TopicTracker::TopicTracker(const std::string& path,
+TrackerCache::TrackerCache(const std::string& path,
                            u64 hash,
                            const std::shared_ptr<TrackerConfig>& config)
         : config(config) {
@@ -115,7 +114,7 @@ TopicTracker::TopicTracker(const std::string& path,
     trackers = disk_cache->Load();
 }
 
-bool TopicTracker::Push(const std::shared_ptr<TrackMessage>& tracker) {
+bool TrackerCache::Push(const std::shared_ptr<TrackMessage>& tracker) {
     std::scoped_lock guard(lock);
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
     try {
@@ -130,7 +129,7 @@ bool TopicTracker::Push(const std::shared_ptr<TrackMessage>& tracker) {
     }
 }
 
-std::vector<u8> TopicTracker::SerializeToUpload() {
+std::vector<u8> TrackerCache::SerializeToUpload() {
     LogGroup group;
     group.set_topic(config->topic);
     for (const auto& track : trackers) {
@@ -156,15 +155,20 @@ std::vector<u8> TopicTracker::SerializeToUpload() {
     return data;
 }
 
-net::TapHttpClient& TopicTracker::GetHttpClient() { return *http_client; }
+net::TapHttpClient& TrackerCache::GetHttpClient() { return *http_client; }
 
-std::shared_ptr<TrackerConfig> TopicTracker::GetConfig() { return config; }
+std::shared_ptr<TrackerConfig> TrackerCache::GetConfig() { return config; }
 
-u32 TopicTracker::GetCount() const { return trackers.size(); }
+u32 TrackerCache::GetCount() const { return trackers.size(); }
 
-void TopicTracker::Clear() {
+void TrackerCache::Clear() {
     trackers.clear();
     disk_cache->Clear();
+}
+
+void TrackerCache::Destroy() {
+    trackers.clear();
+    disk_cache->Destroy();
 }
 
 static std::string DiskCachePath(u64 hash, u32 index) {
@@ -194,7 +198,7 @@ static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
 }
 
 static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
-        std::shared_ptr<TopicTracker> trackers) {
+        std::shared_ptr<TrackerCache> trackers) {
     auto serialize_buffer = trackers->SerializeToUpload();
     auto config = trackers->GetConfig();
     auto& http_client = trackers->GetHttpClient();
@@ -253,15 +257,6 @@ static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
     co_return upload_result;
 }
 
-// static TopicTrackers PopCurrentTracks(const std::string& topic) {
-//     std::scoped_lock guard(tracker_lock);
-//     return std::move(flushed_trackers[topic]);
-// }
-
-static net::ResultAsync<std::shared_ptr<UploadResult>> UploadForTopic(const std::string& topic) {
-    //    auto trackers_for_upload{PopCurrentTracks(topic)};
-}
-
 void SyncLoadTrackersCache() {
     fs::directory_iterator list{};
     try {
@@ -292,8 +287,8 @@ void SyncLoadTrackersCache() {
                 u32 idx = std::stoul(idx_str);
                 auto &caches = trackers_cache[hash];
                 auto &ids = tracker_cache_ids[hash];
-                caches.emplace(idx, std::make_shared<TopicTracker>(f.path(), hash));
-                ids[idx].flip();
+                caches.emplace(idx, std::make_shared<TrackerCache>(f.path(), hash));
+                ids[idx] = true;
             } catch (...) {
                 LOG_ERROR("Load tracker cache {} error!", f.path().c_str());
             }
@@ -314,7 +309,12 @@ static void CheckAndUploadTrackers() {
                     std::scoped_lock guard(tracker_lock);
                     if (!result.hasError()) {
                         auto result_val = result.value();
-                        if (!result_val.has_value()) {
+                        if (result_val.has_value()) {
+                            try {
+                                tracker->Destroy();
+                                tracker_cache_ids[key][index] = false;
+                            } catch (...) {}
+                        } else {
                             trackers_cache[key].emplace(index, tracker);
                         }
                     } else {
@@ -364,11 +364,11 @@ void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
                 auto path = DiskCachePath(config_hash, i);
                 try {
                     auto new_cache =
-                            std::make_shared<TopicTracker>(path, config_hash, tracker->GetConfig());
+                            std::make_shared<TrackerCache>(path, config_hash, tracker->GetConfig());
                     pushed = new_cache->Push(tracker);
                     ASSERT(pushed);
                     caches.emplace(i, new_cache);
-                    ids[i].flip();
+                    ids[i] = true;
                     break;
                 } catch (...) {
                     File::Delete(path);

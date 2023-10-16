@@ -18,9 +18,9 @@ namespace tapsdk::tracker {
 
 class DiskCache;
 
-class TopicTracker {
+class TrackerCache {
 public:
-    explicit TopicTracker(const std::string &path, u64 hash, const std::shared_ptr<TrackerConfig>& config = {});
+    explicit TrackerCache(const std::string &path, u64 hash, const std::shared_ptr<TrackerConfig>& config = {});
 
     bool Push(const std::shared_ptr<TrackMessage> &tracker);
 
@@ -33,6 +33,8 @@ public:
     u32 GetCount() const;
 
     void Clear();
+
+    void Destroy();
 
 private:
     std::mutex lock;
