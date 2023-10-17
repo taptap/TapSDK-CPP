@@ -39,7 +39,6 @@ public:
 private:
     std::mutex lock;
     std::shared_ptr<TrackerConfig> config;
-    std::list<std::shared_ptr<TrackMessage>> trackers;
     std::unique_ptr<DiskCache> disk_cache;
     std::unique_ptr<net::TapHttpClient> http_client;
 };

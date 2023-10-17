@@ -98,6 +98,6 @@ Future<AccessToken> Login(const std::vector<std::string> &perm);
 
 // tracker
 std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig> &config);
-void FlushTracker(const std::shared_ptr<TrackMessage> &tracker);
+bool FlushTracker(const std::shared_ptr<TrackMessage> &tracker);
 
 }  // namespace tapsdk

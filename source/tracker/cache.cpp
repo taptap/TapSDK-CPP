@@ -61,6 +61,10 @@ std::shared_ptr<TrackerConfig> DiskCache::GetConfig() {
     return config;
 }
 
+u32 DiskCache::GetCount() const {
+    return cache_header->record_count;
+}
+
 bool DiskCache::Push(u32 time, std::span<u8> content) {
     std::lock_guard guard(lock);
     auto next_size = sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size +
@@ -115,9 +119,9 @@ bool DiskCache::Push(u32 time, std::span<u8> content) {
     }
 }
 
-std::list<std::shared_ptr<TrackMessage>> DiskCache::Load() {
+std::list<TrackMessageImpl> DiskCache::Load() {
     std::lock_guard guard(lock);
-    std::list<std::shared_ptr<TrackMessage>> result{};
+    std::list<TrackMessageImpl> result{};
     u32 read_size{0};
     u32 cur_offset{static_cast<u32>(sizeof(CacheHeader) + cache_header->config_size)};
     for (u32 i = 0; i < cache_header->record_count && read_size < cache_header->record_size; ++i) {
@@ -137,9 +141,9 @@ std::list<std::shared_ptr<TrackMessage>> DiskCache::Load() {
                 continue;
             }
             std::span<u8> data{reinterpret_cast<u8*>(record_memory), record_header->length};
-            auto tracker = std::make_shared<TrackMessageImpl>(config);
-            if (tracker->Deserialize(data)) {
-                result.push_back(tracker);
+            auto &ref = result.emplace_back(config);
+            if (!ref.Deserialize(data)) {
+                result.erase(std::prev(result.end()));
             }
         } else {
             ASSERT_MSG(false, "TODO!");

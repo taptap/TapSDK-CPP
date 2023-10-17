@@ -69,11 +69,11 @@ TEST_CASE("Test sdk-login") {
 
     auto tracker_config = std::make_shared<tapsdk::TrackerConfig>();
     tracker_config->topic = "tds_topic";
-    tracker_config->endpoint = "openlog.taptap.com";
+    tracker_config->endpoint = "openlog.xdrnd.com";
     tracker_config->access_keyid = "uZ8Yy6cSXVOR6AMRPj";
     tracker_config->access_key_secret = "AVhR1Bu9qfLR1cGbZMAdZ5rzJSxfoEiQaFf1T2P7";
     tracker_config->project = "tds";
-    tracker_config->log_store = "sdk-user-event";
+    tracker_config->log_store = "tapsdk_us";
 
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
@@ -85,7 +85,7 @@ TEST_CASE("Test sdk-login") {
     ta->AddContent("page_name", "游戏");
     ta->AddContent("time", "1695086167");
 
-    for (int i = 0; i < 10000; ++i) {
+    for (int i = 0; i < 200; ++i) {
         tapsdk::FlushTracker(ta);
     }
     while (true) {

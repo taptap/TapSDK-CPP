@@ -100,6 +100,6 @@ std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig>
     return tracker::CreateTracker(config);
 }
 
-void FlushTracker(const std::shared_ptr<TrackMessage>& tracker) { tracker::FlushTracker(tracker); }
+bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) { return tracker::FlushTracker(tracker); }
 
 }  // namespace tapsdk

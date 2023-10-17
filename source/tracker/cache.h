@@ -7,6 +7,7 @@
 #include "base/file.h"
 #include "net/network.h"
 #include "sdk/tapsdk.h"
+#include "tracker/tracker_impl.h"
 
 namespace tapsdk::tracker {
 
@@ -42,7 +43,9 @@ public:
 
     bool Push(u32 time, std::span<u8> content);
 
-    std::list<std::shared_ptr<TrackMessage>> Load();
+    std::list<TrackMessageImpl> Load();
+
+    u32 GetCount() const;
 
     void Clear();
 
