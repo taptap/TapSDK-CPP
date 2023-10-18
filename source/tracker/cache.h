@@ -49,7 +49,7 @@ public:
 
     void Clear();
 
-    void Destroy();
+    bool Destroy();
 
 private:
     bool IsMapped();
@@ -67,7 +67,7 @@ private:
     std::mutex lock;
     std::unique_ptr<File> file;
     CacheHeader header_buf{};
-    CacheHeader *cache_header = &header_buf;
+    CacheHeader* cache_header = &header_buf;
 };
 
 }  // namespace tapsdk::tracker

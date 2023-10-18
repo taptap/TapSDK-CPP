@@ -161,7 +161,7 @@ void* File::Map(size_t offset, size_t size) {
 
 bool File::Close() {
     if (!IsOpen()) {
-        return false;
+        return true;
     }
     cur_size = 0;
     return std::fclose(file);

@@ -20,7 +20,7 @@ constexpr std::array<u8, 4> cache_magic = {'t', 'd', 's', 'c'};
 constexpr std::array<u8, 4> record_magic = {'t', 'r', 'c', 'd'};
 constexpr auto cache_version_code = 1;
 constexpr auto max_cache_size = 1024 * 1024 * 1;
-constexpr auto cache_capability = 1024 * 128;
+constexpr auto cache_capability = 1024 * 64;
 
 static void ClearDCache(void* start, size_t size) {
 #ifdef __APPLE__
@@ -122,31 +122,39 @@ bool DiskCache::Push(u32 time, std::span<u8> content) {
 std::list<TrackMessageImpl> DiskCache::Load() {
     std::lock_guard guard(lock);
     std::list<TrackMessageImpl> result{};
+    if (sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size > file->Size()) {
+        return result;
+    }
+    std::vector<u8> buffer;
+    u8 *memory_start;
+    if (IsMapped()) {
+        memory_start = reinterpret_cast<u8*>(cache_header) + sizeof(CacheHeader) + cache_header->config_size;
+    } else {
+        buffer.resize(cache_header->record_size);
+        memory_start = buffer.data();
+        file->Read(memory_start, sizeof(CacheHeader) + cache_header->config_size, cache_header->record_size);
+    }
     u32 read_size{0};
-    u32 cur_offset{static_cast<u32>(sizeof(CacheHeader) + cache_header->config_size)};
+    u32 cur_offset{0};
     for (u32 i = 0; i < cache_header->record_count && read_size < cache_header->record_size; ++i) {
-        if (IsMapped()) {
-            auto memory = reinterpret_cast<u8*>(cache_header) + cur_offset;
-            auto record_header = reinterpret_cast<RecordHeader*>(memory);
-            auto record_memory = reinterpret_cast<char *>(memory + sizeof(RecordHeader));
-            if (cur_offset + sizeof(RecordHeader) + record_header->length > file->Size()) {
-                return result;
-            }
-            read_size += sizeof(RecordHeader) + record_header->length;
-            cur_offset += sizeof(RecordHeader) + record_header->length;
-            if (record_header->magic != record_magic) {
-                continue;
-            }
-            if (record_header->hash != CityHash64(record_memory, record_header->length)) {
-                continue;
-            }
-            std::span<u8> data{reinterpret_cast<u8*>(record_memory), record_header->length};
-            auto &ref = result.emplace_back(config);
-            if (!ref.Deserialize(data)) {
-                result.erase(std::prev(result.end()));
-            }
-        } else {
-            ASSERT_MSG(false, "TODO!");
+        auto memory = memory_start + cur_offset;
+        auto record_header = reinterpret_cast<RecordHeader*>(memory);
+        auto record_memory = reinterpret_cast<char *>(memory + sizeof(RecordHeader));
+        if (cur_offset + sizeof(RecordHeader) + record_header->length > cache_header->record_size) {
+            return result;
+        }
+        read_size += sizeof(RecordHeader) + record_header->length;
+        cur_offset += sizeof(RecordHeader) + record_header->length;
+        if (record_header->magic != record_magic) {
+            continue;
+        }
+        if (record_header->hash != CityHash64(record_memory, record_header->length)) {
+            continue;
+        }
+        std::span<u8> data{reinterpret_cast<u8*>(record_memory), record_header->length};
+        auto &ref = result.emplace_back(config);
+        if (!ref.Deserialize(data)) {
+            result.erase(std::prev(result.end()));
         }
     }
     return result;
@@ -154,9 +162,8 @@ std::list<TrackMessageImpl> DiskCache::Load() {
 
 void DiskCache::Clear() { Reset(); }
 
-void DiskCache::Destroy() {
-    file->Close();
-    ASSERT(File::Delete(path));
+bool DiskCache::Destroy() {
+    return file->Close() && File::Delete(path);
 }
 
 void DiskCache::Reset() {
@@ -218,6 +225,8 @@ void DiskCache::SaveConfig() {
     disk_cache_config.set_project(config->project);
     disk_cache_config.set_log_store(config->log_store);
     auto size = disk_cache_config.ByteSizeLong();
+
+    ASSERT(size <= file->Size() - sizeof(CacheHeader));
 
     if (IsMapped()) {
         auto memory = reinterpret_cast<u8*>(cache_header) + sizeof(CacheHeader);
