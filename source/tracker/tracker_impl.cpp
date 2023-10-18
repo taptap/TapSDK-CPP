@@ -40,16 +40,18 @@ constexpr auto header_fmt =
 
 constexpr auto TAP_TRACKER_VERSION = "1.0.1";
 constexpr auto MAX_CACHE_COUNT = 16;
-constexpr auto UPLOAD_TRACKER_COUNT = 16;
-constexpr auto check_ms = Ms(5 * 1000);
+constexpr auto UPLOAD_TRACKER_COUNT = 32;
+constexpr auto check_ms = Ms(20 * 1000);
 using TrackerCacheIds = std::bitset<MAX_CACHE_COUNT>;
 
+static u32 tracker_group_size;
 static std::mutex tracker_lock;
 static std::atomic<bool> uploading{false};
 static fs::path tracker_cache;
 static std::unordered_map<u64, std::map<u32, std::shared_ptr<TrackerCache>>> trackers_cache{};
 static std::unordered_map<u64, TrackerCacheIds> tracker_cache_ids{};
 static std::shared_ptr<Event> check_upload_event;
+static std::atomic<TrackerCache *> latest_upload_failed;
 
 static std::string HashHmac(const std::string& content, const std::string& key) {
     std::string sha1hmac = hmac<SHA1>(content, key);
@@ -89,6 +91,18 @@ std::span<u8> TrackMessageImpl::Serialize() {
     return data;
 }
 
+size_t TrackMessageImpl::GetSerializeSize() {
+    return proto.ByteSizeLong();
+}
+
+bool TrackMessageImpl::SerializeToBuffer(std::span<u8> buffer) {
+    auto serialize_size = GetSerializeSize();
+    if (buffer.size() <serialize_size) {
+        return false;
+    }
+    return proto.SerializeToArray(buffer.data(), serialize_size);
+}
+
 google::protobuf::RepeatedPtrField<TrackMsgContent>& TrackMessageImpl::GetContents() {
     return *proto.mutable_log_contents();
 }
@@ -111,14 +125,14 @@ TrackerCache::TrackerCache(const std::string& path,
     disk_cache->Init();
     this->config = disk_cache->GetConfig();
     http_client = net::CreateHttpClient(this->config->endpoint.c_str(), true);
-    http_client->SetResultUnwrap([](auto response) -> auto { return net::ResultWrapper{-1, ""}; });
+    http_client->SetResultUnwrap([](auto response) -> auto { return net::ResultWrapper{0, ""}; });
 }
 
 bool TrackerCache::Push(const std::shared_ptr<TrackMessage>& tracker) {
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
     std::scoped_lock guard(lock);
     try {
-        return disk_cache->Push(tracker_impl->GetCreateTime(), tracker_impl->Serialize());
+        return disk_cache->Push(*tracker_impl);
     } catch (...) {
         return false;
     }
@@ -293,6 +307,9 @@ void SyncLoadTrackersCache() {
 }
 
 static void UploadTrackerCacheAsync(u64 hash, u32 index) {
+    if (uploading) {
+        return;
+    }
     auto &caches = trackers_cache[hash];
     auto itr = caches.find(index);
     if (itr == caches.end()) {
@@ -302,22 +319,24 @@ static void UploadTrackerCacheAsync(u64 hash, u32 index) {
     caches.erase(itr);
     uploading = true;
     UploadTopicTrackers(cache).start([hash, index, cache] (auto result) {
-        std::scoped_lock guard(tracker_lock);
+        bool success{false};
         if (!result.hasError()) {
-            auto result_val = result.value();
-            if (result_val.has_value()) {
-                try {
-                    cache->Destroy();
-                    tracker_cache_ids[hash][index] = false;
-                } catch (...) {}
-            } else {
+            success = result.value().has_value();
+        }
+        std::scoped_lock guard(tracker_lock);
+        if (success) {
+            try {
+                cache->Clear();
                 trackers_cache[hash].emplace(index, cache);
+            } catch (...) {
+                cache->Destroy();
+                tracker_cache_ids[hash][index] = false;
             }
         } else {
             trackers_cache[hash].emplace(index, cache);
+            latest_upload_failed = cache.get();
         }
         uploading = false;
-        Runtime::Get().Timer().PostEvent(check_upload_event, check_ms);
     });
 }
 
@@ -326,35 +345,26 @@ static void CheckAndUploadTrackers() {
     if (uploading) {
         return;
     }
+    struct {
+        u64 hash = 0;
+        u32 index = 0;
+    } cache_upload{};
     for (auto& [hash, caches] : trackers_cache) {
         for (auto [id, cache] : caches) {
-            if (cache->GetCount() >= UPLOAD_TRACKER_COUNT) {
-                caches.erase(id);
-                u64 key = hash;
-                u32 index = id;
-                auto tracker = cache;
-                UploadTopicTrackers(cache).start([key, index, tracker] (auto result) {
-                    std::scoped_lock guard(tracker_lock);
-                    if (!result.hasError()) {
-                        auto result_val = result.value();
-                        if (result_val.has_value()) {
-                            try {
-                                tracker->Destroy();
-                                tracker_cache_ids[key][index] = false;
-                            } catch (...) {}
-                        } else {
-                            trackers_cache[key].emplace(index, tracker);
-                        }
-                    } else {
-                        trackers_cache[key].emplace(index, tracker);
-                    }
-                    Runtime::Get().Timer().PostEvent(check_upload_event, check_ms);
-                });
-                return;
+            if (cache->GetCount() > 0) {
+                cache_upload.hash = hash;
+                cache_upload.index = id;
+                if (latest_upload_failed != cache.get()) {
+                    continue;
+                }
+                goto do_upload;
             }
         }
     }
-    Runtime::Get().Timer().PostEvent(check_upload_event, check_ms);
+do_upload:
+    if (cache_upload.hash) {
+        UploadTrackerCacheAsync(cache_upload.hash, cache_upload.index);
+    }
 }
 
 static std::shared_ptr<TrackerCache> CreateCache(u64 hash, u32 index, const std::shared_ptr<TrackerConfig> &config) {
@@ -372,14 +382,16 @@ static std::shared_ptr<TrackerCache> CreateCache(u64 hash, u32 index, const std:
 }
 
 void Init(const Config& config) {
+    tracker_group_size = config.tracker_group_size ? config.tracker_group_size : 2000;
     auto dev = platform::Device::GetCurrent();
     ASSERT(dev);
     tracker_cache = fs::path(dev->GetCacheDir()) / "tap_trackers" / config.process_name;
     check_upload_event = Event::Create([] (Duration later, std::uintptr_t user_data) {
         CheckAndUploadTrackers();
+        Runtime::Get().Timer().PostEvent(check_upload_event, check_ms);
     }, "Check Upload");
-    Runtime::Get().Timer().PostEvent(check_upload_event, check_ms);
     SyncLoadTrackersCache();
+    Runtime::Get().Timer().PostEvent(check_upload_event);
 }
 
 std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig>& config) {
@@ -394,8 +406,15 @@ bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
     auto& caches = trackers_cache[config_hash];
     bool pushed{false};
     for (auto& [index, cache] : caches) {
+        if (cache->GetCount() >= tracker_group_size) {
+            UploadTrackerCacheAsync(config_hash, index);
+            continue;
+        }
         pushed = cache->Push(tracker);
         if (pushed) {
+            if (cache->GetCount() >= UPLOAD_TRACKER_COUNT) {
+                UploadTrackerCacheAsync(config_hash, index);
+            }
             break;
         }
     }

@@ -65,10 +65,11 @@ u32 DiskCache::GetCount() const {
     return cache_header->record_count;
 }
 
-bool DiskCache::Push(u32 time, std::span<u8> content) {
+bool DiskCache::Push(TrackMessageImpl& cache) {
+    auto cache_size = cache.GetSerializeSize();
     std::lock_guard guard(lock);
     auto next_size = sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size +
-                     sizeof(RecordHeader) + content.size();
+                     sizeof(RecordHeader) + cache_size;
     if (next_size > max_cache_size) {
         return false;
     }
@@ -93,25 +94,34 @@ bool DiskCache::Push(u32 time, std::span<u8> content) {
     auto write_offset = sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size;
     RecordHeader header{
             .magic = record_magic,
-            .hash = CityHash64(reinterpret_cast<const char*>(content.data()), content.size()),
-            .length = static_cast<u32>(content.size()),
-            .time = time};
+            .hash = 0,
+            .length = static_cast<u32>(cache_size),
+            .time = cache.GetCreateTime()};
     if (IsMapped()) {
         auto memory = reinterpret_cast<u8*>(cache_header) + write_offset;
+        std::span<u8> content{memory + sizeof(header), cache_size};
+        if (!cache.SerializeToBuffer(content)) {
+            return false;
+        }
+        header.hash = CityHash64(reinterpret_cast<const char*>(content.data()), cache_size);
         std::memcpy(memory, &header, sizeof(header));
-        std::memcpy(memory + sizeof(header), content.data(), content.size());
         cache_header->record_count++;
-        cache_header->record_size += content.size() + sizeof(header);
+        cache_header->record_size += cache_size + sizeof(header);
         return file->Commit();
     } else {
+        std::vector<u8> content(cache_size);
+        if (!cache.SerializeToBuffer(content)) {
+            return false;
+        }
+        header.hash = CityHash64(reinterpret_cast<const char*>(content.data()), cache_size);
         if (!file->Write(header, write_offset)) {
             return false;
         }
-        if (!file->Write(content.data(), write_offset + sizeof(header), content.size())) {
+        if (!file->Write(content.data(), write_offset + sizeof(header), cache_size)) {
             return false;
         }
         cache_header->record_count++;
-        cache_header->record_size += content.size() + sizeof(header);
+        cache_header->record_size += cache_size + sizeof(header);
         if (!file->Write(cache_header)) {
             return false;
         }

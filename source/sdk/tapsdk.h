@@ -84,9 +84,10 @@ struct Config {
     bool enable_tap_login = false;
     bool enable_duration_statistics = false;
     bool enable_tap_tracker = false;
-    std::string client_id{};
-    std::string process_name{};
+    std::string client_id = "";
+    std::string process_name = "";
     Region region = Region::CN;
+    uint32_t tracker_group_size = 0;
 };
 
 // init

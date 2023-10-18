@@ -51,6 +51,8 @@ public:
     void AddParam(const std::string& key, const std::string& value) override;
 
     std::span<u8> Serialize();
+    size_t GetSerializeSize();
+    bool SerializeToBuffer(std::span<u8> data);
     bool Deserialize(std::span<u8> data);
     void Flushed();
 

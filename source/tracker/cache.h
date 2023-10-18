@@ -41,7 +41,7 @@ public:
 
     std::shared_ptr<TrackerConfig> GetConfig();
 
-    bool Push(u32 time, std::span<u8> content);
+    bool Push(TrackMessageImpl &cache);
 
     std::list<TrackMessageImpl> Load();
 
