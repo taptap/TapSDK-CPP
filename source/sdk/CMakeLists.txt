@@ -8,6 +8,10 @@ else ()
     set(TDS_LINK_FLAGS)
 endif()
 
+if (DEFINED BUILD_FOR_SHARED)
+    set(SDK_BUILD_TYPE SHARED)
+endif ()
+
 add_library(tds_core
         ${SDK_BUILD_TYPE}
         tapsdk.cpp

@@ -93,15 +93,15 @@ public:
     }
     T& value() & {
         checkHasTry();
-        return std::get<T>(_value);
+        return *std::get_if<T>(&_value);
     }
     T&& value() && {
         checkHasTry();
-        return std::move(std::get<T>(_value));
+        return std::move(*std::get_if<T>(&_value));
     }
     const T&& value() const&& {
         checkHasTry();
-        return std::move(std::get<T>(_value));
+        return std::move(*std::get_if<T>(&_value));
     }
 
     template <class... Args>
@@ -119,7 +119,7 @@ public:
     std::exception_ptr getException() const {
         logicAssert(std::holds_alternative<std::exception_ptr>(_value),
                     "Try object do not has on error");
-        return std::get<std::exception_ptr>(_value);
+        return *std::get_if<std::exception_ptr>(&_value);
     }
 
     operator Try<void>() const;
@@ -129,7 +129,7 @@ private:
         if (std::holds_alternative<T>(_value))
             AS_LIKELY { return; }
         else if (std::holds_alternative<std::exception_ptr>(_value)) {
-            std::rethrow_exception(std::get<std::exception_ptr>(_value));
+            std::rethrow_exception(*std::get_if<std::exception_ptr>(&_value));
         } else if (std::holds_alternative<std::monostate>(_value)) {
             throw std::logic_error("Try object is empty");
         } else {

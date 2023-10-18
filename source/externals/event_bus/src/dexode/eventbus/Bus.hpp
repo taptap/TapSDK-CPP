@@ -130,7 +130,7 @@ private:
 template <typename Event>
 bool postpone(Bus& bus, std::any event)
 {
-	return bus.postpone(std::move(std::any_cast<Event>(event)));
+	return bus.postpone(std::move(*std::any_cast<Event>(&event)));
 }
 
 } // namespace dexode::eventbus

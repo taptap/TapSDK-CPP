@@ -26,7 +26,7 @@ function(add_swig_csharp_library TgtName)
   string(REPLACE "." "/" OutDir ${CSharpPackageName})
   string(CONCAT OutDirAbs ${CSHARP_BINDING}/${OutDir})
 
-  if (APPLE)
+  if (APPLE AND (NOT DEFINED BUILD_FOR_SHARED))
     swig_add_library(${TgtName}
             TYPE STATIC
             LANGUAGE csharp

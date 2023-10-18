@@ -20,7 +20,7 @@ class ProtectedEventStream : public EventStream
 public:
 	void postpone(std::any event) override
 	{
-		auto myEvent = std::any_cast<Event>(event);
+		auto myEvent = *std::any_cast<Event>(&event);
 		std::lock_guard writeGuard{_mutexEvent};
 		_queue.push_back(std::move(myEvent));
 	}
@@ -70,7 +70,7 @@ public:
 	bool addListener(const std::uint32_t listenerID, std::any callback) override
 	{
 		std::lock_guard writeGuard{_mutexCallbacks};
-		auto myCallback = std::any_cast<Callback>(callback);
+		auto myCallback = *std::any_cast<Callback>(&callback);
 		if(_isProcessing)
 		{
 			_waiting.emplace_back(listenerID, std::move(myCallback));
