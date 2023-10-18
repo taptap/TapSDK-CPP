@@ -3,8 +3,8 @@ add_library(duration STATIC
         duration.h
         persistence.cpp
         persistence.h
-        model.cpp
-        model.h
+        dur_model.cpp
+        dur_model.h
 )
 
 target_link_libraries(duration PUBLIC net core sqlite_orm)

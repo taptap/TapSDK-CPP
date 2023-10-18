@@ -3,11 +3,11 @@
 //
 
 #include "base/logging.h"
-#include "login/model.h"
+#include "core/runtime.h"
+#include "login/login_model.h"
 #include "login/tap_login.h"
 #include "net/network.h"
 #include "sdk/platform.h"
-#include "core/runtime.h"
 
 namespace tapsdk::login {
 

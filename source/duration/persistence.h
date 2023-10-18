@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "ghc/fs_std_select.hpp"
 #include <memory>
 #include <shared_mutex>
-#include "duration/model.h"
+#include "duration/dur_model.h"
+#include "ghc/fs_std_select.hpp"
 #include "sqlite_orm/sqlite_orm.h"
 
 namespace tapsdk::duration {

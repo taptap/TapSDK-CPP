@@ -40,6 +40,10 @@ public:
         }
     }
 
+    std::shared_ptr<platform::DeviceInfo> GetDeviceInfo() override {
+        return std::make_shared<platform::DeviceInfo>();
+    }
+
 private:
     BridgeConfig config;
 };
