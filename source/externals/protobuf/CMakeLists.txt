@@ -1,8 +1,9 @@
-set(protobuf_VERSION 24.3)
+set(protobuf_VERSION 21.4)
 # 禁止 test 加速编译
-set(protobuf_BUILD_TESTS OFF)
+set(protobuf_BUILD_TESTS OFF CACHE INTERNAL "")
 # 禁止编译 protoc 加速编译
-set(protobuf_BUILD_PROTOC_BINARIES OFF)
+set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE INTERNAL "")
+set(protobuf_INSTALL OFF CACHE INTERNAL "")
 # protobuf src
 import_remote("https://github.com/protocolbuffers/protobuf.git" TAG "v${protobuf_VERSION}" CMAKE "./" ALIAS protobuf)
 
