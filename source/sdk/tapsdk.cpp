@@ -2,6 +2,7 @@
 // Created by 甘尧 on 2023/6/29.
 //
 
+#include <atomic>
 #include "base/logging.h"
 #include "core/events.h"
 #include "core/runtime.h"
@@ -20,15 +21,22 @@ static std::shared_ptr<Game> current_game;
 
 // modules
 static std::unique_ptr<duration::DurationStatistics> duration_statistics;
+static std::atomic<bool> inited{false};
 
 bool Init(const Config& config) {
     sdk_config = config;
-    Runtime::Get().Init();
-    if (sdk_config.enable_duration_statistics) {
-        duration_statistics = std::make_unique<duration::DurationStatistics>();
-        duration_statistics->Init(sdk_config.region);
+    try {
+        ASSERT_MSG(!inited, "SDK already inited!");
+        inited = true;
+        Runtime::Get().Init();
+        if (sdk_config.enable_duration_statistics) {
+            duration_statistics = std::make_unique<duration::DurationStatistics>();
+            duration_statistics->Init(sdk_config.region);
+        }
+        return true;
+    } catch (...) {
+        return false;
     }
-    return true;
 }
 
 void TDSUser::SetCurrent(const std::shared_ptr<TDSUser>& user) {
