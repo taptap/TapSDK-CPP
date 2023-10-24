@@ -46,7 +46,7 @@ using TrackerCacheIds = std::bitset<MAX_CACHE_COUNT>;
 
 static u32 tracker_group_size;
 static std::mutex tracker_lock;
-1static std::atomic<bool> inited{false};
+static std::atomic<bool> inited{false};
 static std::atomic<bool> uploading{false};
 static fs::path tracker_cache;
 static std::unordered_map<u64, std::map<u32, std::shared_ptr<TrackerCache>>> trackers_cache{};
