@@ -397,14 +397,16 @@ void Init(const Config& config) {
 }
 
 std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig>& config) {
-    if (!inited) {
+    if (!inited || !config) {
         return {};
     }
-    return std::make_shared<TrackMessageImpl>(config);
+    auto tracker = std::make_shared<TrackMessageImpl>(config);
+    FillCommons(*tracker, *config);
+    return tracker;
 }
 
 bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
-    if (!inited) {
+    if (!inited || !tracker) {
         return false;
     }
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
