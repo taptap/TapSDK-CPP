@@ -25,7 +25,7 @@ public:
     static void SetCurrent(const std::shared_ptr<TDSUser>& user);
     static std::shared_ptr<TDSUser> GetCurrent();
 
-    TDSUser(const std::string& user_id = {});
+    TDSUser(const std::string& user_id = "");
 
     virtual ~TDSUser() = default;
 
