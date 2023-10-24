@@ -45,8 +45,8 @@ jobs:
       - name: Build mac-a64
         run: |
           cd scripts
-          chmod +x build-mac-x64.sh
-          ./build-mac-x64.sh
+          chmod +x build-mac-a64.sh
+          ./build-mac-a64.sh
 
       - name: Build mac-x64
         run: |
