@@ -46,6 +46,7 @@ using TrackerCacheIds = std::bitset<MAX_CACHE_COUNT>;
 
 static u32 tracker_group_size;
 static std::mutex tracker_lock;
+1static std::atomic<bool> inited{false};
 static std::atomic<bool> uploading{false};
 static fs::path tracker_cache;
 static std::unordered_map<u64, std::map<u32, std::shared_ptr<TrackerCache>>> trackers_cache{};
@@ -392,13 +393,20 @@ void Init(const Config& config) {
     }, "Check Upload");
     SyncLoadTrackersCache();
     Runtime::Get().Timer().PostEvent(check_upload_event);
+    inited = true;
 }
 
 std::shared_ptr<TrackMessage> CreateTracker(const std::shared_ptr<TrackerConfig>& config) {
+    if (!inited) {
+        return {};
+    }
     return std::make_shared<TrackMessageImpl>(config);
 }
 
 bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
+    if (!inited) {
+        return false;
+    }
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
     tracker_impl->Flushed();
     auto config_hash = tracker->GetConfig()->Hash();

@@ -24,4 +24,5 @@ using namespace tapsdk::platform;
 %shared_ptr(tapsdk::platform::Cancelable);
 %shared_ptr(tapsdk::platform::Window);
 %shared_ptr(tapsdk::platform::Device);
+%shared_ptr(tapsdk::platform::DeviceInfo);
 %include "sdk/platform.h"

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <string>
+#include <array>
 #include "fmt/format.h"
 
 namespace tapsdk {
