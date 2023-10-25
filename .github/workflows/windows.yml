@@ -1,0 +1,51 @@
+name: Windows CI
+
+on:
+  push:
+    branches: [ "dev", "new_dev", "windows_ci" ]
+  pull_request:
+    branches: [ "dev" ]
+
+permissions:
+  contents: read  #  to fetch code (actions/checkout)
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Dependencies
+        shell: powershell
+        run: |
+          nuget install Swig -Version 4.1.1 -OutputDirectory C:\Tools\swig
+
+      - name: Build
+        shell: powershell
+        run: |
+          $env:PATH="C:\Tools\swig;" + $env:PATH
+          mkdir build
+          cd .\build\
+          cmake ../ -G "Visual Studio 17 2022" -A "x64" -DCMAKE_BUILD_TYPE=Release -DCSHARP_BINDING="./swig"
+          cmake --build ./ --config Release -j 14
+
+      - name: Upload sdk
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          # Artifact name
+          name: tds_core.dll
+          # A file, directory or wildcard pattern that describes what to upload
+          path: build/source/sdk/Release/tds_core.dll
+
+      - name: Upload bindings
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          # Artifact name
+          name: bindings-csharp.dll
+          # A file, directory or wildcard pattern that describes what to upload
+          path: build/source/bindings/csharp/Release/bindings-csharp.dll
