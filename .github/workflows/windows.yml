@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies
         shell: powershell
         run: |
-          nuget install Swig -Version 4.1.1 -OutputDirectory C:\Tools\swig
+          nuget install swigwintools -Version 4.0.0 -OutputDirectory C:\Tools\swig
 
       - name: Build
         shell: powershell
