@@ -68,7 +68,7 @@ jobs:
           cp -r ios/build-ios/source/sdk/tds_core.framework  builds/iphoneos/tds_core.framework
           cp -r ios/build-ios-sim/source/sdk/tds_core.framework  builds/iphonesimulator/tds_core.framework
           cp -r build-a64/source/sdk/tds_core.framework  builds/macos-arm64/tds_core.framework
-          cp -r build-x64/source/sdk/tds_core.framework  builds/macos-x64_64/tds_core.framework
+          cp -r build-x64/source/sdk/tds_core.framework  builds/macos-x86_64/tds_core.framework
           cp build-a64/source/bindings/csharp/libbindings-csharp.dylib  builds/macos-arm64/libbindings-csharp.dylib
           cp build-x64/source/bindings/csharp/libbindings-csharp.dylib  builds/macos-x64_64/libbindings-csharp.dylib
           zip -r builds.zip builds
