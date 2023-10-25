@@ -1,6 +1,6 @@
 #export module
 
-if (ANDROID OR WIN32 OR (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+if (ANDROID OR (CMAKE_SYSTEM_NAME STREQUAL "Linux"))
     set(SDK_BUILD_TYPE SHARED)
     set(TDS_LINK_FLAGS "-Wl,--exclude-libs,ALL")
 else ()
