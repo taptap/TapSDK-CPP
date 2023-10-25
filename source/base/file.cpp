@@ -11,6 +11,10 @@
 #endif
 #include "ghc/fs_std_select.hpp"
 
+#ifdef _WIN32
+#include "io.h"
+#endif
+
 namespace tapsdk {
 
 [[nodiscard]] constexpr const char* AccessModeToStr(FileAccessMode mode) {

@@ -183,7 +183,7 @@ void TrackerCache::Destroy() {
 }
 
 static std::string DiskCachePath(u64 hash, u32 index) {
-    return tracker_cache / fmt::format("{}@{}.trc", hash, index);
+    return (tracker_cache / fmt::format("{}@{}.trc", hash, index)).string();
 }
 
 static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
@@ -298,10 +298,10 @@ void SyncLoadTrackersCache() {
                 u32 idx = std::stoul(idx_str);
                 auto &caches = trackers_cache[hash];
                 auto &ids = tracker_cache_ids[hash];
-                caches.emplace(idx, std::make_shared<TrackerCache>(f.path(), hash));
+                caches.emplace(idx, std::make_shared<TrackerCache>(f.path().string(), hash));
                 ids[idx] = true;
             } catch (...) {
-                LOG_ERROR("Load tracker cache {} error!", f.path().c_str());
+                LOG_ERROR("Load tracker cache {} error!", f.path().string());
             }
         }
     }

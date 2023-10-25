@@ -4,6 +4,8 @@ set(protobuf_BUILD_TESTS OFF CACHE INTERNAL "")
 # 禁止编译 protoc 加速编译
 set(protobuf_BUILD_PROTOC_BINARIES OFF CACHE INTERNAL "")
 set(protobuf_INSTALL OFF CACHE INTERNAL "")
+set(protobuf_MSVC_STATIC_RUNTIME OFF CACHE INTERNAL "")
+
 # protobuf src
 import_remote("https://github.com/protocolbuffers/protobuf.git" TAG "v${protobuf_VERSION}" CMAKE "./" ALIAS protobuf)
 
@@ -38,7 +40,7 @@ if (NOT EXISTS ${protobuf_BINARY_DIR}/${protoc_BINARY})
     if (NOT ${DOWNLOAD_PROTOC_RESULT_POSITION} EQUAL -1)
         if (${PROTOC_OS_RESULT} STREQUAL "Windows")
             execute_process(
-                    COMMAND powershell -Command "Expand-Archive -Path ${CMAKE_CURRENT_BINARY_DIR}/sprotoc.zip -DestinationPath ${CMAKE_CURRENT_BINARY_DIR}"
+                    COMMAND powershell -Command "Expand-Archive -Path ${CMAKE_CURRENT_BINARY_DIR}/protoc.zip -DestinationPath ${CMAKE_CURRENT_BINARY_DIR}"
                     RESULTS_VARIABLE UNZIP_RESULT
             )
             file(COPY ${CMAKE_CURRENT_BINARY_DIR}/bin/${protoc_BINARY} DESTINATION ${protobuf_BINARY_DIR})
