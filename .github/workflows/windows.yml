@@ -29,10 +29,11 @@ jobs:
         shell: powershell
         run: |
           $env:PATH="C:\Tools\swig;" + $env:PATH
+          $WORKING_DIR=(Get-Location).ToString() -replace "\\","/"
           mkdir build
           cd .\build\
-          cmake ../ -G "Visual Studio 17 2022" -A "x64" -DCMAKE_BUILD_TYPE=Release -DCSHARP_BINDING="./swig"
-          cmake --build ./ --config Release -j 14
+          cmake ../ -G "Visual Studio 17 2022" -A "x64" -DCMAKE_BUILD_TYPE=Release -DCSHARP_BINDING="$WORKING_DIR/swig"
+          cmake --build ./ --config Release -j 8
 
       - name: Upload sdk
         uses: actions/upload-artifact@v3.1.2
