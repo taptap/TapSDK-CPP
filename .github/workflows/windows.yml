@@ -2,7 +2,7 @@ name: Windows CI
 
 on:
   push:
-    branches: [ "dev", "new_dev", "windows_ci" ]
+    branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
 

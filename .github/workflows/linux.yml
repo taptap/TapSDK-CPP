@@ -2,7 +2,7 @@ name: Linux CI
 
 on:
   push:
-    branches: [ "dev", "new_dev" ]
+    branches: [ "dev" ]
   pull_request:
     branches: [ "dev" ]
 
