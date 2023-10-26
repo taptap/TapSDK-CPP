@@ -2,9 +2,9 @@ name: MacOS starter workflow
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "feat/v1.0" ]
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "feat/v1.0" ]
 
 jobs:
   build:
