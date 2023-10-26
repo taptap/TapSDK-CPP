@@ -19,12 +19,7 @@ endif()
 #add_subdirectory(marl)
 
 # openssl
-find_package(OpenSSL 1.1)
-if (NOT OPENSSL_FOUND OR APPLE)
-    add_subdirectory(openssl)
-else()
-    set(OPENSSL_LIBRARIES OpenSSL::SSL OpenSSL::Crypto)
-endif()
+add_subdirectory(openssl)
 
 # ranges
 if (ANDROID)

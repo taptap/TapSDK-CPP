@@ -16,12 +16,7 @@ if (WIN32)
     endif()
 endif()
 
-find_package(OpenSSL 1.1)
-if (NOT OPENSSL_FOUND OR APPLE)
-    target_link_libraries(net PUBLIC ssl)
-else ()
-    target_link_libraries(net PUBLIC OpenSSL::SSL OpenSSL::Crypto)
-endif()
+target_link_libraries(net PUBLIC ssl)
 
 add_compile_definitions(CINATRA_ENABLE_SSL)
 target_compile_definitions(net PRIVATE ASYNC_SIMPLE_HAS_NOT_AIO)
