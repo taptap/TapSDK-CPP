@@ -2,9 +2,9 @@ name: Apple CI
 
 on:
   push:
-    branches: [ "dev", "new_dev" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "master" ]
 
 jobs:
   build:
