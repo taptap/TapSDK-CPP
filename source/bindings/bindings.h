@@ -20,8 +20,10 @@ struct BridgeConfig {
     std::string cache_dir{};
     std::string ca_dir{};
     int device_type{DEV_TYPE_LOCAL};
-    std::shared_ptr<tapsdk::platform::DeviceInfo> device_info{};
-    std::string sdk_version = "";
+    std::string model{};
+    std::string platform{};
+    std::string engine{};
+    std::string sdk_version{};
 };
 
 struct BridgeUser {
