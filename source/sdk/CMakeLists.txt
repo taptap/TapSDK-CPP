@@ -18,6 +18,7 @@ add_library(tds_core
         tapsdk.h
         platform.cpp
         platform.h
+        result.h
         )
 
 target_link_libraries(tds_core PRIVATE duration login tracker net ${TDS_LINK_FLAGS})
