@@ -12,7 +12,12 @@ namespace tapsdk::bindings {
 
 class BDevice : public platform::Device {
 public:
-    explicit BDevice(BridgeConfig config) : config(std::move(config)) {}
+    explicit BDevice(BridgeConfig config) : config(std::move(config)) {
+        device_info = std::make_shared<platform::DeviceInfo>();
+        device_info->model = config.model;
+        device_info->platform = config.platform;
+        device_info->engine = config.engine;
+    }
 
     std::string GetDeviceID() override { return config.device_id; }
 
@@ -34,15 +39,12 @@ public:
     }
 
     std::shared_ptr<platform::DeviceInfo> GetDeviceInfo() override {
-        if (config.device_info) {
-            return config.device_info;
-        } else {
-            return std::make_shared<platform::DeviceInfo>();
-        }
+        return device_info;
     }
 
 private:
     BridgeConfig config;
+    std::shared_ptr<platform::DeviceInfo> device_info;
 };
 
 class BGame : public tapsdk::Game {
