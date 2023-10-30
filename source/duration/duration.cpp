@@ -24,6 +24,8 @@ void DurationStatistics::Init(const Config &config) {
         url = "tds-activity-collector.tapapis.com";
     } else if (config.region == Region::CN) {
         url = "tds-activity-collector.tapapis.cn";
+    } else if (config.region == Region::RND) {
+        url = "tds-activity-collector.xdrnd.cn";
     } else {
         ASSERT_MSG(false, "Unk region {} !", static_cast<int>(config.region));
     }

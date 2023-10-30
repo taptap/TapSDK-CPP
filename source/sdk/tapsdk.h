@@ -19,7 +19,7 @@ struct AccessToken {
 
 class TDSUser;
 
-enum class Region { CN = 0, Global };
+enum class Region { CN = 0, Global, RND };
 
 class TDSUser {
 public:
