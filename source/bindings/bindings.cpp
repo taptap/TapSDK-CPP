@@ -7,7 +7,6 @@
 #include <utility>
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
-#include "base/logging.h"
 
 namespace tapsdk::bindings {
 
