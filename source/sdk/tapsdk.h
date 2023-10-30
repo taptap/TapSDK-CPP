@@ -10,7 +10,8 @@ class TDSUser;
 
 enum class Region : int {
     CN = 0,
-    Global
+    Global,
+    RND
 };
 
 class TDSUser {

@@ -7,6 +7,7 @@
 #include <utility>
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
+#include "base/logging.h"
 
 namespace tapsdk::bindings {
 
@@ -75,8 +76,11 @@ private:
 
 void InitSDK(BridgeConfig& config) {
     platform::Device::SetCurrent(std::make_shared<BDevice>(config));
+    if (config.region < 0 || config.region > REGION_RND) {
+        config.region = REGION_CN;
+    }
     Config conf{.enable_duration_statistics = config.enable_duration_statistics,
-                .region = config.region,
+                .region = static_cast<Region>(config.region),
                 .sdk_version = config.sdk_version};
     Init(conf);
 }
