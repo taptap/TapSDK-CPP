@@ -9,6 +9,7 @@ public:
     std::string GetDeviceID() override { return "test_device_id"; }
     std::string GetCacheDir() override { return std::filesystem::current_path().string(); }
     std::string GetCaCertDir() override { return ""; }
+    std::shared_ptr<tapsdk::platform::DeviceInfo> GetDeviceInfo() override { return std::shared_ptr<tapsdk::platform::DeviceInfo>(); }
 };
 
 class TestUser : public tapsdk::TDSUser {

@@ -81,6 +81,12 @@ net::Json ReportContent::ToJson() {
     }
     json["extra"] = extra;
     json["environment"] = DevTypeString(event.dev_type);
+    json["sdk_version"] = event.sdk_version;
+    if (event.device_info) {
+        json["os"] = event.device_info->platform;
+        json["engine"] = event.device_info->engine;
+        json["device_model"] = event.device_info->model;
+    }
     return std::move(json);
 }
 

@@ -23,6 +23,22 @@ public:
     static void OnBackground();
 };
 
+struct DeviceInfo {
+    std::string device_version = "";
+    std::string model = "";
+    std::string platform = "";
+    std::string engine = "";
+    std::string os_version = "";
+    std::string android_id = "";
+    std::string app_version = "";
+    std::string app_package_name = "";
+    std::string ram_size = "";
+    std::string rom_size = "";
+    std::string network_type = "";
+    std::string mobile_type = "";
+    std::string cpu_info = "";
+};
+
 class Device {
 public:
     static void SetCurrent(const std::shared_ptr<Device> &device);
@@ -38,6 +54,8 @@ public:
     virtual std::string GetCaCertDir() = 0;
     // 设备类型
     virtual DeviceType GetDeviceType();
+    // 设备详细信息
+    virtual std::shared_ptr<DeviceInfo> GetDeviceInfo() = 0;
 };
 
 }

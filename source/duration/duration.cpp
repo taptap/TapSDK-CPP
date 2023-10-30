@@ -11,19 +11,21 @@
 
 namespace tapsdk::duration {
 
-void DurationStatistics::Init(Region region) {
+void DurationStatistics::Init(const Config &config) {
     auto cur_device = platform::Device::GetCurrent();
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
     dev_type = cur_device->GetDeviceType();
     persistence = std::make_unique<DurPersistence>(cur_device->GetCacheDir());
+    device_info = cur_device->GetDeviceInfo();
+    sdk_version = config.sdk_version;
     const char* url;
-    if (region == Region::Global) {
+    if (config.region == Region::Global) {
         url = "tds-activity-collector.tapapis.com";
-    } else if (region == Region::CN) {
+    } else if (config.region == Region::CN) {
         url = "tds-activity-collector.tapapis.cn";
     } else {
-        ASSERT_MSG(false, "Unk region {} !", static_cast<int>(region));
+        ASSERT_MSG(false, "Unk region {} !", static_cast<int>(config.region));
     }
     http_client = net::CreateHttpClient(url, true);
     NewGameSession();
@@ -106,6 +108,8 @@ void DurationStatistics::InitReportThread() {
                 for (auto& event : events) {
                     if (event.action != HEAT_BEAT) {
                         event.dev_type = dev_type;
+                        event.device_info = device_info;
+                        event.sdk_version = sdk_version;
                         reports.emplace_back(event);
                         continue;
                     }
@@ -116,6 +120,8 @@ void DurationStatistics::InitReportThread() {
                     event.last_timestamp = local_session.last_timestamp;
                     has_heat_beats = true;
                     event.dev_type = dev_type;
+                    event.device_info = device_info;
+                    event.sdk_version = sdk_version;
                     reports.emplace_back(event);
                 }
                 if (reports.empty()) {

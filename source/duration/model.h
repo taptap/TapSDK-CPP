@@ -34,6 +34,8 @@ struct DurEvent {
     u64 timestamp;
     u64 last_timestamp{};
     platform::DeviceType dev_type{platform::DeviceType::Local};
+    std::shared_ptr<platform::DeviceInfo> device_info{};
+    std::string sdk_version;
 };
 
 struct GameSession {

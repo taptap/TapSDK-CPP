@@ -46,6 +46,7 @@ public:
 struct Config {
     bool enable_duration_statistics = false;
     Region region = Region::CN;
+    std::string sdk_version = "";
 };
 
 bool Init(const Config &config);

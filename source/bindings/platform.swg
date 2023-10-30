@@ -23,4 +23,5 @@ using namespace tapsdk::platform;
 %feature("director") Device;
 %shared_ptr(tapsdk::platform::Window);
 %shared_ptr(tapsdk::platform::Device);
+%shared_ptr(tapsdk::platform::DeviceInfo);
 %include "sdk/platform.h"
