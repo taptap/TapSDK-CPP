@@ -5,27 +5,20 @@
 #include "bindings.h"
 
 #include <utility>
-#include "sdk/tapsdk.h"
 #include "sdk/platform.h"
+#include "sdk/tapsdk.h"
 
 namespace tapsdk::bindings {
 
 class BDevice : public platform::Device {
 public:
-
     explicit BDevice(BridgeConfig config) : config(std::move(config)) {}
 
-    std::string GetDeviceID() override {
-        return config.device_id;
-    }
+    std::string GetDeviceID() override { return config.device_id; }
 
-    std::string GetCacheDir() override {
-        return config.cache_dir;
-    }
+    std::string GetCacheDir() override { return config.cache_dir; }
 
-    std::string GetCaCertDir() override {
-        return config.ca_dir;
-    }
+    std::string GetCaCertDir() override { return config.ca_dir; }
 
     platform::DeviceType GetDeviceType() override {
         switch (config.device_type) {
@@ -41,7 +34,11 @@ public:
     }
 
     std::shared_ptr<platform::DeviceInfo> GetDeviceInfo() override {
-        return std::make_shared<platform::DeviceInfo>();
+        if (config.device_info) {
+            return config.device_info;
+        } else {
+            return std::make_shared<platform::DeviceInfo>();
+        }
     }
 
 private:
@@ -50,16 +47,11 @@ private:
 
 class BGame : public tapsdk::Game {
 public:
-
     explicit BGame(BridgeGame info) : game_info(std::move(info)) {}
 
-    std::string GetGameID() override {
-        return game_info.client_id;
-    }
+    std::string GetGameID() override { return game_info.client_id; }
 
-    std::string GetPackageName() override {
-        return game_info.identify;
-    }
+    std::string GetPackageName() override { return game_info.identify; }
 
 private:
     BridgeGame game_info;
@@ -67,35 +59,27 @@ private:
 
 class BUser : public TDSUser {
 public:
-
     explicit BUser(BridgeUser info) : info(std::move(info)) {}
 
-    std::string GetUserId() override {
-        return info.user_id;
-    }
+    std::string GetUserId() override { return info.user_id; }
 
-    std::string GetUserName() override {
-        return "";
-    }
+    std::string GetUserName() override { return ""; }
 
-    bool ContainTapInfo() override {
-        return info.contain_tap_info;
-    }
+    bool ContainTapInfo() override { return info.contain_tap_info; }
 
 private:
     BridgeUser info;
 };
 
-void InitSDK(BridgeConfig &config) {
+void InitSDK(BridgeConfig& config) {
     platform::Device::SetCurrent(std::make_shared<BDevice>(config));
-    Config conf {
-        .enable_duration_statistics = config.enable_duration_statistics,
-        .region = config.region
-    };
+    Config conf{.enable_duration_statistics = config.enable_duration_statistics,
+                .region = config.region,
+                .sdk_version = config.sdk_version};
     Init(conf);
 }
 
-void SetCurrentUser(BridgeUser *user) {
+void SetCurrentUser(BridgeUser* user) {
     if (user) {
         TDSUser::SetCurrent(std::make_shared<BUser>(*user));
     } else {
@@ -103,16 +87,10 @@ void SetCurrentUser(BridgeUser *user) {
     }
 }
 
-void SetCurrentGame(BridgeGame &game) {
-    Game::SetCurrent(std::make_shared<BGame>(game));
-}
+void SetCurrentGame(BridgeGame& game) { Game::SetCurrent(std::make_shared<BGame>(game)); }
 
-void OnWindowForeground() {
-    platform::Window::OnForeground();
-}
+void OnWindowForeground() { platform::Window::OnForeground(); }
 
-void OnWindowBackground() {
-    platform::Window::OnBackground();
-}
+void OnWindowBackground() { platform::Window::OnBackground(); }
 
-}
+}  // namespace tapsdk::bindings

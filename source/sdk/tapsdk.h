@@ -88,6 +88,7 @@ struct Config {
     std::string client_id = "";
     std::string process_name = "";
     Region region = Region::CN;
+    std::string sdk_version = "";
     uint32_t tracker_group_size = 0;
 };
 

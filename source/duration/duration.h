@@ -21,7 +21,7 @@ constexpr auto local_heat_beat_interval = Ms(5 * 1000);
 
 class DurationStatistics {
 public:
-    void Init(Region region);
+    void Init(const Config &config);
 
     virtual ~DurationStatistics();
 
@@ -60,6 +60,8 @@ private:
     std::shared_ptr<Event> request_config;
     std::shared_ptr<Event> local_heat_beat;
     std::shared_ptr<Event> online_heat_beat;
+    std::shared_ptr<platform::DeviceInfo> device_info{};
+    std::string sdk_version{};
     ReportConfig report_config{};
     Duration online_heat_beat_interval = Ms(report_config.tap_frequency * 1000);
     Duration online_heat_beat_interval_no_tap = Ms(report_config.no_tap_frequency * 1000);

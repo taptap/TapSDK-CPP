@@ -5,6 +5,7 @@
 #pragma once
 
 #include "sdk/tapsdk.h"
+#include "sdk/platform.h"
 
 namespace tapsdk::bindings {
 
@@ -19,6 +20,8 @@ struct BridgeConfig {
     std::string cache_dir{};
     std::string ca_dir{};
     int device_type{DEV_TYPE_LOCAL};
+    std::shared_ptr<tapsdk::platform::DeviceInfo> device_info{};
+    std::string sdk_version = "";
 };
 
 struct BridgeUser {
