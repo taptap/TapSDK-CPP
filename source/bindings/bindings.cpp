@@ -14,9 +14,9 @@ class BDevice : public platform::Device {
 public:
     explicit BDevice(BridgeConfig config) : config(std::move(config)) {
         device_info = std::make_shared<platform::DeviceInfo>();
-        device_info->model = config.model;
-        device_info->platform = config.platform;
-        device_info->engine = config.engine;
+        device_info->model = this->config.model;
+        device_info->platform = this->config.platform;
+        device_info->engine = this->config.engine;
     }
 
     std::string GetDeviceID() override { return config.device_id; }
@@ -75,9 +75,6 @@ private:
 
 void InitSDK(BridgeConfig& config) {
     platform::Device::SetCurrent(std::make_shared<BDevice>(config));
-    if (config.region < 0 || config.region > REGION_RND) {
-        config.region = REGION_CN;
-    }
     Config conf{.enable_duration_statistics = config.enable_duration_statistics,
                 .region = static_cast<Region>(config.region),
                 .sdk_version = config.sdk_version};
