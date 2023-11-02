@@ -24,7 +24,7 @@ protected:
 enum ErrorCode { NO_ERR = 0, ERR_TIMEOUT = 1 };
 
 struct Error {
-    int code{NO_ERR};
+    int code = NO_ERR;
     std::string msg;
 };
 
@@ -60,7 +60,7 @@ private:
     std::mutex lock{};
     std::condition_variable cond_var{};
     bool retrieved{false};
-    Result<T> result{};
+    Result<T> result{Error{ERR_TIMEOUT}};
     FutureCallback<T>* cb{};
 };
 
@@ -93,11 +93,7 @@ public:
             timeout = promise->cond_var.wait_for(guard, std::chrono::milliseconds(timeout_ms)) ==
                       std::cv_status::timeout;
         }
-        if (timeout) {
-            return Error{ERR_TIMEOUT, "Timeout!"};
-        } else {
-            return promise->result;
-        }
+        return promise->result;
     }
 
     const Result<T>& operator*() const& { return Get(); }
