@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
@@ -54,6 +55,7 @@ public:
 
 template <typename T> class Promise : NonCopyAndMove {
     friend class Future<T>;
+
 private:
     std::mutex lock{};
     std::condition_variable cond_var{};
@@ -76,10 +78,20 @@ public:
         }
     }
 
-    Result<T> &Get() {
+    Result<T>& Get() {
         std::unique_lock guard(promise->lock);
         while (!promise->retrieved) {
             promise->cond_var.wait(guard);
+        }
+        return promise->result;
+    }
+
+    Result<T>& Get(uint64_t timeout_ms) {
+        std::unique_lock guard(promise->lock);
+        bool timeout = false;
+        while (!promise->retrieved || timeout) {
+            timeout = promise->cond_var.wait_for(guard, std::chrono::milliseconds(timeout_ms)) ==
+                      std::cv_status::timeout;
         }
         return promise->result;
     }
