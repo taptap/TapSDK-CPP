@@ -93,7 +93,11 @@ public:
             timeout = promise->cond_var.wait_for(guard, std::chrono::milliseconds(timeout_ms)) ==
                       std::cv_status::timeout;
         }
-        return promise->result;
+        if (timeout) {
+            return Error{ERR_TIMEOUT, "Timeout!"};
+        } else {
+            return promise->result;
+        }
     }
 
     const Result<T>& operator*() const& { return Get(); }
