@@ -55,6 +55,7 @@ public:
     bool SerializeToBuffer(std::span<u8> data);
     bool Deserialize(std::span<u8> data);
     void Flushed();
+    bool IsFlushed();
 
     google::protobuf::RepeatedPtrField<TrackMsgContent> &GetContents();
     google::protobuf::RepeatedPtrField<TrackMsgContent> &GetParams();

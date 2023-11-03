@@ -118,6 +118,10 @@ bool TrackMessageImpl::Deserialize(std::span<u8> data_) {
 
 void TrackMessageImpl::Flushed() { flushed = true; }
 
+bool TrackMessageImpl::IsFlushed() {
+    return flushed;
+}
+
 TrackerCache::TrackerCache(const std::string& path,
                            u64 hash,
                            const std::shared_ptr<TrackerConfig>& config)
@@ -414,9 +418,12 @@ bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
         return false;
     }
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
-    tracker_impl->Flushed();
     auto config_hash = tracker->GetConfig()->Hash();
     std::scoped_lock guard(tracker_lock);
+    if (tracker_impl->IsFlushed()) {
+        return false;
+    }
+    tracker_impl->Flushed();
     auto& caches = trackers_cache[config_hash];
     bool pushed{false};
     for (auto& [index, cache] : caches) {
