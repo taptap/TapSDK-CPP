@@ -329,8 +329,12 @@ static void UploadTrackerCacheAsync(u64 hash, u32 index) {
     uploading = true;
     UploadTopicTrackers(cache).start([hash, index, cache] (auto result) {
         bool success{false};
+        std::string err_msg{};
         if (!result.hasError()) {
             success = result.value().has_value();
+            if (!success) {
+                err_msg = result.value().error().msg;
+            }
         }
         std::scoped_lock guard(tracker_lock);
         if (success) {
@@ -341,9 +345,11 @@ static void UploadTrackerCacheAsync(u64 hash, u32 index) {
                 cache->Destroy();
                 tracker_cache_ids[hash][index] = false;
             }
+            LOG_DEBUG("Tracker Msg upload success! hash: {}", hash);
         } else {
             trackers_cache[hash].emplace(index, cache);
             latest_upload_failed = cache.get();
+            LOG_ERROR("Tracker Msg upload failed! hash: {} err_msg: {}", hash, err_msg);
         }
         uploading = false;
     });
