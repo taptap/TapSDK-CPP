@@ -188,24 +188,28 @@ static std::string DiskCachePath(u64 hash, u32 index) {
 
 static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
     auto device = platform::Device::GetCurrent();
-    auto game = Game::GetCurrent();
-    auto device_info = device->GetDeviceInfo();
     msg.AddParam(ReportKey::SDK_VERSION, fmt::format("{}", config.sdk_version));
     msg.AddParam(ReportKey::SDK_VERSION_NAME, config.sdk_version_name);
     msg.AddParam(ReportKey::DEVICE_ID, device->GetDeviceID());
     msg.AddParam(ReportKey::T_LOG_ID, CreateUUID());
     msg.AddParam(ReportKey::VERSION, TAP_TRACKER_VERSION);
-    msg.AddParam(ReportKey::DEVICE_VERSION, device_info->device_version);
-    msg.AddParam(ReportKey::MODEL, device_info->model);
-    msg.AddParam(ReportKey::CPU, device_info->cpu_info);
-    msg.AddParam(ReportKey::APP_PACKAGE_NAME, game->GetPackageName());
-    msg.AddParam(ReportKey::APP_VERSION, "");
-    msg.AddParam(ReportKey::RAM, device_info->ram_size);
-    msg.AddParam(ReportKey::ROM, device_info->rom_size);
-    msg.AddParam(ReportKey::NETWORK_TYPE, device_info->network_type);
-    msg.AddParam(ReportKey::MOBILE_TYPE, device_info->mobile_type);
-    msg.AddParam(ReportKey::OS_PARAM, device_info->platform);
-    msg.AddParam(ReportKey::SYSTEM_VERSION, device_info->os_version);
+    auto device_info = device->GetDeviceInfo();
+    if (device_info) {
+        msg.AddParam(ReportKey::DEVICE_VERSION, device_info->device_version);
+        msg.AddParam(ReportKey::MODEL, device_info->model);
+        msg.AddParam(ReportKey::CPU, device_info->cpu_info);
+        msg.AddParam(ReportKey::APP_VERSION, device_info->app_version);
+        msg.AddParam(ReportKey::RAM, device_info->ram_size);
+        msg.AddParam(ReportKey::ROM, device_info->rom_size);
+        msg.AddParam(ReportKey::NETWORK_TYPE, device_info->network_type);
+        msg.AddParam(ReportKey::MOBILE_TYPE, device_info->mobile_type);
+        msg.AddParam(ReportKey::OS_PARAM, device_info->platform);
+        msg.AddParam(ReportKey::SYSTEM_VERSION, device_info->os_version);
+    }
+    auto game = Game::GetCurrent();
+    if (game) {
+        msg.AddParam(ReportKey::APP_PACKAGE_NAME, game->GetPackageName());
+    }
 }
 
 static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
