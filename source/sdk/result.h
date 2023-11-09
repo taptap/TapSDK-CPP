@@ -6,10 +6,11 @@
 #include <mutex>
 #include <string>
 #include <utility>
+#include "config.h"
 
 namespace tapsdk {
 
-class NonCopyAndMove {
+class TDS_EXPORT NonCopyAndMove {
 public:
     NonCopyAndMove(const NonCopyAndMove&) = delete;
     NonCopyAndMove(NonCopyAndMove&&) = delete;
@@ -23,12 +24,12 @@ protected:
 
 enum ErrorCode { NO_ERR = 0, ERR_TIMEOUT = 1 };
 
-struct Error {
+struct TDS_EXPORT Error {
     int code = NO_ERR;
     std::string msg;
 };
 
-template <typename T = void> class Result {
+template <typename T = void> class TDS_EXPORT Result {
 public:
     explicit Result() : error{NO_ERR} {}
 
@@ -48,7 +49,7 @@ private:
 };
 
 template <typename T> class Future;
-template <typename T> class FutureCallback {
+template <typename T> class TDS_EXPORT FutureCallback {
 public:
     virtual void Callback(const Result<T>& result){};
 };
@@ -64,7 +65,7 @@ private:
     FutureCallback<T>* cb{};
 };
 
-template <typename T> class Future {
+template <typename T> class TDS_EXPORT Future {
 public:
     Future() : promise{std::make_shared<Promise<T>>()} {}
 
