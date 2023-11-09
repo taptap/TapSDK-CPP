@@ -25,7 +25,9 @@ target_link_libraries(tds_core PRIVATE duration login tracker net ${TDS_LINK_FLA
 
 if (WIN32)
     # Tell CMake to locate the lib.exe tool.
-    find_program(MSVC_LIB_TOOL lib.exe)
+    get_filename_component(VS_BIN_DIR "${CMAKE_LINKER}" DIRECTORY)
+    message("VS_BIN_DIR: ${VS_BIN_DIR}")
+    find_program(MSVC_LIB_TOOL ${VS_BIN_DIR}/lib.exe)
 
     # If the tool was found, create the custom target.
     if(MSVC_LIB_TOOL)
