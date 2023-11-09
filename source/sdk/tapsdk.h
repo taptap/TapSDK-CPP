@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include "result.h"
-#include "config.h"
 
 namespace tapsdk {
 

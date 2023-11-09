@@ -6,7 +6,13 @@
 #include <mutex>
 #include <string>
 #include <utility>
-#include "config.h"
+
+#ifdef WIN32
+#define TDS_EXPORT __declspec(dllexport)
+#else
+#define TDS_EXPORT
+#endif
+
 
 namespace tapsdk {
 

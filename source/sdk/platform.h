@@ -6,7 +6,12 @@
 #include <cstdint>
 #include <memory>
 #include <string>
-#include "config.h"
+
+#ifdef WIN32
+#define TDS_EXPORT __declspec(dllexport)
+#else
+#define TDS_EXPORT
+#endif
 
 namespace tapsdk {
 namespace platform {

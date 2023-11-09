@@ -19,8 +19,7 @@ add_library(tds_core
         platform.cpp
         platform.h
         result.h
-        config.h
-        )
+)
 
 target_link_libraries(tds_core PRIVATE duration login tracker net ${TDS_LINK_FLAGS})
 
@@ -28,7 +27,6 @@ set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/tapsdk.h
         ${CMAKE_CURRENT_SOURCE_DIR}/platform.h
         ${CMAKE_CURRENT_SOURCE_DIR}/result.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/config.h
 )
 
 if (APPLE)
