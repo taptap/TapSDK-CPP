@@ -23,6 +23,36 @@ add_library(tds_core
 
 target_link_libraries(tds_core PRIVATE duration login tracker net ${TDS_LINK_FLAGS})
 
+if (WIN32)
+    # Tell CMake to locate the lib.exe tool.
+    find_program(MSVC_LIB_TOOL lib.exe)
+
+    # If the tool was found, create the custom target.
+    if(MSVC_LIB_TOOL)
+        add_custom_target(tds_core_combined
+                ALL
+                COMMAND ${MSVC_LIB_TOOL} /OUT:$<TARGET_FILE_DIR:tds_core>\\tds_core_combined.lib
+                $<TARGET_FILE:tds_core>
+                $<TARGET_FILE:tapsdk::base>
+                $<TARGET_FILE:fmt>
+                $<TARGET_FILE:net>
+                $<TARGET_FILE:core>
+                $<TARGET_FILE:duration>
+                $<TARGET_FILE:login>
+                $<TARGET_FILE:tracker>
+                $<TARGET_FILE:EventBus>
+                $<TARGET_FILE:ssl>
+                $<TARGET_FILE:crypto>
+                $<TARGET_FILE:sqlite3>
+                $<TARGET_FILE:libprotobuf-lite>
+                $<TARGET_FILE:lz4_static>
+                $<TARGET_FILE:bindings-impl>
+                DEPENDS tds_core net tapsdk::base core bindings-impl duration login tracker
+                WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                )
+    endif()
+endif ()
+
 set(PUBLIC_HEADER_FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/tapsdk.h
         ${CMAKE_CURRENT_SOURCE_DIR}/platform.h

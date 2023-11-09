@@ -33,6 +33,8 @@ if (NOT DEFINED BUILD_FOR_SHARED)
             $<TARGET_FILE:EventBus>
             $<TARGET_FILE:ssl>
             $<TARGET_FILE:crypto>
+            $<TARGET_FILE:lz4_static>
+            $<TARGET_FILE:libprotobuf-lite>
             $<TARGET_FILE:bindings-impl>
             ${TARGET_FILE_BINDING}
             DEPENDS tds_core net tapsdk::base core bindings-impl duration login tracker ${TARGET_DEPEND_BINDING}
