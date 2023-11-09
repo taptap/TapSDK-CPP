@@ -76,7 +76,7 @@ public:
     Future() : promise{std::make_shared<Promise<T>>()} {}
 
     void AWait(FutureCallback<T>& callback) {
-        std::unique_lock guard(promise->lock);
+        std::unique_lock<std::mutex> guard(promise->lock);
         if (promise->retrieved) {
             guard.unlock();
             callback.Callback(promise->result);
@@ -86,7 +86,7 @@ public:
     }
 
     Result<T>& Get() {
-        std::unique_lock guard(promise->lock);
+        std::unique_lock<std::mutex> guard(promise->lock);
         while (!promise->retrieved) {
             promise->cond_var.wait(guard);
         }
@@ -94,7 +94,7 @@ public:
     }
 
     Result<T>& Get(uint64_t timeout_ms) {
-        std::unique_lock guard(promise->lock);
+        std::unique_lock<std::mutex> guard(promise->lock);
         bool timeout = false;
         while (!promise->retrieved || timeout) {
             timeout = promise->cond_var.wait_for(guard, std::chrono::milliseconds(timeout_ms)) ==
@@ -109,7 +109,7 @@ public:
     Result<T>&& operator*() && { return std::move(Get()); }
 
     void Set(const Result<T>& res) const {
-        std::unique_lock guard(promise->lock);
+        std::unique_lock<std::mutex> guard(promise->lock);
         if (promise->retrieved) {
             return;
         }
