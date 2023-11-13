@@ -41,7 +41,7 @@ jobs:
           cp .\build\source\sdk\Release\tds_core_combined.lib .\release\tds_core.lib
           cp .\build\source\externals\sqlite3\Release\sqlite3.lib .\release
           cp .\build\source\externals\lz4\contrib\cmake_unofficial\Release\lz4.lib .\release
-          cp .\build\source\externals\openssl\crypto\Release\libcrypto-1_1-x64.lib .\release\crypto.lib\
+          cp .\build\source\externals\openssl\crypto\Release\libcrypto-1_1-x64.lib .\release\crypto.lib
           cp .\build\source\externals\openssl\ssl\Release\libssl-1_1-x64.lib .\release\ssl.lib
           cp .\build\source\externals\CMakeFiles\_imported.build\https-github.com-protocolbuffers-protobuf.git\Release\libprotobuf-lite.lib .\release\protobuf-lite.lib
           Compress-Archive -Path .\release -DestinationPath .\release.zip
