@@ -35,13 +35,24 @@ jobs:
           cmake ../ -G "Visual Studio 17 2022" -A "x64" -DCMAKE_BUILD_TYPE=Release -DCSHARP_BINDING="$WORKING_DIR/swig"
           cmake --build ./ --config Release -j 8
 
+      - name: pack sdks
+        run: |
+          mkdir release
+          cp .\build\source\sdk\Release\tds_core_combined.lib .\release\tds_core.lib
+          cp .\build\source\externals\sqlite3\Release\sqlite3.lib .\release
+          cp .\build\source\externals\lz4\contrib\cmake_unofficial\Release\lz4.lib .\release
+          cp .\build\source\externals\openssl\crypto\Release\libcrypto-1_1-x64.lib .\release\crypto.lib\
+          cp .\build\source\externals\openssl\ssl\Release\libssl-1_1-x64.lib .\release\ssl.lib
+          cp .\build\source\externals\CMakeFiles\_imported.build\https-github.com-protocolbuffers-protobuf.git\Release\libprotobuf-lite.lib .\release\protobuf-lite.lib
+          Compress-Archive -Path .\release -DestinationPath .\release.zip
+
       - name: Upload sdk
         uses: actions/upload-artifact@v3.1.2
         with:
           # Artifact name
-          name: tds_core.lib
+          name: tds_core.zip
           # A file, directory or wildcard pattern that describes what to upload
-          path: build/source/sdk/Release/tds_core_combined.lib
+          path: release.zip
 
       - name: Upload bindings
         uses: actions/upload-artifact@v3.1.2
