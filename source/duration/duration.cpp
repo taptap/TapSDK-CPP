@@ -103,6 +103,7 @@ void DurationStatistics::InitReportThread() {
 
             // Do report
             bool report_success;
+            u64 retry_time_ms = 3 * 1000;
             do {
                 auto now = Timestamp();
                 std::list<ReportContent> reports{};
@@ -150,6 +151,10 @@ void DurationStatistics::InitReportThread() {
                     if (err_code >= 400 && err_code < 500 && err_code != 404) {
                         persistence->Delete(events);
                         break;
+                    } else {
+                        std::this_thread::sleep_for(Ms(retry_time_ms));
+                        // max retry time 1min
+                        retry_time_ms = std::min(60 * 1000ull, 2 * retry_time_ms);
                     }
                 }
             } while (!report_success && running);
