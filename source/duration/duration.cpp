@@ -154,7 +154,7 @@ void DurationStatistics::InitReportThread() {
                     } else {
                         std::this_thread::sleep_for(Ms(retry_time_ms));
                         // max retry time 1min
-                        retry_time_ms = std::min(60 * 1000ull, 2 * retry_time_ms);
+                        retry_time_ms = std::min(u64(60 * 1000), 2 * retry_time_ms);
                     }
                 }
             } while (!report_success && running);
