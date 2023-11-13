@@ -2,6 +2,8 @@
 // Created by 甘尧 on 2023/11/14.
 //
 
+#include <unordered_map>
+#include <mutex>
 #include "base/types.h"
 #include "platform.h"
 #include "tapsdk.h"

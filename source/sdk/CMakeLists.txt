@@ -45,6 +45,11 @@ if (WIN32)
                 $<TARGET_FILE:login>
                 $<TARGET_FILE:tracker>
                 $<TARGET_FILE:EventBus>
+                $<TARGET_FILE:ssl>
+                $<TARGET_FILE:crypto>
+                $<TARGET_FILE:sqlite3>
+                $<TARGET_FILE:libprotobuf-lite>
+                $<TARGET_FILE:lz4_static>
                 $<TARGET_FILE:bindings-impl>
                 DEPENDS tds_core net tapsdk::base core bindings-impl duration login tracker
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
