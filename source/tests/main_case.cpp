@@ -5,6 +5,7 @@
 #include "externals/libqrencode/qrencode.h"
 #include "sdk/platform.h"
 #include "sdk/tapsdk.h"
+#include "sdk/tapsdk_api.h"
 
 class TestDevice : public tapsdk::platform::Device {
 public:
@@ -28,6 +29,7 @@ class TestGame : public tapsdk::Game {
 public:
     std::string GetGameID() override { return "test_game_id"; }
     std::string GetPackageName() override { return "test_game_pkg"; }
+    std::string GetVersion() override { return ""; }
 };
 
 class TestWindow : public tapsdk::platform::Window {
@@ -58,11 +60,11 @@ static void SetupEnv() {
     tapsdk::platform::Window::SetCurrent(std::make_shared<TestWindow>());
 }
 
-TEST_CASE("Test sdk-login") {
+TEST_CASE("Test sdk cpp interface") {
     SetupEnv();
     tapsdk::Config config {
             .enable_tap_login = true,
-            .enable_duration_statistics = false,
+            .enable_duration_statistics = true,
             .enable_tap_tracker = true,
             .client_id = "0RiAlMny7jiz086FaU",
     };
@@ -70,13 +72,14 @@ TEST_CASE("Test sdk-login") {
     auto tracker_config = std::make_shared<tapsdk::TrackerConfig>();
     tracker_config->topic = "tds_topic";
     tracker_config->endpoint = "openlog.xdrnd.com";
-    tracker_config->access_keyid = "uZ8Yy6cSXVOR6AMRPj";
-    tracker_config->access_key_secret = "AVhR1Bu9qfLR1cGbZMAdZ5rzJSxfoEiQaFf1T2P7";
+    tracker_config->access_keyid = "${You ID}";
+    tracker_config->access_key_secret = "${You Key}";
     tracker_config->project = "tds";
     tracker_config->log_store = "tapsdk_us";
 
     tapsdk::Init(config);
     tapsdk::TDSUser::SetCurrent(std::make_shared<TestUser>());
+    tapsdk::TDSUser::SetCurrent({});
     tapsdk::Game::SetCurrent(std::make_shared<TestGame>());
 //    auto login_result = *tapsdk::Login({});
     auto ta = tapsdk::CreateTracker(tracker_config);
@@ -85,10 +88,45 @@ TEST_CASE("Test sdk-login") {
     ta->AddContent("page_name", "游戏");
     ta->AddContent("time", "1695086167");
 
-    for (int i = 0; i < 200; ++i) {
-        tapsdk::FlushTracker(ta);
+    tapsdk::FlushTracker(ta);
+
+    while (1) {
+        std::this_thread::sleep_for(std::chrono::minutes(1));
     }
-    while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+TEST_CASE("Test sdk c interface") {
+    auto path = std::filesystem::current_path();
+    tapsdk_device device {
+            .device_id = "test_device_id",
+            .cache_dir = const_cast<char*>(path.c_str()),
+    };
+    tapsdk_config config {
+            .enable_duration_statistics = true,
+            .enable_tap_tracker = true,
+            .region = TDS_REGION_GLOBAL,
+            .client_id = "0RiAlMny7jiz086FaU",
+            .process_name = "main",
+            .device = &device
+    };
+    auto init_result = tapsdk_init(&config);
+    assert(init_result == TAPSDK_SUCCESS);
+
+    tapsdk_tracker_config tracker_config {};
+    tracker_config.topic = "tds_topic";
+    tracker_config.endpoint = "openlog.xdrnd.com";
+    tracker_config.access_keyid = "${You ID}";
+    tracker_config.access_key_secret = "${You Key}";
+    tracker_config.project = "tds";
+    tracker_config.log_store = "tapsdk_us";
+
+    tapsdk_tracker_message *message;
+    auto create_result = tapsdk_tracker_create(&tracker_config, &message);
+    assert(create_result == TAPSDK_SUCCESS);
+
+    tapsdk_tracker_flush(message);
+
+    while (1) {
+        std::this_thread::sleep_for(std::chrono::minutes(1));
     }
 }

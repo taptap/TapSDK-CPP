@@ -49,8 +49,6 @@ struct TDS_EXPORT DeviceInfo {
     std::string engine = "";
     std::string os_version = "";
     std::string android_id = "";
-    std::string app_version = "";
-    std::string app_package_name = "";
     std::string ram_size = "";
     std::string rom_size = "";
     std::string network_type = "";

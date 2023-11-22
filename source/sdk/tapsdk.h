@@ -50,6 +50,9 @@ public:
 
     // 游戏包名/Bundle ID
     virtual std::string GetPackageName() = 0;
+
+    // 游戏 version
+    virtual std::string GetVersion() = 0;
 };
 
 struct TDS_EXPORT TrackerConfig {
@@ -82,8 +85,8 @@ protected:
 };
 
 struct TDS_EXPORT Config {
-    bool enable_tap_login = false;
     bool enable_duration_statistics = false;
+    bool enable_tap_login = false;
     bool enable_tap_tracker = false;
     std::string client_id = "";
     std::string process_name = "";

@@ -34,6 +34,10 @@ bool Init(const Config& config) {
         ASSERT_MSG(!inited, "SDK already inited!");
         inited = true;
         Runtime::Get().Init();
+        if (!platform::Device::GetCurrent()) {
+            LOG_ERROR("need device!");
+            return false;
+        }
         if (sdk_config.enable_duration_statistics) {
             duration_statistics = std::make_unique<duration::DurationStatistics>();
             duration_statistics->Init(sdk_config);

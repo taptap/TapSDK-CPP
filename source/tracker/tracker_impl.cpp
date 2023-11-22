@@ -202,7 +202,6 @@ static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
         msg.AddParam(ReportKey::DEVICE_VERSION, device_info->device_version);
         msg.AddParam(ReportKey::MODEL, device_info->model);
         msg.AddParam(ReportKey::CPU, device_info->cpu_info);
-        msg.AddParam(ReportKey::APP_VERSION, device_info->app_version);
         msg.AddParam(ReportKey::RAM, device_info->ram_size);
         msg.AddParam(ReportKey::ROM, device_info->rom_size);
         msg.AddParam(ReportKey::NETWORK_TYPE, device_info->network_type);
@@ -213,6 +212,7 @@ static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
     auto game = Game::GetCurrent();
     if (game) {
         msg.AddParam(ReportKey::APP_PACKAGE_NAME, game->GetPackageName());
+        msg.AddParam(ReportKey::APP_VERSION, game->GetVersion());
     }
 }
 

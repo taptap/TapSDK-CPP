@@ -55,6 +55,8 @@ public:
 
     std::string GetPackageName() override { return game_info.identify; }
 
+    std::string GetVersion() override { return ""; }
+
 private:
     BridgeGame game_info;
 };
