@@ -192,8 +192,7 @@ static std::string DiskCachePath(u64 hash, u32 index) {
 
 static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
     auto device = platform::Device::GetCurrent();
-    msg.AddParam(ReportKey::SDK_VERSION, fmt::format("{}", config.sdk_version));
-    msg.AddParam(ReportKey::SDK_VERSION_NAME, config.sdk_version_name);
+    msg.AddParam(ReportKey::SDK_VERSION, fmt::format("{}", GetConfig().sdk_version));
     msg.AddParam(ReportKey::DEVICE_ID, device->GetDeviceID());
     msg.AddParam(ReportKey::T_LOG_ID, CreateUUID());
     msg.AddParam(ReportKey::VERSION, TAP_TRACKER_VERSION);

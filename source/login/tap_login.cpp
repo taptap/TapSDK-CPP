@@ -12,19 +12,9 @@
 namespace tapsdk::login {
 
 std::shared_ptr<net::TapHttpClient> http_client;
-std::vector<net::Pair> common_forms;
 
 Result<> Init(const Config& config) {
-    auto current_device = platform::Device::GetCurrent();
-    ASSERT_MSG(current_device, "Device = null!");
     http_client = net::CreateHttpClient("accounts.tapapis.com", true);
-    net::Json info{};
-    info["device_id"] = current_device->GetDeviceID();
-    common_forms = {{"client_id", config.client_id},
-             {"response_type", "device_code"},
-             {"version", "device_code"},
-             {"platform", "ue"},
-             {"device_id", info.dump()}};
     return Result{};
 }
 
@@ -33,7 +23,22 @@ static u64 TimeSecNow() {
 }
 
 static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std::vector<std::string>& perm) {
-    auto qrcode_result = co_await http_client->PostAsync<QrCodeResponse>("oauth2/v1/device/code", {}, {}, common_forms);
+    net::Json info{};
+    auto current_device = platform::Device::GetCurrent();
+    if (!current_device) {
+        co_return net::MakeError(-1, -1, "No Device Info!");
+    }
+    auto current_game = Game::GetCurrent();
+    if (!current_game) {
+        co_return net::MakeError(-1, -1, "No Game Info!");
+    }
+    info["device_id"] = current_device->GetDeviceID();
+    std::vector<net::Pair> forms = {{"client_id", current_game->GetGameID()},
+                    {"response_type", "device_code"},
+                    {"version", "device_code"},
+                    {"platform", "ue"},
+                    {"device_id", info.dump()}};
+    auto qrcode_result = co_await http_client->PostAsync<QrCodeResponse>("oauth2/v1/device/code", {}, {}, forms);
     if (!qrcode_result.has_value()) {
         co_return net::MakeError(qrcode_result.error());
     }
@@ -48,7 +53,7 @@ static net::ResultAsync<std::shared_ptr<InnerAccessToken>> LoginAsync(const std:
     auto expires_in = qrcode_result->get()->expires_in;
     auto interval = qrcode_result->get()->interval;
     while (TimeSecNow() - check_start_time < expires_in) {
-        auto token_result = co_await http_client->PostAsync<InnerAccessToken>("oauth2/v1/token", {}, {}, common_forms);
+        auto token_result = co_await http_client->PostAsync<InnerAccessToken>("oauth2/v1/token", {}, {}, forms);
         if (token_result.has_value()) {
             co_return token_result;
         }

@@ -32,7 +32,6 @@ std::shared_ptr<TrackerConfig> CreateConfig(tapsdk_tracker_config& config) {
     result->access_key_secret = ToString(config.access_key_secret);
     result->project = ToString(config.project);
     result->log_store = ToString(config.log_store);
-    result->sdk_version_name = ToString(config.sdk_version_name);
     config.hash = result->Hash();
     return result;
 }
@@ -142,7 +141,6 @@ tapsdk_result tapsdk_init(tapsdk_config* config) {
             .enable_duration_statistics = config->enable_duration_statistics,
             .enable_tap_login = config->enable_tap_login,
             .enable_tap_tracker = config->enable_tap_tracker,
-            .client_id = ToString(config->client_id),
             .process_name = ToString(config->process_name),
             .region = static_cast<Region>(config->region),
             .sdk_version = ToString(config->sdk_version),

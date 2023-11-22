@@ -60,7 +60,6 @@ struct TDS_API tapsdk_config {
     bool enable_duration_statistics = false;
     bool enable_tap_tracker = false;
     int region = TDS_REGION_CN;
-    const char* client_id = NULL;
     const char* process_name = NULL;
     const char* sdk_version = NULL;
     uint32_t tracker_group_size = 0;
