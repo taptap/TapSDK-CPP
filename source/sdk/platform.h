@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <atomic>
 
 #ifdef WIN32
 #define TDS_EXPORT __declspec(dllexport)
