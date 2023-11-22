@@ -62,8 +62,6 @@ struct TDS_EXPORT TrackerConfig {
     std::string access_key_secret;
     std::string project;
     std::string log_store;
-    int sdk_version;
-    std::string sdk_version_name;
     uint64_t hash = 0;
 
     uint64_t Hash();
@@ -88,12 +86,13 @@ struct TDS_EXPORT Config {
     bool enable_duration_statistics = false;
     bool enable_tap_login = false;
     bool enable_tap_tracker = false;
-    std::string client_id = "";
     std::string process_name = "";
     Region region = Region::CN;
     std::string sdk_version = "";
     uint32_t tracker_group_size = 0;
 };
+
+const Config& GetConfig();
 
 // init
 TDS_EXPORT const char* SDKVersionName();

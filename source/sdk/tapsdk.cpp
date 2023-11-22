@@ -28,6 +28,10 @@ static std::atomic<bool> inited{false};
 
 const char* SDKVersionName() { return TDS_VERSION; }
 
+const Config& GetConfig() {
+    return sdk_config;
+}
+
 bool Init(const Config& config) {
     sdk_config = config;
     try {
@@ -53,6 +57,8 @@ bool Init(const Config& config) {
         return false;
     }
 }
+
+
 
 void TDSUser::SetCurrent(const std::shared_ptr<TDSUser>& user) {
     std::scoped_lock guard(user_lock);

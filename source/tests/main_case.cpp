@@ -27,7 +27,7 @@ public:
 
 class TestGame : public tapsdk::Game {
 public:
-    std::string GetGameID() override { return "test_game_id"; }
+    std::string GetGameID() override { return "0RiAlMny7jiz086FaU"; }
     std::string GetPackageName() override { return "test_game_pkg"; }
     std::string GetVersion() override { return ""; }
 };
@@ -66,7 +66,6 @@ TEST_CASE("Test sdk cpp interface") {
             .enable_tap_login = true,
             .enable_duration_statistics = true,
             .enable_tap_tracker = true,
-            .client_id = "0RiAlMny7jiz086FaU",
     };
 
     auto tracker_config = std::make_shared<tapsdk::TrackerConfig>();
@@ -105,12 +104,16 @@ TEST_CASE("Test sdk c interface") {
             .enable_duration_statistics = true,
             .enable_tap_tracker = true,
             .region = TDS_REGION_GLOBAL,
-            .client_id = "0RiAlMny7jiz086FaU",
             .process_name = "main",
             .device = &device
     };
-    auto init_result = tapsdk_init(&config);
-    assert(init_result == TAPSDK_SUCCESS);
+    assert(tapsdk_init(&config) == TAPSDK_SUCCESS);
+
+    tapsdk_game game {
+            .client_id = "0RiAlMny7jiz086FaU",
+            .identify = "com.test.game"
+    };
+    assert(tapsdk_game_set(&game) == TAPSDK_SUCCESS);
 
     tapsdk_tracker_config tracker_config {};
     tracker_config.topic = "tds_topic";
@@ -121,8 +124,7 @@ TEST_CASE("Test sdk c interface") {
     tracker_config.log_store = "tapsdk_us";
 
     tapsdk_tracker_message *message;
-    auto create_result = tapsdk_tracker_create(&tracker_config, &message);
-    assert(create_result == TAPSDK_SUCCESS);
+    assert(tapsdk_tracker_create(&tracker_config, &message) == TAPSDK_SUCCESS);
 
     tapsdk_tracker_flush(message);
 
