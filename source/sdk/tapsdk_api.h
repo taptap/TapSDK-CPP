@@ -89,7 +89,9 @@ struct TDS_API tapsdk_game {
     const char* app_version = NULL;
 };
 
-struct TDS_API tapsdk_tracker_message {};
+struct TDS_API tapsdk_tracker_message {
+    int pad;
+};
 
 TDS_API tapsdk_result tapsdk_init(tapsdk_config* config);
 TDS_API tapsdk_result tapsdk_game_set(tapsdk_game* game);
