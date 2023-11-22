@@ -42,17 +42,11 @@ jobs:
           chmod +x build-tvos-sim.sh
           ./build-tvos-sim.sh
 
-      - name: Build mac-a64
+      - name: Build macos
         run: |
           cd scripts
-          chmod +x build-mac-arm64.sh
-          ./build-mac-arm64.sh
-
-      - name: Build mac-x64
-        run: |
-          cd scripts
-          chmod +x build-mac-x64.sh
-          ./build-mac-x64.sh
+          chmod +x build-macos.sh
+          ./build-macos.sh
 
       - name: pack sdks
         run: |
@@ -61,16 +55,12 @@ jobs:
           mkdir builds/appletvsimulator
           mkdir builds/iphoneos
           mkdir builds/iphonesimulator
-          mkdir builds/macos-arm64
-          mkdir builds/macos-x86_64
+          mkdir builds/macos
           cp -r ios/build-tvos/source/sdk/tds_core.framework  builds/appletvos/tds_core.framework
           cp -r ios/build-tvos-sim/source/sdk/tds_core.framework  builds/appletvsimulator/tds_core.framework
           cp -r ios/build-ios/source/sdk/tds_core.framework  builds/iphoneos/tds_core.framework
           cp -r ios/build-ios-sim/source/sdk/tds_core.framework  builds/iphonesimulator/tds_core.framework
-          cp -r build-a64/source/sdk/tds_core.framework  builds/macos-arm64/tds_core.framework
-          cp -r build-x64/source/sdk/tds_core.framework  builds/macos-x86_64/tds_core.framework
-          cp build-a64/source/bindings/csharp/libbindings-csharp.dylib  builds/macos-arm64/libbindings-csharp.dylib
-          cp build-x64/source/bindings/csharp/libbindings-csharp.dylib  builds/macos-x86_64/libbindings-csharp.dylib
+          cp -r build-macos/source/sdk/tds_core.framework  builds/macos/tds_core.framework
           zip -r builds.zip builds
 
       - name: Upload sdks

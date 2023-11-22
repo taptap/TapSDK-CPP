@@ -118,6 +118,10 @@ bool TrackMessageImpl::Deserialize(std::span<u8> data_) {
 
 void TrackMessageImpl::Flushed() { flushed = true; }
 
+bool TrackMessageImpl::IsFlushed() {
+    return flushed;
+}
+
 TrackerCache::TrackerCache(const std::string& path,
                            u64 hash,
                            const std::shared_ptr<TrackerConfig>& config)
@@ -188,24 +192,28 @@ static std::string DiskCachePath(u64 hash, u32 index) {
 
 static void FillCommons(TrackMessageImpl& msg, TrackerConfig& config) {
     auto device = platform::Device::GetCurrent();
-    auto game = Game::GetCurrent();
-    auto device_info = device->GetDeviceInfo();
     msg.AddParam(ReportKey::SDK_VERSION, fmt::format("{}", config.sdk_version));
     msg.AddParam(ReportKey::SDK_VERSION_NAME, config.sdk_version_name);
     msg.AddParam(ReportKey::DEVICE_ID, device->GetDeviceID());
     msg.AddParam(ReportKey::T_LOG_ID, CreateUUID());
     msg.AddParam(ReportKey::VERSION, TAP_TRACKER_VERSION);
-    msg.AddParam(ReportKey::DEVICE_VERSION, device_info->device_version);
-    msg.AddParam(ReportKey::MODEL, device_info->model);
-    msg.AddParam(ReportKey::CPU, device_info->cpu_info);
-    msg.AddParam(ReportKey::APP_PACKAGE_NAME, game->GetPackageName());
-    msg.AddParam(ReportKey::APP_VERSION, "");
-    msg.AddParam(ReportKey::RAM, device_info->ram_size);
-    msg.AddParam(ReportKey::ROM, device_info->rom_size);
-    msg.AddParam(ReportKey::NETWORK_TYPE, device_info->network_type);
-    msg.AddParam(ReportKey::MOBILE_TYPE, device_info->mobile_type);
-    msg.AddParam(ReportKey::OS_PARAM, device_info->platform);
-    msg.AddParam(ReportKey::SYSTEM_VERSION, device_info->os_version);
+    auto device_info = device->GetDeviceInfo();
+    if (device_info) {
+        msg.AddParam(ReportKey::DEVICE_VERSION, device_info->device_version);
+        msg.AddParam(ReportKey::MODEL, device_info->model);
+        msg.AddParam(ReportKey::CPU, device_info->cpu_info);
+        msg.AddParam(ReportKey::RAM, device_info->ram_size);
+        msg.AddParam(ReportKey::ROM, device_info->rom_size);
+        msg.AddParam(ReportKey::NETWORK_TYPE, device_info->network_type);
+        msg.AddParam(ReportKey::MOBILE_TYPE, device_info->mobile_type);
+        msg.AddParam(ReportKey::OS_PARAM, device_info->platform);
+        msg.AddParam(ReportKey::SYSTEM_VERSION, device_info->os_version);
+    }
+    auto game = Game::GetCurrent();
+    if (game) {
+        msg.AddParam(ReportKey::APP_PACKAGE_NAME, game->GetPackageName());
+        msg.AddParam(ReportKey::APP_VERSION, game->GetVersion());
+    }
 }
 
 static net::ResultAsync<std::shared_ptr<UploadResult>> UploadTopicTrackers(
@@ -321,8 +329,12 @@ static void UploadTrackerCacheAsync(u64 hash, u32 index) {
     uploading = true;
     UploadTopicTrackers(cache).start([hash, index, cache] (auto result) {
         bool success{false};
+        std::string err_msg{};
         if (!result.hasError()) {
             success = result.value().has_value();
+            if (!success) {
+                err_msg = result.value().error().msg;
+            }
         }
         std::scoped_lock guard(tracker_lock);
         if (success) {
@@ -333,9 +345,11 @@ static void UploadTrackerCacheAsync(u64 hash, u32 index) {
                 cache->Destroy();
                 tracker_cache_ids[hash][index] = false;
             }
+            LOG_DEBUG("Tracker Msg upload success! hash: {}", hash);
         } else {
             trackers_cache[hash].emplace(index, cache);
             latest_upload_failed = cache.get();
+            LOG_ERROR("Tracker Msg upload failed! hash: {} err_msg: {}", hash, err_msg);
         }
         uploading = false;
     });
@@ -410,9 +424,12 @@ bool FlushTracker(const std::shared_ptr<TrackMessage>& tracker) {
         return false;
     }
     auto tracker_impl = std::dynamic_pointer_cast<TrackMessageImpl>(tracker);
-    tracker_impl->Flushed();
     auto config_hash = tracker->GetConfig()->Hash();
     std::scoped_lock guard(tracker_lock);
+    if (tracker_impl->IsFlushed()) {
+        return false;
+    }
+    tracker_impl->Flushed();
     auto& caches = trackers_cache[config_hash];
     bool pushed{false};
     for (auto& [index, cache] : caches) {

@@ -18,5 +18,6 @@ using namespace tapsdk;
 %include <enums.swg>
 %rename (toDString) toString;
 #endif
+%shared_ptr(tapsdk::platform::DeviceInfo);
 // 生成 cpp 接口中的类型
 %include "bindings/bindings.h"

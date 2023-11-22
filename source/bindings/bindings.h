@@ -5,6 +5,7 @@
 #pragma once
 
 #include "sdk/tapsdk.h"
+#include "sdk/platform.h"
 
 namespace tapsdk::bindings {
 
@@ -12,13 +13,21 @@ namespace tapsdk::bindings {
 #define DEV_TYPE_SANDBOX 1
 #define DEV_TYPE_CLOUD 2
 
+#define REGION_CN 0
+#define REGION_GLOBAL 1
+#define REGION_RND 2
+
 struct BridgeConfig {
     bool enable_duration_statistics{true};
-    Region region{Region::CN};
+    int region{REGION_CN};
     std::string device_id{};
     std::string cache_dir{};
     std::string ca_dir{};
     int device_type{DEV_TYPE_LOCAL};
+    std::string model{};
+    std::string platform{};
+    std::string engine{};
+    std::string sdk_version{};
 };
 
 struct BridgeUser {

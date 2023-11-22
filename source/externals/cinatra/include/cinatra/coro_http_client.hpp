@@ -803,6 +803,8 @@ class coro_http_client {
   void reset() {
     if (!has_closed())
       close_socket(*socket_);
+    req_headers_.clear();
+    form_data_.clear();
     socket_->has_closed_ = true;
     socket_->impl_ = asio::ip::tcp::socket{executor_wrapper_.context()};
     if (!socket_->impl_.is_open()) {
@@ -1188,7 +1190,8 @@ class coro_http_client {
     if (should_add && req_headers_.find("Content-Length") == req_headers_.end()) {
         auto len_str = fmt::format("{}", content_len);
         req_str.append("Content-Length: ")
-          .append(len_str);
+          .append(len_str)
+          .append("\r\n");
     }
 
     req_str.append("\r\n");

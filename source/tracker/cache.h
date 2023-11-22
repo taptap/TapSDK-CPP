@@ -58,6 +58,8 @@ private:
 
     void SaveConfig();
 
+    bool CheckValid();
+
     void Reset();
 
     u64 hash;

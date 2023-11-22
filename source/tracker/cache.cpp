@@ -50,20 +50,16 @@ void DiskCache::Init() {
         *cache_header = file->Read<CacheHeader>();
     }
 
-    if (should_init || cache_header->magic != cache_magic || cache_header->config_hash != hash) {
+    if (should_init || !CheckValid()) {
         Reset();
     } else if (!config) {
         LoadConfig();
     }
 }
 
-std::shared_ptr<TrackerConfig> DiskCache::GetConfig() {
-    return config;
-}
+std::shared_ptr<TrackerConfig> DiskCache::GetConfig() { return config; }
 
-u32 DiskCache::GetCount() const {
-    return cache_header->record_count;
-}
+u32 DiskCache::GetCount() const { return cache_header->record_count; }
 
 bool DiskCache::Push(TrackMessageImpl& cache) {
     auto cache_size = cache.GetSerializeSize();
@@ -92,11 +88,10 @@ bool DiskCache::Push(TrackMessageImpl& cache) {
         }
     }
     auto write_offset = sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size;
-    RecordHeader header{
-            .magic = record_magic,
-            .hash = 0,
-            .length = static_cast<u32>(cache_size),
-            .time = cache.GetCreateTime()};
+    RecordHeader header{.magic = record_magic,
+                        .hash = 0,
+                        .length = static_cast<u32>(cache_size),
+                        .time = cache.GetCreateTime()};
     if (IsMapped()) {
         auto memory = reinterpret_cast<u8*>(cache_header) + write_offset;
         std::span<u8> content{memory + sizeof(header), cache_size};
@@ -132,24 +127,28 @@ bool DiskCache::Push(TrackMessageImpl& cache) {
 std::list<TrackMessageImpl> DiskCache::Load() {
     std::lock_guard guard(lock);
     std::list<TrackMessageImpl> result{};
-    if (sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size > file->Size()) {
+    if (sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size >
+        file->Size()) {
         return result;
     }
     std::vector<u8> buffer;
-    u8 *memory_start;
+    u8* memory_start;
     if (IsMapped()) {
-        memory_start = reinterpret_cast<u8*>(cache_header) + sizeof(CacheHeader) + cache_header->config_size;
+        memory_start = reinterpret_cast<u8*>(cache_header) + sizeof(CacheHeader) +
+                       cache_header->config_size;
     } else {
         buffer.resize(cache_header->record_size);
         memory_start = buffer.data();
-        file->Read(memory_start, sizeof(CacheHeader) + cache_header->config_size, cache_header->record_size);
+        file->Read(memory_start,
+                   sizeof(CacheHeader) + cache_header->config_size,
+                   cache_header->record_size);
     }
     u32 read_size{0};
     u32 cur_offset{0};
     for (u32 i = 0; i < cache_header->record_count && read_size < cache_header->record_size; ++i) {
         auto memory = memory_start + cur_offset;
         auto record_header = reinterpret_cast<RecordHeader*>(memory);
-        auto record_memory = reinterpret_cast<char *>(memory + sizeof(RecordHeader));
+        auto record_memory = reinterpret_cast<char*>(memory + sizeof(RecordHeader));
         if (cur_offset + sizeof(RecordHeader) + record_header->length > cache_header->record_size) {
             return result;
         }
@@ -162,7 +161,7 @@ std::list<TrackMessageImpl> DiskCache::Load() {
             continue;
         }
         std::span<u8> data{reinterpret_cast<u8*>(record_memory), record_header->length};
-        auto &ref = result.emplace_back(config);
+        auto& ref = result.emplace_back(config);
         if (!ref.Deserialize(data)) {
             result.erase(std::prev(result.end()));
         }
@@ -172,8 +171,20 @@ std::list<TrackMessageImpl> DiskCache::Load() {
 
 void DiskCache::Clear() { Reset(); }
 
-bool DiskCache::Destroy() {
-    return file->Close() && File::Delete(path);
+bool DiskCache::Destroy() { return file->Close() && File::Delete(path); }
+
+bool DiskCache::CheckValid() {
+    if (cache_header->magic != cache_magic || cache_header->config_hash != hash) {
+        return false;
+    }
+    if (cache_header->ver_code != cache_version_code) {
+        return false;
+    }
+    if (sizeof(CacheHeader) + cache_header->config_size + cache_header->record_size >
+        file->Size()) {
+        return false;
+    }
+    return true;
 }
 
 void DiskCache::Reset() {
