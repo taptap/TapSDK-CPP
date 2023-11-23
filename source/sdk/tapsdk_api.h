@@ -55,7 +55,7 @@ struct TDS_API tapsdk_device {
     tapsdk_device_info* info = NULL;
 };
 
-struct tapsdk_config {
+struct TDS_API tapsdk_config {
     bool enable_tap_login = false;
     bool enable_duration_statistics = false;
     bool enable_tap_tracker = false;

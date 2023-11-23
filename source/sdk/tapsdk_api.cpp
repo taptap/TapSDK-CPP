@@ -222,7 +222,7 @@ tapsdk_result tapsdk_tracker_create(tapsdk_tracker_config* config,
     }
 }
 
-TDS_API tapsdk_result tapsdk_tracker_msg_add_param(tapsdk_tracker_message* message,
+tapsdk_result tapsdk_tracker_msg_add_param(tapsdk_tracker_message* message,
                                                    const char* key,
                                                    const char* value) {
     R_UNLESS(sdk_inited, TAPSDK_NO_INIT)
@@ -235,7 +235,7 @@ TDS_API tapsdk_result tapsdk_tracker_msg_add_param(tapsdk_tracker_message* messa
     return TAPSDK_SUCCESS;
 }
 
-TDS_API tapsdk_result tapsdk_tracker_msg_add_content(tapsdk_tracker_message* message,
+tapsdk_result tapsdk_tracker_msg_add_content(tapsdk_tracker_message* message,
                                                      const char* key,
                                                      const char* value) {
     R_UNLESS(sdk_inited, TAPSDK_NO_INIT)
