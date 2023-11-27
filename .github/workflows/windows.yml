@@ -8,14 +8,9 @@ on:
   release:
     types: [created]
 
-permissions:
-  contents: read  #  to fetch code (actions/checkout)
-
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
