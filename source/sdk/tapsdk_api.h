@@ -73,8 +73,6 @@ struct TDS_API tapsdk_tracker_config {
     const char* access_key_secret = NULL;
     const char* project = NULL;
     const char* log_store = NULL;
-    const char* sdk_version = NULL;
-    const char* sdk_version_name = NULL;
     uint64_t hash = 0;
 };
 

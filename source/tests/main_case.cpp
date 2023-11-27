@@ -66,6 +66,7 @@ TEST_CASE("Test sdk cpp interface") {
             .enable_tap_login = true,
             .enable_duration_statistics = true,
             .enable_tap_tracker = true,
+            .process_name = "main_process"
     };
 
     auto tracker_config = std::make_shared<tapsdk::TrackerConfig>();
@@ -115,6 +116,15 @@ TEST_CASE("Test sdk c interface") {
     };
     assert(tapsdk_game_set(&game) == TAPSDK_SUCCESS);
 
+    tapsdk_user user {
+            .user_id = "{\n"
+                    "    \"tds_id\":\"xxxx\",\n"
+                    "    \"open_id\":\"xxxx\"\n"
+                    "}",
+            .contain_tap_info = false
+    };
+    assert(tapsdk_user_set(&user) == TAPSDK_SUCCESS);
+
     tapsdk_tracker_config tracker_config {};
     tracker_config.topic = "tds_topic";
     tracker_config.endpoint = "openlog.xdrnd.com";
@@ -126,7 +136,10 @@ TEST_CASE("Test sdk c interface") {
     tapsdk_tracker_message *message;
     assert(tapsdk_tracker_create(&tracker_config, &message) == TAPSDK_SUCCESS);
 
-    tapsdk_tracker_flush(message);
+    assert(tapsdk_tracker_msg_add_param(message, "test_key", "test_value") == TAPSDK_SUCCESS);
+    assert(tapsdk_tracker_msg_add_content(message, "test_key", "test_value") == TAPSDK_SUCCESS);
+
+    assert(tapsdk_tracker_flush(message) == TAPSDK_SUCCESS);
 
     while (1) {
         std::this_thread::sleep_for(std::chrono::minutes(1));
