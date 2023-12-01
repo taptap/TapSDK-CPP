@@ -108,7 +108,7 @@ void CoroHttpClient::CommonParam(const char* key, const char* value) {
 }
 
 void CoroHttpClient::RequestAsync(HttpType type,
-                                  const WebPath& path,
+                                  WebPath path,
                                   Headers headers,
                                   Params params,
                                   OnReturn success,
@@ -148,7 +148,7 @@ void CoroHttpClient::RequestAsync(HttpType type,
 }
 
 ResultAsync<Json> CoroHttpClient::RequestAsync(HttpType type,
-                                               const WebPath& path,
+                                               WebPath path,
                                                Headers headers,
                                                Params params,
                                                const Json& content) {

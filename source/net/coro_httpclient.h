@@ -19,14 +19,14 @@ public:
     void CommonParam(const char* key, const char* value) override;
 
     void RequestAsync(HttpType type,
-                      const WebPath& path,
+                      WebPath path,
                       Headers headers,
                       Params params,
                       OnReturn success,
                       OnFailed failed) override;
 
     ResultAsync<Json> RequestAsync(HttpType type,
-                                   const WebPath& path,
+                                   WebPath path,
                                    Headers headers,
                                    Params params,
                                    const Json& content = {}) override;
