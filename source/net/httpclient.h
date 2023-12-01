@@ -108,20 +108,20 @@ public:
     virtual void CommonParam(std::string_view key, std::string_view value) = 0;
 
     virtual void RequestAsync(HttpType type,
-                              const WebPath& path,
+                              WebPath path,
                               Headers headers,
                               Params params,
                               OnReturn success,
                               OnFailed failed) = 0;
 
     virtual ResultAsync<Json> RequestAsync(HttpType type,
-                                           const WebPath& path,
+                                           WebPath path,
                                            Headers headers,
                                            Params params,
                                            Content content = {},
                                            ContentType content_type = {}) = 0;
 
-    template <JsonResult R> void PostAsync(const WebPath& path,
+    template <JsonResult R> void PostAsync(WebPath path,
                                            Headers headers,
                                            Params params,
                                            OnSuccess<R> success,
@@ -135,7 +135,7 @@ public:
                 failed);
     }
 
-    template <JsonResult R> void GetAsync(const WebPath& path,
+    template <JsonResult R> void GetAsync(WebPath path,
                                           Headers headers,
                                           Params params,
                                           OnSuccess<R> success,
@@ -150,12 +150,12 @@ public:
     }
 
     template <JsonResult R>
-    ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path, Headers headers, Params params, Content content = {}, ContentType type = ContentType::NONE) {
+    ResultAsync<std::shared_ptr<R>> PostAsync(WebPath path, Headers headers, Params params, Content content = {}, ContentType type = ContentType::NONE) {
         auto res = co_await RequestAsync(POST, path, headers, params, content, type);
         co_return MakeResult<R>(res);
     }
 
-    template <JsonResult R> ResultAsync<std::shared_ptr<R>> PostAsync(const WebPath& path,
+    template <JsonResult R> ResultAsync<std::shared_ptr<R>> PostAsync(WebPath path,
                                                                       Headers headers,
                                                                       Params params,
                                                                       Forms forms) {
@@ -165,7 +165,7 @@ public:
     }
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
-            const WebPath& path, Headers headers, Params params, P& content) {
+            WebPath path, Headers headers, Params params, P& content) {
         Json json_content;
         try {
             json_content = content.ToJson();
@@ -178,7 +178,7 @@ public:
     }
 
     template <JsonResult R, JsonParam P> ResultAsync<std::shared_ptr<R>> PostAsync(
-            const WebPath& path, Headers headers, Params params, std::list<P>& content) {
+            WebPath path, Headers headers, Params params, std::list<P>& content) {
         net::Json json_content{};
         for (P& p : content) {
             try {
@@ -193,12 +193,12 @@ public:
     }
 
     template <JsonResult T>
-    ResultAsync<std::shared_ptr<T>> GetAsync(const WebPath& path, Headers headers, Params params) {
+    ResultAsync<std::shared_ptr<T>> GetAsync(WebPath path, Headers headers, Params params) {
         auto res = co_await RequestAsync(GET, path, headers, params);
         co_return MakeResult<T>(res);
     }
 
-    template <JsonResult T> ResultAsync<std::shared_ptr<T>> GetAsync(const WebPath& path,
+    template <JsonResult T> ResultAsync<std::shared_ptr<T>> GetAsync(WebPath path,
                                                                      Headers headers,
                                                                      Params params,
                                                                      Forms forms) {
@@ -208,11 +208,11 @@ public:
     }
 
     template <JsonResult T>
-    Result<std::shared_ptr<T>> GetSync(const WebPath& path, Headers headers, Params params) {
+    Result<std::shared_ptr<T>> GetSync(WebPath path, Headers headers, Params params) {
         return SyncAwait(GetAsync<T>(path, headers, params));
     }
 
-    template <JsonResult T> Result<std::shared_ptr<T>> GetSync(const WebPath& path,
+    template <JsonResult T> Result<std::shared_ptr<T>> GetSync(WebPath path,
                                                                Headers headers,
                                                                Params params,
                                                                Forms forms) {
@@ -220,18 +220,18 @@ public:
     }
 
     template <JsonResult T>
-    Result<std::shared_ptr<T>> PostSync(const WebPath& path, Headers headers, Params params) {
+    Result<std::shared_ptr<T>> PostSync(WebPath path, Headers headers, Params params) {
         return SyncAwait(PostAsync<T>(path, headers, params));
     }
 
-    template <JsonResult T> Result<std::shared_ptr<T>> PostSync(const WebPath& path,
+    template <JsonResult T> Result<std::shared_ptr<T>> PostSync(WebPath path,
                                                                 Headers headers,
                                                                 Params params,
                                                                 Forms forms) {
         return SyncAwait(PostAsync<T>(path, headers, params, forms));
     }
 
-    template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(const WebPath& path,
+    template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(WebPath path,
                                                                              Headers headers,
                                                                              Params params,
                                                                              P& content) {
@@ -239,7 +239,7 @@ public:
     }
 
     template <JsonResult R, JsonParam P> Result<std::shared_ptr<R>> PostSync(
-            const WebPath& path, Headers headers, Params params, std::list<P>& content) {
+            WebPath path, Headers headers, Params params, std::list<P>& content) {
         return SyncAwait(PostAsync<R>(path, headers, params, content));
     }
 
