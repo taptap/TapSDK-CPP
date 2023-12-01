@@ -19,14 +19,14 @@ public:
     void CommonParam(std::string_view key, std::string_view value) override;
 
     void RequestAsync(HttpType type,
-                      const WebPath& path,
+                      WebPath path,
                       Headers headers,
                       Params params,
                       OnReturn success,
                       OnFailed failed) override;
 
     ResultAsync<Json> RequestAsync(HttpType type,
-                                   const WebPath& path,
+                                   WebPath path,
                                    Headers headers,
                                    Params params,
                                    Content content = {},
