@@ -11,6 +11,7 @@ import com.taptap.tapsdk.bindings.java.Config;
 import com.taptap.tapsdk.bindings.java.Game;
 import com.taptap.tapsdk.bindings.java.Window;
 import com.taptap.tapsdk.bindings.java.Device;
+import com.taptap.tapsdk.bindings.java.DeviceInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,7 +35,12 @@ public class TapSDK {
             }
             @Override
             public String GetCacheDir() {
-                File dir = new File(application.getDataDir(), "tapsdk");
+                File dir = null;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    dir = new File(application.getDataDir(), "tapsdk");
+                } else {
+                    dir = new File(application.getFilesDir(), "tapsdk");
+                }
                 if (!dir.exists()) {
                     dir.mkdirs();
                 }
@@ -43,6 +49,11 @@ public class TapSDK {
             @Override
             public String GetCaCertDir() {
                 return "";
+            }
+
+            @Override
+            public DeviceInfo GetDeviceInfo() {
+                return new DeviceInfo();
             }
         };
         Device.SetCurrent(device);
