@@ -76,8 +76,8 @@ public:
     bool no_tap_enable = true;
     u32 tap_frequency = 150;
     u32 no_tap_frequency = 300;
-    u64 available_start_ts;
-    u64 server_ts;
+    u64 available_start_ts = 0;
+    u64 server_ts = 0;
 };
 
 class ReportContent {

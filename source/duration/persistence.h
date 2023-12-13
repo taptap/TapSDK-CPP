@@ -40,7 +40,8 @@ inline auto InitDB(const fs::path& path) {
                                             make_column("enable", &ReportConfig::enable),
                                             make_column("no_tap_enable", &ReportConfig::no_tap_enable),
                                             make_column("tap_frequency", &ReportConfig::tap_frequency),
-                                            make_column("no_tap_frequency", &ReportConfig::no_tap_frequency));
+                                            make_column("no_tap_frequency", &ReportConfig::no_tap_frequency),
+                                            make_column("available_start_ts", &ReportConfig::available_start_ts));
     return make_storage(path.string(), event_table, game_session_table, config_table);
 }
 
