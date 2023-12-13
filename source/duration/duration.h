@@ -48,6 +48,8 @@ private:
 
     void RefreshConfig(ReportConfig& config, bool net);
 
+    bool EventExpired(DurEvent &event);
+
     u64 Timestamp();
 
     void Stop();

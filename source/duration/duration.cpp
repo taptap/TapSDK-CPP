@@ -11,7 +11,7 @@
 
 namespace tapsdk::duration {
 
-void DurationStatistics::Init(const Config &config) {
+void DurationStatistics::Init(const Config& config) {
     auto cur_device = platform::Device::GetCurrent();
     ASSERT_MSG(cur_device, "Please set current device first!");
     device_id = cur_device->GetDeviceID();
@@ -87,7 +87,14 @@ void DurationStatistics::InitHistory() {
     // Old report
     auto pending_events = persistence->GetEvents();
     if (!pending_events.empty()) {
-        report_queue.Put(pending_events);
+        std::vector<DurEvent> events{};
+        events.reserve(pending_events.size());
+        for (auto& dur : pending_events) {
+            if (!EventExpired(dur)) {
+                events.push_back(dur);
+            }
+        }
+        report_queue.Put(events);
     }
 }
 
@@ -103,7 +110,7 @@ void DurationStatistics::InitReportThread() {
 
             // Do report
             bool report_success;
-            u64 retry_time_ms = 3 * 1000;
+            u64 retry_time_ms = 10 * 1000;
             do {
                 auto now = Timestamp();
                 std::list<ReportContent> reports{};
@@ -130,8 +137,8 @@ void DurationStatistics::InitReportThread() {
                 if (reports.empty()) {
                     continue;
                 }
-                auto report_result =
-                        http_client->PostSync<ReportResult>("report/v1/statistics", {}, {}, reports);
+                auto report_result = http_client->PostSync<ReportResult>(
+                        "report/v1/statistics", {}, {}, reports);
                 report_success = report_result.has_value();
                 if (report_success) {
                     persistence->Delete(events);
@@ -153,8 +160,8 @@ void DurationStatistics::InitReportThread() {
                         break;
                     } else {
                         std::this_thread::sleep_for(Ms(retry_time_ms));
-                        // max retry time 1min
-                        retry_time_ms = std::min(u64(60 * 1000), 2 * retry_time_ms);
+                        // max retry time 3min
+                        retry_time_ms = std::min(u64(3 * 60 * 1000), 2 * retry_time_ms);
                     }
                 }
             } while (!report_success && running);
@@ -338,6 +345,12 @@ void DurationStatistics::RefreshConfig(ReportConfig& config, bool net) {
         }
         persistence->UpdateConfig(report_config);
     }
+}
+
+bool DurationStatistics::EventExpired(DurEvent& event) {
+    auto available_start_ts = report_config.available_start_ts ? report_config.available_start_ts
+                                                               : (Timestamp() - 3 * 24 * 60 * 60);
+    return event.timestamp < available_start_ts;
 }
 
 u64 DurationStatistics::Timestamp() { return Runtime::Get().Timer().OnlineTimestamp().count(); }
