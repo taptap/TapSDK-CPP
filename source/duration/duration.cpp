@@ -348,9 +348,13 @@ void DurationStatistics::RefreshConfig(ReportConfig& config, bool net) {
 }
 
 bool DurationStatistics::EventExpired(DurEvent& event) {
-    auto available_start_ts = report_config.available_start_ts ? report_config.available_start_ts
-                                                               : (Timestamp() - 3 * 24 * 60 * 60);
-    return event.timestamp < available_start_ts;
+    u64 expire_time = 3 * 24 * 60 * 60ul;
+    auto current_config = report_config;
+    if (current_config.available_start_ts && current_config.server_ts &&
+        current_config.server_ts > current_config.available_start_ts) {
+        expire_time = current_config.server_ts - current_config.available_start_ts;
+    }
+    return event.timestamp < (Timestamp() - expire_time * 1000);
 }
 
 u64 DurationStatistics::Timestamp() { return Runtime::Get().Timer().OnlineTimestamp().count(); }
